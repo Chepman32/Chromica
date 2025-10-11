@@ -1,0 +1,10 @@
+uniform shader image;
+uniform float2 offset;
+
+half4 main(float2 coord) {
+  float r = image.eval(coord - offset).r;
+  float g = image.eval(coord).g;
+  float b = image.eval(coord + offset).b;
+  
+  return half4(r, g, b, 1.0);
+}

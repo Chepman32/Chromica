@@ -1,0 +1,14 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float cellSize;
+
+half4 main(float2 coord) {
+  // Snap coordinate to cell center
+  float2 cellCoord = floor(coord / cellSize) * cellSize;
+  float2 cellCenter = cellCoord + cellSize * 0.5;
+  
+  // Sample color from cell center
+  half4 color = image.eval(cellCenter);
+  
+  return color;
+}

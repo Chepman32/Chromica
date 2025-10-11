@@ -1,0 +1,21 @@
+uniform shader image;
+uniform float2 resolution;
+uniform int axis; // 0=horizontal, 1=vertical, 2=both, 3=diagonal
+
+half4 main(float2 coord) {
+  float2 uv = coord / resolution;
+  
+  if (axis == 0) {
+    // Horizontal mirror
+    uv.x = uv.x < 0.5 ? uv.x * 2.0 : (1.0 - uv.x) * 2.0;
+  } else if (axis == 1) {
+    // Vertical mirror
+    uv.y = uv.y < 0.5 ? uv.y * 2.0 : (1.0 - uv.y) * 2.0;
+  } else if (axis == 2) {
+    // Quad mirror (both)
+    uv.x = uv.x < 0.5 ? uv.x * 2.0 : (1.0 - uv.x) * 2.0;
+    uv.y = uv.y < 0.5 ? uv.y * 2.0 : (1.0 - uv.y) * 2.0;
+  }
+  
+  return image.eval(uv * resolution);
+}

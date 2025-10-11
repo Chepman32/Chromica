@@ -1,0 +1,21 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float angle;
+uniform float height;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  // Sample neighboring pixels
+  float angleRad = angle * PI / 180.0;
+  float2 offset = float2(cos(angleRad), sin(angleRad)) * height;
+  
+  half4 c1 = image.eval(coord - offset);
+  half4 c2 = image.eval(coord + offset);
+  
+  // Compute difference
+  float diff = dot(c1.rgb - c2.rgb, half3(0.333));
+  
+  // Map to grayscale with 50% gray as neutral
+  return half4(half3(0.5 + diff), 1.0);
+}

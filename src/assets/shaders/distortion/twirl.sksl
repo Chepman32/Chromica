@@ -1,0 +1,26 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform float angle;
+uniform float radius;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float2 pos = coord - center * resolution;
+  float dist = length(pos) / (radius * max(resolution.x, resolution.y));
+  
+  // Rotation amount decreases with distance
+  float rotAmount = angle * PI / 180.0 * (1.0 - smoothstep(0.0, 1.0, dist));
+  
+  // Rotate position
+  float cosA = cos(rotAmount);
+  float sinA = sin(rotAmount);
+  float2 rotated = float2(
+    pos.x * cosA - pos.y * sinA,
+    pos.x * sinA + pos.y * cosA
+  );
+  
+  float2 newCoord = rotated + center * resolution;
+  return image.eval(newCoord);
+}

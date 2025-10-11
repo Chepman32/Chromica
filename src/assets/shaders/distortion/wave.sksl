@@ -1,0 +1,32 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float amplitude;
+uniform float frequency;
+uniform float phase;
+uniform int direction; // 0=horizontal, 1=vertical, 2=radial
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float2 uv = coord / resolution;
+  float2 displaced = coord;
+  
+  if (direction == 0) {
+    // Horizontal wave
+    float wave = sin(uv.y * frequency * 2.0 * PI + phase * PI / 180.0) * amplitude;
+    displaced = coord + float2(wave, 0);
+  } else if (direction == 1) {
+    // Vertical wave
+    float wave = sin(uv.x * frequency * 2.0 * PI + phase * PI / 180.0) * amplitude;
+    displaced = coord + float2(0, wave);
+  } else if (direction == 2) {
+    // Radial wave
+    float2 center = resolution * 0.5;
+    float dist = distance(coord, center);
+    float wave = sin(dist * frequency * 0.1 + phase * PI / 180.0) * amplitude;
+    float2 dir = normalize(coord - center);
+    displaced = coord + dir * wave;
+  }
+  
+  return image.eval(displaced);
+}

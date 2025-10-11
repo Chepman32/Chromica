@@ -1,0 +1,19 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform float strength;
+uniform float radius;
+
+half4 main(float2 coord) {
+  float2 pos = coord - center * resolution;
+  float dist = length(pos) / (radius * max(resolution.x, resolution.y));
+  
+  // Scale factor based on distance
+  float scale = 1.0;
+  if (dist < 1.0) {
+    scale = 1.0 + strength * (1.0 - dist);
+  }
+  
+  float2 displaced = pos / scale + center * resolution;
+  return image.eval(displaced);
+}

@@ -1,0 +1,33 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float dotSize;
+uniform float angle;
+
+const float PI = 3.14159265359;
+
+float2 rotate(float2 v, float a) {
+  float s = sin(a);
+  float c = cos(a);
+  return float2(v.x * c - v.y * s, v.x * s + v.y * c);
+}
+
+half4 main(float2 coord) {
+  // Rotate coordinates by angle
+  float angleRad = angle * PI / 180.0;
+  float2 rotated = rotate(coord, angleRad);
+  
+  // Calculate grid cell
+  float2 cellCoord = mod(rotated, dotSize);
+  float2 cellCenter = float2(dotSize * 0.5);
+  
+  // Sample luminosity
+  half4 color = image.eval(coord);
+  float lum = dot(color.rgb, half3(0.299, 0.587, 0.114));
+  
+  // Dot radius based on luminosity
+  float radius = lum * dotSize * 0.5;
+  float dist = distance(cellCoord, cellCenter);
+  
+  // Return white or black based on dot radius
+  return dist < radius ? half4(0,0,0,1) : half4(1,1,1,1);
+}

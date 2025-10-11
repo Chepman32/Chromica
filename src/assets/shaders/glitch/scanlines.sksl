@@ -1,0 +1,17 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float lineCount;
+uniform float opacity;
+
+half4 main(float2 coord) {
+  half4 color = image.eval(coord);
+  
+  // Create scanline pattern
+  float line = mod(coord.y, resolution.y / lineCount);
+  float lineValue = line < 0.5 ? 0.0 : 1.0;
+  
+  // Mix with original
+  color.rgb *= mix(1.0, lineValue, opacity);
+  
+  return color;
+}

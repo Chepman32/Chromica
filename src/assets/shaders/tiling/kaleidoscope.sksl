@@ -1,0 +1,31 @@
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform int segments;
+uniform float angle;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  // Translate to center
+  float2 pos = coord - center * resolution;
+  
+  // Convert to polar coordinates
+  float r = length(pos);
+  float theta = atan(pos.y, pos.x) + angle * PI / 180.0;
+  
+  // Fold angle into one segment
+  float segmentAngle = 2.0 * PI / float(segments);
+  theta = mod(theta, segmentAngle);
+  
+  // Mirror if needed
+  if (mod(floor(theta / segmentAngle), 2.0) == 1.0) {
+    theta = segmentAngle - theta;
+  }
+  
+  // Convert back to cartesian
+  float2 newPos = float2(cos(theta), sin(theta)) * r;
+  float2 sampleCoord = newPos + center * resolution;
+  
+  return image.eval(sampleCoord);
+}
