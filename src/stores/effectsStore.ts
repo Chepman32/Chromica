@@ -102,7 +102,7 @@ export const useEffectsStore = create<EffectsState>()(
       history: [[]],
       historyIndex: 0,
       presets: [],
-      isPremium: false,
+      isPremium: true, // Disabled paywall for development
 
       addEffect: (effectId, params) => {
         set(state => {

@@ -19,7 +19,7 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     set => ({
-      isProUser: false,
+      isProUser: true, // Disabled paywall for development
       hasSeenOnboarding: false,
       preferences: {
         defaultExportFormat: 'png',
