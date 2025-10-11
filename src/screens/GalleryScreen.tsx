@@ -20,6 +20,7 @@ import {
   PhotoIdentifier,
 } from '@react-native-camera-roll/camera-roll';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import RNFS from 'react-native-fs';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -75,28 +76,55 @@ export const GalleryScreen: React.FC = () => {
   const handlePhotoPress = async (photo: PhotoIdentifier) => {
     ReactNativeHapticFeedback.trigger('impactLight');
 
-    // Get the actual file URI using image picker
-    // This converts ph:// to a proper file:// URI
-    try {
-      const result = await launchImageLibrary({
-        mediaType: 'photo',
-        quality: 1,
-        selectionLimit: 1,
-      });
+    const phUri = photo.node.image.uri;
+    console.log('Photo selected:', {
+      uri: phUri,
+      width: photo.node.image.width,
+      height: photo.node.image.height,
+    });
 
-      if (result.assets && result.assets[0] && result.assets[0].uri) {
-        navigation.navigate(
-          'Editor' as never,
-          { imageUri: result.assets[0].uri } as never,
-        );
+    // Convert ph:// URI to file:// URI by copying to temp directory
+    try {
+      if (phUri.startsWith('ph://')) {
+        // Extract the asset ID from ph:// URI
+        const assetId = phUri.replace('ph://', '').split('/')[0];
+
+        // Use CameraRoll to get the photo with proper file path
+        const photoData = await CameraRoll.iosGetImageDataById(assetId);
+
+        if (photoData?.node?.image?.filepath) {
+          const fileUri = `file://${photoData.node.image.filepath}`;
+          console.log('Converted to file URI:', fileUri);
+
+          navigation.navigate('Editor' as never, {
+            imageUri: fileUri,
+            imageDimensions: {
+              width: photo.node.image.width,
+              height: photo.node.image.height,
+            },
+          } as never);
+          return;
+        }
       }
+
+      // If not ph:// or conversion failed, use original URI
+      navigation.navigate('Editor' as never, {
+        imageUri: phUri,
+        imageDimensions: {
+          width: photo.node.image.width,
+          height: photo.node.image.height,
+        },
+      } as never);
     } catch (error) {
-      console.error('Error selecting image:', error);
-      // Fallback to original URI
-      navigation.navigate(
-        'Editor' as never,
-        { imageUri: photo.node.image.uri } as never,
-      );
+      console.error('Error converting photo URI:', error);
+      // Fallback: use original URI
+      navigation.navigate('Editor' as never, {
+        imageUri: phUri,
+        imageDimensions: {
+          width: photo.node.image.width,
+          height: photo.node.image.height,
+        },
+      } as never);
     }
   };
 
