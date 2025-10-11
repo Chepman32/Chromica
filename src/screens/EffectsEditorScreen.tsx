@@ -26,6 +26,7 @@ import Animated, {
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
 import { useEffectsStore } from '../stores/effectsStore';
 import { EFFECTS, getEffectsByCategory } from '../domain/effects/registry';
 import { EffectCategory } from '../domain/effects/types';
@@ -46,7 +47,55 @@ export const EffectsEditorScreen: React.FC = () => {
   const route = useRoute();
   const { imageUri } = route.params as { imageUri: string };
 
-  const image = useImage(imageUri);
+  const [fileUri, setFileUri] = useState<string | null>(null);
+  const [loadingImage, setLoadingImage] = useState(true);
+
+  // Convert ph:// URI to file:// URI
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        setLoadingImage(true);
+
+        // For ph:// URIs, try using them directly first
+        // Skia might be able to handle them on iOS
+        if (imageUri.startsWith('ph://')) {
+          console.log('Using ph:// URI directly');
+          setFileUri(imageUri);
+        } else if (imageUri.startsWith('file://')) {
+          setFileUri(imageUri);
+        } else if (imageUri.startsWith('/')) {
+          setFileUri(`file://${imageUri}`);
+        } else {
+          setFileUri(imageUri);
+        }
+      } catch (error) {
+        console.error('Error loading image:', error);
+        setFileUri(imageUri); // Fallback
+      } finally {
+        setLoadingImage(false);
+      }
+    };
+
+    loadImage();
+  }, [imageUri]);
+
+  // Load image with Skia
+  const image = useImage(fileUri || '');
+
+  useEffect(() => {
+    console.log('Original URI:', imageUri);
+    console.log('File URI:', fileUri);
+    if (!image) {
+      console.log('Image not loaded yet...');
+    } else {
+      console.log(
+        'Image loaded successfully:',
+        image.width(),
+        'x',
+        image.height(),
+      );
+    }
+  }, [image, imageUri, fileUri]);
 
   const [selectedCategory, setSelectedCategory] = useState<EffectCategory>(
     EffectCategory.CELLULAR,
@@ -181,12 +230,18 @@ export const EffectsEditorScreen: React.FC = () => {
 
       {/* Canvas Area */}
       <View style={styles.canvasContainer}>
-        <GestureDetector gesture={composedGesture}>
-          <Animated.View style={[styles.canvas, canvasStyle]}>
-            <Canvas
-              style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.5 }}
-            >
-              {image && (
+        {loadingImage || !image ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>
+              {loadingImage ? 'Loading image...' : 'Image not available'}
+            </Text>
+          </View>
+        ) : (
+          <GestureDetector gesture={composedGesture}>
+            <Animated.View style={[styles.canvas, canvasStyle]}>
+              <Canvas
+                style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.5 }}
+              >
                 <SkiaImage
                   image={image}
                   fit="contain"
@@ -195,10 +250,10 @@ export const EffectsEditorScreen: React.FC = () => {
                   width={SCREEN_WIDTH}
                   height={SCREEN_HEIGHT * 0.5}
                 />
-              )}
-            </Canvas>
-          </Animated.View>
-        </GestureDetector>
+              </Canvas>
+            </Animated.View>
+          </GestureDetector>
+        )}
       </View>
 
       {/* Quick Tools Bar */}
@@ -357,6 +412,15 @@ const styles = StyleSheet.create({
   },
   canvas: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    color: '#9CA3AF',
+    fontSize: 16,
   },
   quickTools: {
     flexDirection: 'row',

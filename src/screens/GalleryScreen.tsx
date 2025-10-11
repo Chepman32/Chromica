@@ -72,12 +72,32 @@ export const GalleryScreen: React.FC = () => {
     }
   };
 
-  const handlePhotoPress = (photo: PhotoIdentifier) => {
+  const handlePhotoPress = async (photo: PhotoIdentifier) => {
     ReactNativeHapticFeedback.trigger('impactLight');
-    navigation.navigate(
-      'Editor' as never,
-      { imageUri: photo.node.image.uri } as never,
-    );
+
+    // Get the actual file URI using image picker
+    // This converts ph:// to a proper file:// URI
+    try {
+      const result = await launchImageLibrary({
+        mediaType: 'photo',
+        quality: 1,
+        selectionLimit: 1,
+      });
+
+      if (result.assets && result.assets[0] && result.assets[0].uri) {
+        navigation.navigate(
+          'Editor' as never,
+          { imageUri: result.assets[0].uri } as never,
+        );
+      }
+    } catch (error) {
+      console.error('Error selecting image:', error);
+      // Fallback to original URI
+      navigation.navigate(
+        'Editor' as never,
+        { imageUri: photo.node.image.uri } as never,
+      );
+    }
   };
 
   const handleTakePhoto = async () => {

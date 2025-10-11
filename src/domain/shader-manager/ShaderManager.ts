@@ -6,20 +6,60 @@ import { Skia, SkRuntimeEffect } from '@shopify/react-native-skia';
 import { MMKV } from 'react-native-mmkv';
 
 const shaderCache = new Map<string, SkRuntimeEffect>();
-const storage = new MMKV({ id: 'shader-cache' });
 
-// Shader source files mapping
+// Safe MMKV initialization
+let storage: MMKV | null = null;
+try {
+  storage = new MMKV({ id: 'shader-cache' });
+} catch (error) {
+  console.warn('MMKV initialization failed for shader cache:', error);
+}
+
+// Shader source files - inline for now (will be loaded from files in production)
 const SHADER_SOURCES: Record<string, string> = {
-  'cellular/pixelate.sksl': require('../../assets/shaders/cellular/pixelate.sksl'),
-  'cellular/halftone.sksl': require('../../assets/shaders/cellular/halftone.sksl'),
-  'tiling/kaleidoscope.sksl': require('../../assets/shaders/tiling/kaleidoscope.sksl'),
-  'tiling/mirror.sksl': require('../../assets/shaders/tiling/mirror.sksl'),
-  'distortion/wave.sksl': require('../../assets/shaders/distortion/wave.sksl'),
-  'distortion/twirl.sksl': require('../../assets/shaders/distortion/twirl.sksl'),
-  'distortion/bulge.sksl': require('../../assets/shaders/distortion/bulge.sksl'),
-  'glitch/rgb-split.sksl': require('../../assets/shaders/glitch/rgb-split.sksl'),
-  'glitch/scanlines.sksl': require('../../assets/shaders/glitch/scanlines.sksl'),
-  'relief/emboss.sksl': require('../../assets/shaders/relief/emboss.sksl'),
+  'cellular/pixelate.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float cellSize;
+
+half4 main(float2 coord) {
+  float2 cellCoord = floor(coord / cellSize) * cellSize;
+  float2 cellCenter = cellCoord + cellSize * 0.5;
+  half4 color = image.eval(cellCenter);
+  return color;
+}`,
+  'tiling/kaleidoscope.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform int segments;
+uniform float angle;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float2 pos = coord - center * resolution;
+  float r = length(pos);
+  float theta = atan(pos.y, pos.x) + angle * PI / 180.0;
+  float segmentAngle = 2.0 * PI / float(segments);
+  theta = mod(theta, segmentAngle);
+  if (mod(floor(theta / segmentAngle), 2.0) == 1.0) {
+    theta = segmentAngle - theta;
+  }
+  float2 newPos = float2(cos(theta), sin(theta)) * r;
+  float2 sampleCoord = newPos + center * resolution;
+  return image.eval(sampleCoord);
+}`,
+  'glitch/rgb-split.sksl': `
+uniform shader image;
+uniform float2 offset;
+
+half4 main(float2 coord) {
+  float r = image.eval(coord - offset).r;
+  float g = image.eval(coord).g;
+  float b = image.eval(coord + offset).b;
+  return half4(r, g, b, 1.0);
+}`,
 };
 
 export class ShaderManager {

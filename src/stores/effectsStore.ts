@@ -7,18 +7,41 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { MMKV } from 'react-native-mmkv';
 import { EffectLayer, EffectPreset, BlendMode } from '../domain/effects/types';
 
-const storage = new MMKV({ id: 'effects-store' });
+// Safe MMKV initialization
+let storage: MMKV | null = null;
+
+try {
+  storage = new MMKV({ id: 'effects-store' });
+} catch (error) {
+  console.warn('MMKV initialization failed, using in-memory storage:', error);
+}
 
 const mmkvStorage = {
   getItem: (name: string) => {
-    const value = storage.getString(name);
-    return value ?? null;
+    if (!storage) return null;
+    try {
+      const value = storage.getString(name);
+      return value ?? null;
+    } catch (error) {
+      console.warn('MMKV getItem error:', error);
+      return null;
+    }
   },
   setItem: (name: string, value: string) => {
-    storage.set(name, value);
+    if (!storage) return;
+    try {
+      storage.set(name, value);
+    } catch (error) {
+      console.warn('MMKV setItem error:', error);
+    }
   },
   removeItem: (name: string) => {
-    storage.delete(name);
+    if (!storage) return;
+    try {
+      storage.delete(name);
+    } catch (error) {
+      console.warn('MMKV removeItem error:', error);
+    }
   },
 };
 
