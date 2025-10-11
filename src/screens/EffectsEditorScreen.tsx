@@ -16,6 +16,13 @@ import {
   Canvas,
   Image as SkiaImage,
   useImage,
+  Skia,
+  RuntimeShader,
+  Shader,
+  Group,
+  Rect,
+  Text as SkiaText,
+  matchFont,
 } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
@@ -30,6 +37,9 @@ import RNFS from 'react-native-fs';
 import { useEffectsStore } from '../stores/effectsStore';
 import { EFFECTS, getEffectsByCategory } from '../domain/effects/registry';
 import { EffectCategory } from '../domain/effects/types';
+import { ShaderManager } from '../domain/shader-manager/ShaderManager';
+import { EffectRenderer } from '../components/effects/EffectRenderer';
+import { EffectSlider } from '../components/effects/EffectSlider';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -113,6 +123,18 @@ export const EffectsEditorScreen: React.FC = () => {
     canRedo,
     isPremium,
   } = useEffectsStore();
+
+  // Get the current effect to apply
+  const currentEffect = useMemo(() => {
+    if (!selectedEffectId || effectStack.length === 0) return null;
+    return EFFECTS.find(e => e.id === selectedEffectId);
+  }, [selectedEffectId, effectStack]);
+
+  // Get current effect parameters
+  const currentParams = useMemo(() => {
+    if (effectStack.length === 0) return null;
+    return effectStack[effectStack.length - 1]?.params;
+  }, [effectStack]);
 
   // Canvas transform
   const scale = useSharedValue(1);
@@ -223,7 +245,19 @@ export const EffectsEditorScreen: React.FC = () => {
         <Text style={styles.topBarTitle} numberOfLines={1}>
           {imageUri.split('/').pop()}
         </Text>
-        <TouchableOpacity onPress={() => {}} style={styles.shareButton}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate(
+              'Export' as never,
+              {
+                imageUri: fileUri,
+                effectId: selectedEffectId,
+                params: currentParams,
+              } as never,
+            );
+          }}
+          style={styles.shareButton}
+        >
           <Text style={styles.shareIcon}>↗️</Text>
         </TouchableOpacity>
       </View>
@@ -242,14 +276,36 @@ export const EffectsEditorScreen: React.FC = () => {
               <Canvas
                 style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.5 }}
               >
-                <SkiaImage
+                <EffectRenderer
                   image={image}
-                  fit="contain"
+                  effect={currentEffect}
+                  params={currentParams}
                   x={0}
                   y={0}
                   width={SCREEN_WIDTH}
                   height={SCREEN_HEIGHT * 0.5}
                 />
+
+                {/* Visual indicator when effect is selected */}
+                {selectedEffectId && currentEffect && (
+                  <Group>
+                    <Rect
+                      x={10}
+                      y={10}
+                      width={220}
+                      height={50}
+                      color="rgba(0,0,0,0.8)"
+                      rx={8}
+                    />
+                    <SkiaText
+                      x={20}
+                      y={35}
+                      text={`Effect: ${currentEffect.name}`}
+                      color="white"
+                      size={16}
+                    />
+                  </Group>
+                )}
               </Canvas>
             </Animated.View>
           </GestureDetector>
@@ -288,20 +344,30 @@ export const EffectsEditorScreen: React.FC = () => {
       </View>
 
       {/* Effect Parameters Panel */}
-      {selectedEffect && (
-        <View style={styles.parametersPanel}>
+      {selectedEffect && currentParams && (
+        <ScrollView
+          style={styles.parametersPanel}
+          showsVerticalScrollIndicator={false}
+        >
           <Text style={styles.parametersPanelTitle}>{selectedEffect.name}</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {selectedEffect.parameters.map(param => (
-              <View key={param.name} style={styles.parameterControl}>
-                <Text style={styles.parameterLabel}>{param.label}</Text>
-                {param.type === 'slider' && (
-                  <Text style={styles.parameterValue}>{param.default}</Text>
-                )}
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+          {selectedEffect.parameters.map(param => {
+            if (param.type === 'slider') {
+              const currentValue = currentParams[param.name] ?? param.default;
+              return (
+                <EffectSlider
+                  key={param.name}
+                  label={param.label}
+                  value={currentValue as number}
+                  min={param.min!}
+                  max={param.max!}
+                  step={param.step}
+                  onChange={value => handleParameterChange(param.name, value)}
+                />
+              );
+            }
+            return null;
+          })}
+        </ScrollView>
       )}
 
       {/* Category Tabs */}

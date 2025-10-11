@@ -13,6 +13,7 @@ import HomeScreen from '../screens/HomeScreen';
 import { GalleryScreen } from '../screens/GalleryScreen';
 import EditorScreen from '../screens/EditorScreen';
 import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
+import { ExportScreen } from '../screens/ExportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import PaywallScreen from '../screens/PaywallScreen';
 import ImagePickerScreen from '../screens/ImagePickerScreen';
@@ -25,6 +26,11 @@ export type RootStackParamList = {
     projectId?: string;
     imageUri?: string;
     imageDimensions?: { width: number; height: number };
+  };
+  Export: {
+    imageUri: string;
+    effectId?: string;
+    params?: Record<string, any>;
   };
   Settings: undefined;
   Paywall: undefined;
@@ -75,6 +81,15 @@ export default function AppNavigator() {
             animation: 'slide_from_right',
             gestureEnabled: true,
             gestureDirection: 'horizontal',
+          }}
+        />
+
+        <Stack.Screen
+          name="Export"
+          component={ExportScreen}
+          options={{
+            animation: 'slide_from_bottom',
+            gestureEnabled: true,
           }}
         />
 
