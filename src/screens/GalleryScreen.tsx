@@ -282,6 +282,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: '#1F1F2E',
     marginRight: 8,
+    minHeight: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   filterPillSelected: {
     backgroundColor: '#6366F1',
@@ -290,6 +293,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: '#9CA3AF',
+    textAlign: 'center',
   },
   filterPillTextSelected: {
     color: '#FFFFFF',
