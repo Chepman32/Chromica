@@ -93,10 +93,14 @@ export const GalleryScreen: React.FC = () => {
         const photoData = await CameraRoll.iosGetImageDataById(assetId);
 
         if (photoData?.node?.image?.filepath) {
-          const fileUri = `file://${photoData.node.image.filepath}`;
+          // Check if filepath already has file:// prefix
+          const filepath = photoData.node.image.filepath;
+          const fileUri = filepath.startsWith('file://')
+            ? filepath
+            : `file://${filepath}`;
           console.log('Converted to file URI:', fileUri);
 
-          navigation.navigate('Editor' as never, {
+          navigation.navigate('EffectsEditor' as never, {
             imageUri: fileUri,
             imageDimensions: {
               width: photo.node.image.width,
@@ -108,22 +112,14 @@ export const GalleryScreen: React.FC = () => {
       }
 
       // If not ph:// or conversion failed, use original URI
-      navigation.navigate('Editor' as never, {
+      navigation.navigate('EffectsEditor' as never, {
         imageUri: phUri,
-        imageDimensions: {
-          width: photo.node.image.width,
-          height: photo.node.image.height,
-        },
       } as never);
     } catch (error) {
       console.error('Error converting photo URI:', error);
       // Fallback: use original URI
-      navigation.navigate('Editor' as never, {
+      navigation.navigate('EffectsEditor' as never, {
         imageUri: phUri,
-        imageDimensions: {
-          width: photo.node.image.width,
-          height: photo.node.image.height,
-        },
       } as never);
     }
   };
