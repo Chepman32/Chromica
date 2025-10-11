@@ -238,16 +238,27 @@ export const SkiaCanvas: React.FC<SkiaCanvasProps> = ({
             ]}
           >
             {sourceImage && (
-              <SkiaImage
-                image={sourceImage}
-                x={0}
-                y={0}
-                width={canvasWidth}
-                height={canvasHeight}
-                fit="contain"
-              >
-                {colorMatrix && <ColorMatrix matrix={colorMatrix} />}
-              </SkiaImage>
+              colorMatrix ? (
+                <ColorMatrix matrix={colorMatrix}>
+                  <SkiaImage
+                    image={sourceImage}
+                    x={0}
+                    y={0}
+                    width={canvasWidth}
+                    height={canvasHeight}
+                    fit="contain"
+                  />
+                </ColorMatrix>
+              ) : (
+                <SkiaImage
+                  image={sourceImage}
+                  x={0}
+                  y={0}
+                  width={canvasWidth}
+                  height={canvasHeight}
+                  fit="contain"
+                />
+              )
             )}
           </Canvas>
         </View>
