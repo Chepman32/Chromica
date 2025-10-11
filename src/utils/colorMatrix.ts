@@ -118,28 +118,7 @@ const contrastMatrix = (value: number): Matrix => {
   const c = clamp(value, 0, 4);
   const t = 0.5 * (1 - c);
 
-  return [
-    c,
-    0,
-    0,
-    0,
-    t,
-    0,
-    c,
-    0,
-    0,
-    t,
-    0,
-    0,
-    c,
-    0,
-    t,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ] as Matrix;
+  return [c, 0, 0, 0, t, 0, c, 0, 0, t, 0, 0, c, 0, t, 0, 0, 0, 1, 0] as Matrix;
 };
 
 const brightnessMatrix = (value: number): Matrix => {
@@ -174,28 +153,7 @@ const rgbScaleMatrix = (red: number, green: number, blue: number): Matrix => {
   const g = clamp(green, 0, 4);
   const b = clamp(blue, 0, 4);
 
-  return [
-    r,
-    0,
-    0,
-    0,
-    0,
-    0,
-    g,
-    0,
-    0,
-    0,
-    0,
-    0,
-    b,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ] as Matrix;
+  return [r, 0, 0, 0, 0, 0, g, 0, 0, 0, 0, 0, b, 0, 0, 0, 0, 0, 1, 0] as Matrix;
 };
 
 const channelOffsetMatrix = (
@@ -207,28 +165,7 @@ const channelOffsetMatrix = (
   const g = clamp(green, -1, 1);
   const b = clamp(blue, -1, 1);
 
-  return [
-    1,
-    0,
-    0,
-    0,
-    r,
-    0,
-    1,
-    0,
-    0,
-    g,
-    0,
-    0,
-    1,
-    0,
-    b,
-    0,
-    0,
-    0,
-    1,
-    0,
-  ] as Matrix;
+  return [1, 0, 0, 0, r, 0, 1, 0, 0, g, 0, 0, 1, 0, b, 0, 0, 0, 1, 0] as Matrix;
 };
 
 const instagramMatrices: Partial<Record<ImageFilter['type'], Matrix>> = {
@@ -339,6 +276,56 @@ const BASE_FILTER_MATRICES: Partial<Record<ImageFilter['type'], Matrix>> = {
     contrastMatrix(1.05),
     rgbScaleMatrix(1.2, 1.05, 0.9),
     channelOffsetMatrix(0.03, 0.02, -0.01),
+  ),
+  // Premium filters
+  cinematic: composeMatrices(
+    saturationMatrix(0.9),
+    contrastMatrix(1.2),
+    rgbScaleMatrix(1.1, 1.0, 0.95),
+    channelOffsetMatrix(0.0, 0.02, 0.05),
+  ),
+  film: composeMatrices(
+    saturationMatrix(0.85),
+    contrastMatrix(1.05),
+    brightnessMatrix(0.05),
+    rgbScaleMatrix(0.98, 0.98, 0.98),
+  ),
+  hdr: composeMatrices(
+    saturationMatrix(1.4),
+    contrastMatrix(1.3),
+    brightnessMatrix(-0.05),
+    rgbScaleMatrix(1.15, 1.15, 1.15),
+  ),
+  portrait: composeMatrices(
+    saturationMatrix(1.05),
+    contrastMatrix(0.95),
+    brightnessMatrix(0.05),
+    rgbScaleMatrix(1.1, 1.0, 0.95),
+    channelOffsetMatrix(0.03, 0.02, 0.0),
+  ),
+  landscape: composeMatrices(
+    saturationMatrix(1.25),
+    contrastMatrix(1.1),
+    rgbScaleMatrix(1.0, 1.15, 1.15),
+    channelOffsetMatrix(0.0, 0.02, 0.02),
+  ),
+  neon: composeMatrices(
+    saturationMatrix(1.8),
+    contrastMatrix(1.4),
+    brightnessMatrix(0.1),
+    rgbScaleMatrix(1.3, 1.3, 1.3),
+  ),
+  cyberpunk: composeMatrices(
+    saturationMatrix(1.3),
+    contrastMatrix(1.25),
+    rgbScaleMatrix(1.0, 1.1, 1.3),
+    channelOffsetMatrix(0.0, 0.05, 0.1),
+  ),
+  retro: composeMatrices(
+    saturationMatrix(1.2),
+    contrastMatrix(1.15),
+    rgbScaleMatrix(1.2, 0.95, 1.1),
+    channelOffsetMatrix(0.05, 0.0, 0.03),
   ),
   ...instagramMatrices,
 };

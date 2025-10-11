@@ -16,6 +16,8 @@ import { Typography } from '../../constants/typography';
 import { Spacing } from '../../constants/spacing';
 import { useAppStore } from '../../stores/appStore';
 import { useNavigation } from '@react-navigation/native';
+import { COLOR_FILTERS, getFilterById } from '../../domain/effects/filters';
+import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 
 const { width: screenWidth } = Dimensions.get('window');
 const FILTER_COLUMNS = 3;
@@ -56,35 +58,6 @@ const getFilterPreviewStyle = (filterId: string) => {
   }
 };
 
-interface Filter {
-  id: string;
-  name: string;
-  preview: string; // Base64 or URI for preview
-  isPro: boolean;
-  intensity?: number; // 0-1
-}
-
-// Mock filter data - would be replaced with actual Skia shader implementations
-const FILTERS: Filter[] = [
-  // Free filters
-  { id: 'none', name: 'Original', preview: '', isPro: false },
-  { id: 'bw', name: 'Black & White', preview: '', isPro: false },
-  { id: 'sepia', name: 'Sepia', preview: '', isPro: false },
-  { id: 'vintage', name: 'Vintage', preview: '', isPro: false },
-  { id: 'cool', name: 'Cool', preview: '', isPro: false },
-  { id: 'warm', name: 'Warm', preview: '', isPro: false },
-
-  // Pro filters
-  { id: 'cinematic', name: 'Cinematic', preview: '', isPro: true },
-  { id: 'film', name: 'Film Grain', preview: '', isPro: true },
-  { id: 'hdr', name: 'HDR', preview: '', isPro: true },
-  { id: 'portrait', name: 'Portrait', preview: '', isPro: true },
-  { id: 'landscape', name: 'Landscape', preview: '', isPro: true },
-  { id: 'neon', name: 'Neon', preview: '', isPro: true },
-  { id: 'cyberpunk', name: 'Cyberpunk', preview: '', isPro: true },
-  { id: 'retro', name: 'Retro Wave', preview: '', isPro: true },
-];
-
 interface FilterToolModalProps {
   visible: boolean;
   onClose: () => void;
@@ -101,9 +74,7 @@ export const FilterToolModal: React.FC<FilterToolModalProps> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('none');
   const [intensity, setIntensity] = useState<number>(1.0);
 
-  const availableFilters = FILTERS.filter(filter => isProUser || !filter.isPro);
-
-  const handleFilterPress = (filter: Filter) => {
+  const handleFilterPress = (filter: (typeof COLOR_FILTERS)[0]) => {
     if (filter.isPro && !isProUser) {
       // Navigate to paywall
       onClose();
@@ -111,15 +82,17 @@ export const FilterToolModal: React.FC<FilterToolModalProps> = ({
       return;
     }
 
+    ReactNativeHapticFeedback.trigger('selection');
     setSelectedFilter(filter.id);
   };
 
   const handleApply = () => {
+    ReactNativeHapticFeedback.trigger('impactMedium');
     onApply(selectedFilter, intensity);
     onClose();
   };
 
-  const renderFilter = ({ item }: { item: Filter }) => {
+  const renderFilter = ({ item }: { item: (typeof COLOR_FILTERS)[0] }) => {
     const isSelected = selectedFilter === item.id;
     const isLocked = item.isPro && !isProUser;
 
@@ -136,6 +109,7 @@ export const FilterToolModal: React.FC<FilterToolModalProps> = ({
               styles.previewPlaceholder,
               isLocked && styles.previewPlaceholderLocked,
               getFilterPreviewStyle(item.id),
+              isSelected && styles.previewPlaceholderSelected,
             ]}
           >
             <Text style={styles.previewText}>{item.name.charAt(0)}</Text>
@@ -194,7 +168,7 @@ export const FilterToolModal: React.FC<FilterToolModalProps> = ({
 
         {/* Filter Grid */}
         <FlatList
-          data={availableFilters}
+          data={COLOR_FILTERS}
           renderItem={renderFilter}
           keyExtractor={item => item.id}
           numColumns={FILTER_COLUMNS}
@@ -279,6 +253,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+  },
+  previewPlaceholderSelected: {
+    borderColor: Colors.accent.primary,
+    borderWidth: 3,
   },
   previewPlaceholderLocked: {
     opacity: 0.4,
