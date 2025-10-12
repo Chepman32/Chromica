@@ -338,6 +338,7 @@ export const EFFECTS: Effect[] = [
         step: 0.01,
       },
     ],
+    shaderPath: 'distortion/pinch.sksl',
   },
   {
     id: 'spherize',
@@ -358,6 +359,7 @@ export const EFFECTS: Effect[] = [
         step: 0.01,
       },
     ],
+    shaderPath: 'distortion/spherize.sksl',
   },
   {
     id: 'shear',
@@ -378,6 +380,7 @@ export const EFFECTS: Effect[] = [
         step: 1,
       },
     ],
+    shaderPath: 'distortion/shear.sksl',
   },
   {
     id: 'noise-displace',
@@ -398,6 +401,7 @@ export const EFFECTS: Effect[] = [
         step: 1,
       },
     ],
+    shaderPath: 'distortion/noise-displace.sksl',
   },
 
   // GLITCH EFFECTS
@@ -654,6 +658,7 @@ export const EFFECTS: Effect[] = [
     description: 'Soft Gaussian blur with adjustable radius',
     isPremium: false,
     complexity: 0.3,
+    icon: require('../../assets/icons/filters/icon_effects_A/Gaussian_Blur.png'),
     parameters: [
       {
         name: 'radius',
@@ -682,6 +687,7 @@ export const EFFECTS: Effect[] = [
     description: 'Directional motion blur',
     isPremium: true,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/Motion_Blur.png'),
     parameters: [
       {
         name: 'distance',
@@ -710,6 +716,7 @@ export const EFFECTS: Effect[] = [
     description: 'Edge-preserving blur for surfaces',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Surface_Blur.png'),
     parameters: [
       {
         name: 'radius',
@@ -730,6 +737,7 @@ export const EFFECTS: Effect[] = [
         step: 0.01,
       },
     ],
+    shaderPath: 'blur/surface-blur.sksl',
   },
   {
     id: 'unsharp-mask',
@@ -738,6 +746,7 @@ export const EFFECTS: Effect[] = [
     description: 'Sharpen details using unsharp masking',
     isPremium: false,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/icon_effects_A/Unsharp_Sharpen.png'),
     parameters: [
       {
         name: 'amount',
@@ -758,6 +767,7 @@ export const EFFECTS: Effect[] = [
         step: 1,
       },
     ],
+    shaderPath: 'blur/unsharp-mask.sksl',
   },
 
   // ARTISTIC BRUSH EFFECTS
@@ -768,6 +778,7 @@ export const EFFECTS: Effect[] = [
     description: 'Enhance and accentuate edges for sketch look',
     isPremium: false,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/icon_effects_A/Accented_Edges.png'),
     parameters: [
       {
         name: 'strength',
@@ -796,6 +807,7 @@ export const EFFECTS: Effect[] = [
     description: 'Layered hatch strokes based on luminance',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Cross_Hatch.png'),
     parameters: [
       {
         name: 'density',
@@ -824,6 +836,7 @@ export const EFFECTS: Effect[] = [
     description: 'Bold ink outlines with smooth fill',
     isPremium: true,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/Ink_Outlines.png'),
     parameters: [
       {
         name: 'threshold',
@@ -852,6 +865,7 @@ export const EFFECTS: Effect[] = [
     description: 'Randomized sprayed strokes',
     isPremium: true,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/Spatter_Sprayed.png'),
     parameters: [
       {
         name: 'density',
@@ -880,6 +894,7 @@ export const EFFECTS: Effect[] = [
     description: 'Monochrome japanese ink wash look',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Sumi_e.png'),
     parameters: [
       {
         name: 'ink',
@@ -908,6 +923,7 @@ export const EFFECTS: Effect[] = [
     description: 'Glossy highlights like plastic wrap',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Plastic_Wrap.png'),
     parameters: [
       {
         name: 'highlight',
@@ -938,6 +954,7 @@ export const EFFECTS: Effect[] = [
     description: 'Smoothing filter that preserves edges',
     isPremium: false,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/Reduce_Noise.png'),
     parameters: [
       {
         name: 'strength',
@@ -958,6 +975,7 @@ export const EFFECTS: Effect[] = [
         step: 0.01,
       },
     ],
+    shaderPath: 'noise/reduce-noise.sksl',
   },
   {
     id: 'clouds-fibers',
@@ -966,6 +984,7 @@ export const EFFECTS: Effect[] = [
     description: 'Procedural clouds and fibers texture',
     isPremium: false,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/icon_effects_A/Clouds.png'),
     parameters: [
       {
         name: 'scale',
@@ -994,6 +1013,7 @@ export const EFFECTS: Effect[] = [
     description: 'Edge-aware smoothing filter',
     isPremium: true,
     complexity: 0.7,
+    icon: require('../../assets/icons/filters/icon_effects_A/Bilateral_Filter_Approx.png'),
     parameters: [
       {
         name: 'radius',
@@ -1031,6 +1051,7 @@ export const EFFECTS: Effect[] = [
     description: 'Median smoothing for impulse noise',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Median_Filter.png'),
     parameters: [
       {
         name: 'radius',
@@ -1052,6 +1073,7 @@ export const EFFECTS: Effect[] = [
     description: 'Organic liquify distortion',
     isPremium: true,
     complexity: 0.7,
+    icon: require('../../assets/icons/filters/icon_effects_A/Liquify_Swirl.png'),
     parameters: [
       {
         name: 'amount',
@@ -1080,6 +1102,7 @@ export const EFFECTS: Effect[] = [
     description: 'Adjust barrel or pincushion lens distortion',
     isPremium: false,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/icon_effects_A/Lens_Correction_Barrel.png'),
     parameters: [
       {
         name: 'distortion',
@@ -1110,6 +1133,7 @@ export const EFFECTS: Effect[] = [
     description: 'Emphasize high-frequency detail',
     isPremium: false,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/High_Pass_Sharpen.png'),
     parameters: [
       {
         name: 'radius',
@@ -1138,6 +1162,7 @@ export const EFFECTS: Effect[] = [
     description: 'Remove high-frequency noise',
     isPremium: false,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/icon_effects_A/Low_Pass_Blur.png'),
     parameters: [
       {
         name: 'radius',
@@ -1157,6 +1182,7 @@ export const EFFECTS: Effect[] = [
     description: 'Directional gradient emphasis',
     isPremium: true,
     complexity: 0.5,
+    icon: require('../../assets/icons/filters/icon_effects_A/Gradient_Filter_Map.png'),
     parameters: [
       {
         name: 'angle',
@@ -1185,6 +1211,7 @@ export const EFFECTS: Effect[] = [
     description: 'Frequency domain style mask',
     isPremium: true,
     complexity: 0.7,
+    icon: require('../../assets/icons/filters/icon_effects_A/Fourier_Lowpass.png'),
     parameters: [
       {
         name: 'band',
@@ -1215,6 +1242,7 @@ export const EFFECTS: Effect[] = [
     description: 'Procedural flame-like energy overlay',
     isPremium: true,
     complexity: 0.7,
+    icon: require('../../assets/icons/filters/icon_effects_A/Flame_Render.png'),
     parameters: [
       {
         name: 'intensity',
@@ -1243,6 +1271,7 @@ export const EFFECTS: Effect[] = [
     description: 'Procedural soft clouds overlay',
     isPremium: false,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/icon_effects_A/Render_Clouds.png'),
     parameters: [
       {
         name: 'scale',

@@ -13,6 +13,7 @@ import {
 } from '@shopify/react-native-skia';
 import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import { Effect } from '../../domain/effects/types';
+import { ShaderManager } from '../../domain/shader-manager/ShaderManager';
 
 const COMMON_NOISE_SNIPPET = `
 float rand(float2 co) {
@@ -88,6 +89,42 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         return {
           source: runtimeEffect,
           uniforms,
+        };
+      };
+
+      const buildUniformsFromParams = (): Record<string, number | number[]> => {
+        const uniforms: Record<string, number | number[]> = {
+          resolution: [width, height],
+        };
+
+        effect.parameters.forEach(param => {
+          const value = params[param.name] ?? param.default;
+
+          if (typeof value === 'number') {
+            uniforms[param.name] = value;
+          } else if (typeof value === 'boolean') {
+            uniforms[param.name] = value ? 1 : 0;
+          } else if (typeof value === 'string' && param.options) {
+            const index = param.options.indexOf(value);
+            uniforms[param.name] = index >= 0 ? index : 0;
+          }
+        });
+
+        return uniforms;
+      };
+
+      const compileFromShaderPath = (path: string): ShaderData | null => {
+        const runtimeEffect = ShaderManager.loadShader(path);
+        if (!runtimeEffect) {
+          console.error(
+            `Failed to load shader for effect ${effect.id} using path ${path}`,
+          );
+          return null;
+        }
+
+        return {
+          source: runtimeEffect,
+          uniforms: buildUniformsFromParams(),
         };
       };
 
@@ -451,6 +488,16 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             strength,
             radius,
           });
+        }
+
+        case 'pinch':
+        case 'spherize':
+        case 'shear':
+        case 'noise-displace': {
+          if (!effect.shaderPath) {
+            return null;
+          }
+          return compileFromShaderPath(effect.shaderPath);
         }
 
         case 'scanlines': {
@@ -896,108 +943,13 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
-        case 'surface-blur': {
-          const radius = Math.max(params.radius ?? 12, 1);
-          const threshold = Math.max(params.threshold ?? 0.2, 0);
-
-          const source = `
-            uniform shader image;
-            uniform float radius;
-            uniform float threshold;
-            uniform float2 resolution;
-            const int MAX_KERNEL = 40;
-
-            half4 main(float2 coord) {
-              float2 size = max(resolution, float2(1.0));
-              float2 clamped = clamp(coord, float2(0.0), size - float2(1.0));
-              half4 center = image.eval(clamped);
-              float r = max(radius, 1.0);
-              float t = clamp(threshold, 0.0, 1.0);
-
-              half4 accum = center;
-              float weightSum = 1.0;
-
-              for (int x = -MAX_KERNEL; x <= MAX_KERNEL; ++x) {
-                for (int y = -MAX_KERNEL; y <= MAX_KERNEL; ++y) {
-                  if (x == 0 && y == 0) {
-                    continue;
-                  }
-
-                  float2 offset = float2(float(x), float(y));
-                  float dist = length(offset);
-                  if (dist > r) {
-                    continue;
-                  }
-
-                  float2 sampleCoord = clamp(clamped + offset, float2(0.0), size - float2(1.0));
-                  half4 sample = image.eval(sampleCoord);
-                  float diff = length(sample.rgb - center.rgb);
-                  float falloff = exp(-dist / r);
-                  float weight = falloff * exp(-diff * 20.0);
-
-                  if (diff > t) {
-                    weight *= 0.1;
-                  }
-
-                  accum += sample * weight;
-                  weightSum += weight;
-                }
-              }
-
-              return accum / max(weightSum, 0.001);
-            }
-          `;
-
-          return compile(source, {
-            radius,
-            threshold,
-            resolution: [width, height],
-          });
-        }
-
-        case 'unsharp-mask': {
-          const amount = params.amount ?? 0.6;
-          const radius = Math.max(params.radius ?? 8, 1);
-
-          const source = `
-            uniform shader image;
-            uniform float amount;
-            uniform float radius;
-            uniform float2 resolution;
-
-            half4 main(float2 coord) {
-              float2 size = max(resolution, float2(1.0));
-              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
-              float r = max(radius, 1.0);
-              float2 step = float2(r);
-
-              half4 center = image.eval(centerCoord);
-              half4 c00 = image.eval(clamp(centerCoord + float2(-step.x, -step.y), float2(0.0), size - float2(1.0)));
-              half4 c01 = image.eval(clamp(centerCoord + float2(0.0, -step.y), float2(0.0), size - float2(1.0)));
-              half4 c02 = image.eval(clamp(centerCoord + float2(step.x, -step.y), float2(0.0), size - float2(1.0)));
-              half4 c10 = image.eval(clamp(centerCoord + float2(-step.x, 0.0), float2(0.0), size - float2(1.0)));
-              half4 c12 = image.eval(clamp(centerCoord + float2(step.x, 0.0), float2(0.0), size - float2(1.0)));
-              half4 c20 = image.eval(clamp(centerCoord + float2(-step.x, step.y), float2(0.0), size - float2(1.0)));
-              half4 c21 = image.eval(clamp(centerCoord + float2(0.0, step.y), float2(0.0), size - float2(1.0)));
-              half4 c22 = image.eval(clamp(centerCoord + float2(step.x, step.y), float2(0.0), size - float2(1.0)));
-
-              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
-              blur += (c01 + c10 + c12 + c21) * 0.125;
-              blur += center * 0.25;
-
-              half4 detail = center - blur;
-              float amt = clamp(amount, 0.0, 2.0);
-              float3 sharpened = clamp(center.rgb + detail.rgb * amt, 0.0, 1.0);
-
-              return half4(sharpened, center.a);
-            }
-          `;
-
-          return compile(source, {
-            amount,
-            radius,
-            resolution: [width, height],
-          });
+        case 'surface-blur':
+        case 'unsharp-mask':
+        case 'reduce-noise': {
+          if (!effect.shaderPath) {
+            return null;
+          }
+          return compileFromShaderPath(effect.shaderPath);
         }
 
         case 'accented-edges': {
@@ -1268,57 +1220,6 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           return compile(source, {
             highlight,
             detail,
-          });
-        }
-
-        case 'reduce-noise': {
-          const strength = params.strength ?? 0.4;
-          const threshold = params.threshold ?? 0.2;
-
-          const source = `
-            uniform shader image;
-            uniform float strength;
-            uniform float threshold;
-            uniform float2 resolution;
-            const int NOISE_RADIUS = 3;
-
-            half4 main(float2 coord) {
-              float2 size = max(resolution, float2(1.0));
-              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
-              half4 center = image.eval(centerCoord);
-              float3 accum = center.rgb;
-              float weightSum = 1.0;
-
-              for (int x = -NOISE_RADIUS; x <= NOISE_RADIUS; ++x) {
-                for (int y = -NOISE_RADIUS; y <= NOISE_RADIUS; ++y) {
-                  if (x == 0 && y == 0) {
-                    continue;
-                  }
-
-                  float2 offset = float2(float(x), float(y));
-                  float2 sampleCoord = clamp(centerCoord + offset, float2(0.0), size - float2(1.0));
-                  half4 sample = image.eval(sampleCoord);
-                  float diff = length(sample.rgb - center.rgb);
-
-                  if (diff < threshold) {
-                    float weight = exp(-diff * 10.0);
-                    accum += sample.rgb * weight;
-                    weightSum += weight;
-                  }
-                }
-              }
-
-              float3 smooth = accum / max(weightSum, 0.001);
-              float3 result = mix(center.rgb, smooth, clamp(strength, 0.0, 1.0));
-
-              return half4(result, center.a);
-            }
-          `;
-
-          return compile(source, {
-            strength,
-            threshold,
-            resolution: [width, height],
           });
         }
 
