@@ -283,6 +283,10 @@ export const EffectsEditorScreen: React.FC = () => {
           >
             <Text style={[styles.topToolIcon, !canRedo() && styles.topToolIconDisabled]}>↷</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity onPress={handleReset} style={styles.topToolButton}>
+            <Text style={styles.topToolIcon}>↺</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -352,108 +356,106 @@ export const EffectsEditorScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Quick Tools Bar */}
-      <View style={styles.quickTools}>
-        <TouchableOpacity onPress={() => {}} style={styles.toolButton}>
-          <Text style={styles.toolIcon}>👁</Text>
-          <Text style={styles.toolLabel}>Compare</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleReset} style={styles.toolButton}>
-          <Text style={styles.toolIcon}>↺</Text>
-          <Text style={styles.toolLabel}>Reset</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Effect Parameters Panel */}
-      {selectedEffect && currentParams && (
-        <ScrollView
-          style={styles.parametersPanel}
-          showsVerticalScrollIndicator={false}
-        >
-          <Text style={styles.parametersPanelTitle}>{selectedEffect.name}</Text>
-          {selectedEffect.parameters.map(param => {
-            if (param.type === 'slider') {
-              const currentValue = currentParams[param.name] ?? param.default;
-              return (
-                <EffectSlider
-                  key={param.name}
-                  label={param.label}
-                  value={currentValue as number}
-                  min={param.min!}
-                  max={param.max!}
-                  step={param.step}
-                  onChange={value => handleParameterChange(param.name, value)}
-                />
-              );
-            }
-            return null;
-          })}
-        </ScrollView>
-      )}
-
-      {/* Category Tabs */}
+      {/* Bottom Panel - Snap Scroll Container */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoryTabs}
-        contentContainerStyle={styles.categoryTabsContent}
+        style={styles.bottomPanel}
+        showsVerticalScrollIndicator={false}
+        snapToInterval={SCREEN_HEIGHT * 0.3}
+        decelerationRate="fast"
+        snapToAlignment="start"
       >
-        {CATEGORIES.map(category => (
-          <TouchableOpacity
-            key={category.id}
-            onPress={() => {
-              setSelectedCategory(category.id);
-              ReactNativeHapticFeedback.trigger('selection');
-            }}
-            style={[
-              styles.categoryTab,
-              selectedCategory === category.id && styles.categoryTabSelected,
-            ]}
-          >
-            <Text style={styles.categoryIcon}>{category.icon}</Text>
-            <Text
-              style={[
-                styles.categoryLabel,
-                selectedCategory === category.id &&
-                  styles.categoryLabelSelected,
-              ]}
+        {/* First Page: Category Tabs + Effects Grid */}
+        <View style={styles.effectsPage}>
+          {/* Category Tabs */}
+          <View style={styles.categoryTabsContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryTabsContent}
             >
-              {category.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              {CATEGORIES.map(category => (
+                <TouchableOpacity
+                  key={category.id}
+                  onPress={() => {
+                    setSelectedCategory(category.id);
+                    ReactNativeHapticFeedback.trigger('selection');
+                  }}
+                  style={[
+                    styles.categoryTab,
+                    selectedCategory === category.id && styles.categoryTabSelected,
+                  ]}
+                >
+                  <Text style={styles.categoryIcon}>{category.icon}</Text>
+                  <Text
+                    style={[
+                      styles.categoryLabel,
+                      selectedCategory === category.id &&
+                        styles.categoryLabelSelected,
+                    ]}
+                  >
+                    {category.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
-      {/* Effects Grid */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.effectsGrid}
-        contentContainerStyle={styles.effectsGridContent}
-      >
-        {categoryEffects.map(effect => (
-          <TouchableOpacity
-            key={effect.id}
-            onPress={() => handleEffectSelect(effect.id)}
-            style={[
-              styles.effectCard,
-              selectedEffectId === effect.id && styles.effectCardSelected,
-            ]}
-          >
-            <View style={styles.effectPreview}>
-              <Text style={styles.effectPreviewIcon}>
-                {effect.category === EffectCategory.CELLULAR ? '⬛' : '🎨'}
-              </Text>
-            </View>
-            <Text style={styles.effectName}>{effect.name}</Text>
-            {effect.isPremium && !isPremium && (
-              <View style={styles.premiumBadge}>
-                <Text style={styles.premiumBadgeText}>PRO</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        ))}
+          {/* Effects Grid */}
+          <View style={styles.effectsGridContainer}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.effectsGridContent}
+            >
+              {categoryEffects.map(effect => (
+                <TouchableOpacity
+                  key={effect.id}
+                  onPress={() => handleEffectSelect(effect.id)}
+                  style={[
+                    styles.effectCard,
+                    selectedEffectId === effect.id && styles.effectCardSelected,
+                  ]}
+                >
+                  <View style={styles.effectPreview}>
+                    <Text style={styles.effectPreviewIcon}>
+                      {effect.category === EffectCategory.CELLULAR ? '⬛' : '🎨'}
+                    </Text>
+                  </View>
+                  <Text style={styles.effectName}>{effect.name}</Text>
+                  {effect.isPremium && !isPremium && (
+                    <View style={styles.premiumBadge}>
+                      <Text style={styles.premiumBadgeText}>PRO</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Second Page: Effect Parameters */}
+        {selectedEffect && currentParams && (
+          <View style={styles.parametersPage}>
+            <Text style={styles.parametersPanelTitle}>{selectedEffect.name}</Text>
+            {selectedEffect.parameters.map(param => {
+              if (param.type === 'slider') {
+                const currentValue = currentParams[param.name] ?? param.default;
+                return (
+                  <EffectSlider
+                    key={param.name}
+                    label={param.label}
+                    value={currentValue as number}
+                    min={param.min!}
+                    max={param.max!}
+                    step={param.step}
+                    onChange={value => handleParameterChange(param.name, value)}
+                  />
+                );
+              }
+              return null;
+            })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -552,17 +554,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#9CA3AF',
   },
-  parametersPanel: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#1F1F2E',
-  },
   parametersPanelTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   parameterControl: {
     marginRight: 16,
@@ -577,55 +573,73 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
   },
-  categoryTabs: {
-    maxHeight: 70,
+  bottomPanel: {
+    flex: 1,
+  },
+  effectsPage: {
+    height: SCREEN_HEIGHT * 0.3,
+  },
+  parametersPage: {
+    height: SCREEN_HEIGHT * 0.3,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  categoryTabsContainer: {
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#1F1F2E',
   },
   categoryTabsContent: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: 8,
   },
   categoryTab: {
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     marginRight: 8,
-    borderRadius: 12,
+    borderRadius: 20,
     backgroundColor: '#1F1F2E',
+    minWidth: 100,
+    minHeight: 44,
   },
   categoryTabSelected: {
     backgroundColor: '#6366F1',
   },
   categoryIcon: {
     fontSize: 20,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   categoryLabel: {
-    fontSize: 11,
+    fontSize: 12,
     color: '#9CA3AF',
     fontWeight: '600',
   },
   categoryLabelSelected: {
     color: '#FFFFFF',
   },
-  effectsGrid: {
-    flex: 1,
+  effectsGridContainer: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1F1F2E',
   },
   effectsGridContent: {
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    gap: 12,
   },
   effectCard: {
-    width: 100,
+    width: 120,
     marginRight: 12,
-    borderRadius: 12,
+    borderRadius: 16,
     backgroundColor: '#1F1F2E',
     overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   effectCardSelected: {
-    borderWidth: 2,
     borderColor: '#6366F1',
+    backgroundColor: '#2A2A4E',
   },
   effectPreview: {
     width: '100%',
@@ -635,14 +649,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A2A3E',
   },
   effectPreviewIcon: {
-    fontSize: 32,
+    fontSize: 36,
   },
   effectName: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '600',
     color: '#FFFFFF',
     textAlign: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
   },
   premiumBadge: {
     position: 'absolute',
