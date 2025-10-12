@@ -264,6 +264,9 @@ This is a commercial project. For bug reports or feature requests, please contac
 
 Built with ❤️ using React Native
 
-TODO: fix these effects (it just shows a small black rectangle with no effects when these ones are chosen):
-- Scanlines
-- Oil Paint
+TODO: fix these effects (it just shows a small black rectangle with no effects when these ones are chosen or work wrong):
+- Frequences > Gradient Filter
+- Style > Oil Paint (it looks like just blurred)
+Render > Flame (not flame now)
+- Blur > Motion blur (remove blac rectangle)
+- Blur > Surface blur

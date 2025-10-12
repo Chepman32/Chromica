@@ -54,7 +54,6 @@ const CATEGORIES = [
   { id: EffectCategory.RELIEF, label: 'Relief', icon: '🔲' },
   { id: EffectCategory.STYLIZATION, label: 'Style', icon: '🎨' },
   { id: EffectCategory.BRUSH, label: 'Brush', icon: 'INK' },
-  { id: EffectCategory.NOISE_TEXTURE, label: 'Texture', icon: 'TXT' },
   { id: EffectCategory.FREQUENCY, label: 'Frequency', icon: 'FQ' },
   { id: EffectCategory.RENDER, label: 'Render', icon: 'RND' },
 ];
