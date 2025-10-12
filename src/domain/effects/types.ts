@@ -9,6 +9,12 @@ export enum EffectCategory {
   RELIEF = 'relief',
   GLITCH = 'glitch',
   STYLIZATION = 'stylization',
+  BLUR_SHARPEN = 'blur-sharpen',
+  BRUSH = 'brush',
+  NOISE_TEXTURE = 'noise-texture',
+  CORRECTION = 'correction',
+  FREQUENCY = 'frequency',
+  RENDER = 'render',
 }
 
 export enum BlendMode {

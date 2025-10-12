@@ -7,9 +7,6 @@ import React, { useMemo } from 'react';
 import {
   Image as SkiaImage,
   Skia,
-  Paint,
-  ColorMatrix,
-  Blur,
   Shader,
   ImageShader,
   Fill,
@@ -17,6 +14,39 @@ import {
 import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import { Effect } from '../../domain/effects/types';
 
+const COMMON_NOISE_SNIPPET = `
+float rand(float2 co) {
+  return fract(sin(dot(co, float2(12.9898, 78.233))) * 43758.5453);
+}
+
+float noise(float2 p) {
+  float2 i = floor(p);
+  float2 f = fract(p);
+
+  float a = rand(i);
+  float b = rand(i + float2(1.0, 0.0));
+  float c = rand(i + float2(0.0, 1.0));
+  float d = rand(i + float2(1.0, 1.0));
+
+  float2 u = f * f * (3.0 - 2.0 * f);
+
+  return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
+}
+
+float fbm(float2 p) {
+  float total = 0.0;
+  float amplitude = 0.5;
+  float2 shift = float2(100.0);
+
+  for (int i = 0; i < 5; ++i) {
+    total += noise(p) * amplitude;
+    p = p * 2.0 + shift;
+    amplitude *= 0.5;
+  }
+
+  return total;
+}
+`;
 interface EffectRendererProps {
   image: any;
   effect: Effect | null;
@@ -46,6 +76,21 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
     if (!effect || !params) return null;
 
     try {
+      const compile = (
+        source: string,
+        uniforms: Record<string, number | number[]>,
+      ): ShaderData | null => {
+        const runtimeEffect = Skia.RuntimeEffect.Make(source);
+        if (!runtimeEffect) {
+          console.error(`Failed to compile shader for effect ${effect.id}`);
+          return null;
+        }
+        return {
+          source: runtimeEffect,
+          uniforms,
+        };
+      };
+
       // Map effects to implementations
       switch (effect.id) {
         case 'pixelate': {
@@ -62,17 +107,97 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                cellSize: cellSize,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            cellSize,
+          });
+        }
+
+        case 'crystallize': {
+          const cellCount = Math.max(params.cellCount ?? 100, 1);
+          const randomSeed = params.randomSeed ?? 42;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float cellCount;
+            uniform float randomSeed;
+
+            float hash(float2 p) {
+              return fract(sin(dot(p + randomSeed, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            float2 randomPoint(float2 cell) {
+              return float2(hash(cell), hash(cell + 17.17));
+            }
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float grid = max(sqrt(cellCount), 1.0);
+              float2 uv = coord / size;
+              float2 cell = floor(uv * grid);
+
+              float minDist = 1e9;
+              float2 bestCoord = coord;
+
+              for (int j = -1; j <= 1; ++j) {
+                for (int i = -1; i <= 1; ++i) {
+                  float2 neighbor = cell + float2(float(i), float(j));
+                  float2 randPoint = randomPoint(neighbor);
+                  float2 candidateUV = (neighbor + randPoint) / grid;
+                  float2 candidateCoord = candidateUV * size;
+                  float dist = distance(candidateCoord, coord);
+                  if (dist < minDist) {
+                    minDist = dist;
+                    bestCoord = candidateCoord;
+                  }
+                }
+              }
+
+              bestCoord = clamp(bestCoord, float2(0.0), size - float2(1.0));
+              return image.eval(bestCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            cellCount,
+            randomSeed,
+          });
+        }
+
+        case 'pointillize': {
+          const dotSize = Math.max(params.dotSize ?? 8, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float dotSize;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float sizePx = max(dotSize, 1.0);
+              float2 cell = floor(coord / sizePx) * sizePx;
+              float2 center = cell + sizePx * 0.5;
+              center = clamp(center, float2(0.0), size - float2(1.0));
+
+              half4 base = image.eval(coord);
+              half4 sample = image.eval(center);
+
+              float dist = length(coord - center);
+              float radius = sizePx * 0.5;
+              float falloff = smoothstep(radius * 0.4, radius, dist);
+              float mask = 1.0 - falloff;
+
+              float3 result = mix(sample.rgb, base.rgb, mask);
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            dotSize,
+          });
         }
 
         case 'kaleidoscope': {
@@ -110,19 +235,12 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                segments: segments,
-                angle: angle,
-                zoom: zoom,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            segments,
+            angle,
+            zoom,
+          });
         }
 
         case 'rgb-split': {
@@ -141,16 +259,9 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                offset: [offsetX, offsetY],
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            offset: [offsetX, offsetY],
+          });
         }
 
         case 'mirror': {
@@ -191,18 +302,35 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             Diagonal: 3,
           };
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                axis: axisMap[axis] || 0,
-                offset: offset,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            axis: axisMap[axis] || 0,
+            offset,
+          });
+        }
+
+        case 'tile': {
+          const offsetX = params.offsetX ?? 0.5;
+          const offsetY = params.offsetY ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float2 offset;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float2 uv = coord / size + offset;
+              uv = fract(uv);
+              float2 sampleCoord = clamp(uv * size, float2(0.0), size - float2(1.0));
+              return image.eval(sampleCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            offset: [offsetX, offsetY],
+          });
         }
 
         case 'wave': {
@@ -246,20 +374,13 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             Radial: 2,
           };
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                amplitude: amplitude,
-                frequency: frequency,
-                phase: phase,
-                direction: directionMap[direction] || 0,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            amplitude,
+            frequency,
+            phase,
+            direction: directionMap[direction] || 0,
+          });
         }
 
         case 'twirl': {
@@ -293,18 +414,11 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                angle: angle,
-                radius: radius,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            angle,
+            radius,
+          });
         }
 
         case 'bulge': {
@@ -332,25 +446,18 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                strength: strength,
-                radius: radius,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            strength,
+            radius,
+          });
         }
 
         case 'scanlines': {
           const lineCount = Math.max(params.lineCount ?? 300, 1);
           const opacity = Math.min(Math.max(params.opacity ?? 0.5, 0), 1);
 
-          const source = Skia.RuntimeEffect.Make(`
+          const source = `
             uniform shader image;
             uniform float2 resolution;
             uniform float lineCount;
@@ -370,21 +477,13 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
               return half4(color.rgb * mask, color.a);
             }
-          `);
+          `;
 
-          if (!source) {
-            console.error('Scanlines shader failed to compile');
-            return null;
-          }
-
-          return {
-            source,
-            uniforms: {
-              resolution: [width, height],
-              lineCount,
-              opacity,
-            },
-          };
+          return compile(source, {
+            resolution: [width, height],
+            lineCount,
+            opacity,
+          });
         }
 
         case 'halftone': {
@@ -423,18 +522,11 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                dotSize: dotSize,
-                angle: angle,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            dotSize,
+            angle,
+          });
         }
 
         case 'emboss': {
@@ -465,25 +557,18 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             }
           `;
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                angle: angle,
-                height: height,
-              },
-            };
-          }
-          break;
+          return compile(source, {
+            resolution: [width, height],
+            angle,
+            height,
+          });
         }
 
         case 'oil-paint': {
           const brushSize = params.brushSize || 5;
           const detail = params.detail || 5;
 
-          const source = Skia.RuntimeEffect.Make(`
+          const source = `
             uniform shader image;
             uniform float brushSize;
             uniform float detail;
@@ -522,21 +607,1107 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
               return image.eval(coord);
             }
-          `);
+          `;
 
-          if (!source) {
-            console.error('Oil Paint shader failed to compile');
-            return null;
-          }
+          return compile(source, {
+            brushSize,
+            detail,
+          });
+        }
 
-          console.log('Oil Paint shader compiled successfully');
-          return {
-            source: source,
-            uniforms: {
-              brushSize: brushSize,
-              detail: detail,
-            },
-          };
+        case 'posterize': {
+          const levels = Math.max(params.levels ?? 4, 2);
+
+          const source = `
+            uniform shader image;
+            uniform float levels;
+
+            half4 main(float2 coord) {
+              half4 color = image.eval(coord);
+              float lvl = max(levels, 2.0);
+              float3 quantized = floor(color.rgb * (lvl - 1.0) + 0.5) / (lvl - 1.0);
+              return half4(quantized, color.a);
+            }
+          `;
+
+          return compile(source, {
+            levels,
+          });
+        }
+
+        case 'poster-edges': {
+          const edge = params.edge ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float edge;
+
+            half4 main(float2 coord) {
+              half4 c00 = image.eval(coord + float2(-1.0, -1.0));
+              half4 c01 = image.eval(coord + float2(0.0, -1.0));
+              half4 c02 = image.eval(coord + float2(1.0, -1.0));
+              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(1.0, 0.0));
+              half4 c20 = image.eval(coord + float2(-1.0, 1.0));
+              half4 c21 = image.eval(coord + float2(0.0, 1.0));
+              half4 c22 = image.eval(coord + float2(1.0, 1.0));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+              float baseEdge = length(float2(
+                dot(c02.rgb, w) + 2.0 * dot(c12.rgb, w) + dot(c22.rgb, w) -
+                dot(c00.rgb, w) - 2.0 * dot(c10.rgb, w) - dot(c20.rgb, w),
+                dot(c00.rgb, w) + 2.0 * dot(c01.rgb, w) + dot(c02.rgb, w) -
+                dot(c20.rgb, w) - 2.0 * dot(c21.rgb, w) - dot(c22.rgb, w)
+              ));
+
+              float lvl = 6.0;
+              float3 poster = floor(c11.rgb * (lvl - 1.0) + 0.5) / (lvl - 1.0);
+
+              float e = clamp(edge, 0.0, 1.0);
+              float edgeMask = smoothstep(0.1, 0.4, baseEdge) * e;
+              float3 darkened = max(poster - edgeMask * 0.6, 0.0);
+
+              return half4(darkened, c11.a);
+            }
+          `;
+
+          return compile(source, {
+            edge,
+          });
+        }
+
+        case 'watercolor': {
+          const intensity = params.intensity ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float intensity;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              half4 base = image.eval(coord);
+
+              float3 accum = float3(0.0);
+              float total = 0.0;
+              int radius = 3;
+
+              for (int y = -radius; y <= radius; ++y) {
+                for (int x = -radius; x <= radius; ++x) {
+                  float2 offset = float2(float(x), float(y));
+                  float weight = exp(-dot(offset, offset) * 0.12);
+                  float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
+                  accum += sample.rgb * weight;
+                  total += weight;
+                }
+              }
+
+              float3 smooth = accum / max(total, 0.001);
+              float3 quant = floor(smooth * 7.0 + 0.5) / 7.0;
+
+              float texture = fbm(coord / (size * 0.6));
+              float bleed = smoothstep(0.2, 0.8, texture);
+
+              float t = clamp(intensity, 0.0, 1.0);
+              float3 mixed = mix(base.rgb, quant, t);
+              float3 result = mix(mixed, mixed * (bleed * 0.4 + 0.8), t * 0.6);
+
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            intensity,
+          });
+        }
+
+        case 'gaussian-blur': {
+          const radius = Math.max(params.radius ?? 0, 0);
+          const quality = Math.max(params.quality ?? 2, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float radius;
+            uniform float quality;
+
+            half4 main(float2 coord) {
+              float r = max(radius, 0.0);
+              if (r < 0.001) {
+                return image.eval(coord);
+              }
+
+              float q = max(quality, 1.0);
+              float stepSize = max(r / q, 0.5);
+              float2 step = float2(stepSize, stepSize);
+
+              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
+              half4 c01 = image.eval(coord + float2(0.0, -step.y));
+              half4 c02 = image.eval(coord + float2(step.x, -step.y));
+              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(step.x, 0.0));
+              half4 c20 = image.eval(coord + float2(-step.x, step.y));
+              half4 c21 = image.eval(coord + float2(0.0, step.y));
+              half4 c22 = image.eval(coord + float2(step.x, step.y));
+
+              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
+              blur += (c01 + c10 + c12 + c21) * 0.125;
+              blur += c11 * 0.25;
+
+              if (q > 1.5) {
+                float factor = clamp((q - 1.0) / 2.0, 0.0, 1.0);
+                float2 step2 = step * 1.6;
+                half4 d00 = image.eval(coord + float2(-step2.x, -step2.y));
+                half4 d01 = image.eval(coord + float2(0.0, -step2.y));
+                half4 d02 = image.eval(coord + float2(step2.x, -step2.y));
+                half4 d10 = image.eval(coord + float2(-step2.x, 0.0));
+                half4 d12 = image.eval(coord + float2(step2.x, 0.0));
+                half4 d20 = image.eval(coord + float2(-step2.x, step2.y));
+                half4 d21 = image.eval(coord + float2(0.0, step2.y));
+                half4 d22 = image.eval(coord + float2(step2.x, step2.y));
+                half4 blur2 = (d00 + d02 + d20 + d22) * 0.0625;
+                blur2 += (d01 + d10 + d12 + d21) * 0.125;
+                blur2 += c11 * 0.25;
+                blur = mix(blur, blur2, factor);
+              }
+
+              return blur;
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            radius,
+            quality,
+          });
+        }
+
+        case 'motion-blur': {
+          const distance = params.distance ?? 25;
+          const angle = params.angle ?? 0;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float distance;
+            uniform float angle;
+
+            const float PI = 3.14159265359;
+
+            half4 main(float2 coord) {
+              float dist = max(distance, 0.0);
+              if (dist < 0.001) {
+                return image.eval(coord);
+              }
+
+              float rad = angle * PI / 180.0;
+              float2 dir = float2(cos(rad), sin(rad));
+              int steps = 24;
+              float stepSize = dist / float(steps - 1);
+
+              half4 sum = half4(0.0);
+              float total = 0.0;
+
+              for (int i = 0; i < steps; ++i) {
+                float offset = (float(i) - float(steps - 1) * 0.5) * stepSize;
+                float2 sampleCoord = coord + dir * offset;
+                half4 sample = image.eval(sampleCoord);
+                float weight = 1.0 - abs(float(i) - float(steps - 1) * 0.5) / float(steps * 0.5);
+                sum += sample * weight;
+                total += weight;
+              }
+
+              return sum / max(total, 0.001);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            distance,
+            angle,
+          });
+        }
+
+        case 'surface-blur': {
+          const radius = Math.max(params.radius ?? 12, 1);
+          const threshold = Math.max(params.threshold ?? 0.2, 0);
+
+          const source = `
+            uniform shader image;
+            uniform float radius;
+            uniform float threshold;
+
+            half4 main(float2 coord) {
+              half4 center = image.eval(coord);
+              float r = max(radius, 1.0);
+              float t = clamp(threshold, 0.0, 1.0);
+
+              half4 accum = center;
+              float weightSum = 1.0;
+              int maxSamples = 8;
+
+              for (int x = -maxSamples; x <= maxSamples; ++x) {
+                for (int y = -maxSamples; y <= maxSamples; ++y) {
+                  if (x == 0 && y == 0) {
+                    continue;
+                  }
+
+                  float2 offset = float2(float(x), float(y));
+                  float dist = length(offset);
+                  if (dist > r) {
+                    continue;
+                  }
+
+                  half4 sample = image.eval(coord + offset);
+                  float diff = length(sample.rgb - center.rgb);
+                  float falloff = exp(-dist / r);
+                  float weight = falloff * exp(-diff * 20.0);
+
+                  if (diff > t) {
+                    weight *= 0.1;
+                  }
+
+                  accum += sample * weight;
+                  weightSum += weight;
+                }
+              }
+
+              return accum / max(weightSum, 0.001);
+            }
+          `;
+
+          return compile(source, {
+            radius,
+            threshold,
+          });
+        }
+
+        case 'unsharp-mask': {
+          const amount = params.amount ?? 0.6;
+          const radius = Math.max(params.radius ?? 8, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float amount;
+            uniform float radius;
+
+            half4 main(float2 coord) {
+              half4 center = image.eval(coord);
+              float r = max(radius, 1.0);
+              float2 step = float2(r);
+
+              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
+              half4 c01 = image.eval(coord + float2(0.0, -step.y));
+              half4 c02 = image.eval(coord + float2(step.x, -step.y));
+              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
+              half4 c12 = image.eval(coord + float2(step.x, 0.0));
+              half4 c20 = image.eval(coord + float2(-step.x, step.y));
+              half4 c21 = image.eval(coord + float2(0.0, step.y));
+              half4 c22 = image.eval(coord + float2(step.x, step.y));
+
+              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
+              blur += (c01 + c10 + c12 + c21) * 0.125;
+              blur += center * 0.25;
+
+              half4 detail = center - blur;
+              float amt = clamp(amount, 0.0, 2.0);
+              float3 sharpened = clamp(center.rgb + detail.rgb * amt, 0.0, 1.0);
+
+              return half4(sharpened, center.a);
+            }
+          `;
+
+          return compile(source, {
+            amount,
+            radius,
+          });
+        }
+
+        case 'accented-edges': {
+          const strength = params.strength ?? 0.5;
+          const threshold = params.threshold ?? 0.3;
+
+          const source = `
+            uniform shader image;
+            uniform float strength;
+            uniform float threshold;
+            uniform float2 resolution;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              half4 c00 = image.eval(coord + float2(-1.0, -1.0));
+              half4 c01 = image.eval(coord + float2(0.0, -1.0));
+              half4 c02 = image.eval(coord + float2(1.0, -1.0));
+              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(1.0, 0.0));
+              half4 c20 = image.eval(coord + float2(-1.0, 1.0));
+              half4 c21 = image.eval(coord + float2(0.0, 1.0));
+              half4 c22 = image.eval(coord + float2(1.0, 1.0));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+
+              float gx = dot(c02.rgb, w) + 2.0 * dot(c12.rgb, w) + dot(c22.rgb, w)
+                       - dot(c00.rgb, w) - 2.0 * dot(c10.rgb, w) - dot(c20.rgb, w);
+
+              float gy = dot(c00.rgb, w) + 2.0 * dot(c01.rgb, w) + dot(c02.rgb, w)
+                       - dot(c20.rgb, w) - 2.0 * dot(c21.rgb, w) - dot(c22.rgb, w);
+
+              float edge = sqrt(gx * gx + gy * gy);
+              float t = clamp(threshold, 0.0, 1.0);
+              float s = clamp(strength, 0.0, 1.0);
+
+              float mask = smoothstep(t * 0.4, t, edge);
+              float3 enhanced = clamp(c11.rgb + edge * s, 0.0, 1.0);
+              float3 result = mix(c11.rgb, enhanced, mask);
+
+              return half4(result, c11.a);
+            }
+          `;
+
+          return compile(source, {
+            strength,
+            threshold,
+            resolution: [width, height],
+          });
+        }
+
+        case 'cross-hatch': {
+          const density = params.density ?? 1;
+          const rotation = params.rotation ?? 45;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float density;
+            uniform float rotation;
+
+            const float PI = 3.14159265359;
+
+            float pattern(float2 uv, float angle, float freq) {
+              float rad = angle * PI / 180.0;
+              float2 dir = float2(cos(rad), sin(rad));
+              float v = dot(uv, dir) * freq;
+              return smoothstep(0.35, 0.5, abs(fract(v) - 0.5));
+            }
+
+            half4 main(float2 coord) {
+              float2 uv = coord / resolution;
+              half4 base = image.eval(coord);
+              float lum = dot(base.rgb, float3(0.299, 0.587, 0.114));
+
+              float freq = max(density * 15.0, 0.1);
+
+              float p1 = pattern(uv, rotation, freq);
+              float p2 = pattern(uv, rotation + 90.0, freq * 0.9);
+              float p3 = pattern(uv, rotation + 45.0, freq * 0.7);
+              float p4 = pattern(uv, rotation - 45.0, freq * 0.7);
+
+              float dark = clamp(1.0 - lum * 1.5, 0.0, 1.0);
+              float ink = (p1 + p2) * dark;
+              float shading = (p3 + p4) * clamp(dark * 0.6, 0.0, 1.0);
+
+              float stroke = clamp(ink + shading, 0.0, 1.0);
+              float3 result = mix(base.rgb, float3(1.0 - stroke), 0.7);
+
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            density,
+            rotation,
+          });
+        }
+
+        case 'ink-outlines': {
+          const threshold = params.threshold ?? 0.4;
+          const smoothness = params.smoothness ?? 0.3;
+
+          const source = `
+            uniform shader image;
+            uniform float threshold;
+            uniform float smoothness;
+
+            half4 main(float2 coord) {
+              half4 c00 = image.eval(coord + float2(-1.0, -1.0));
+              half4 c01 = image.eval(coord + float2(0.0, -1.0));
+              half4 c02 = image.eval(coord + float2(1.0, -1.0));
+              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(1.0, 0.0));
+              half4 c20 = image.eval(coord + float2(-1.0, 1.0));
+              half4 c21 = image.eval(coord + float2(0.0, 1.0));
+              half4 c22 = image.eval(coord + float2(1.0, 1.0));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+
+              float gx = dot(c02.rgb, w) + 2.0 * dot(c12.rgb, w) + dot(c22.rgb, w)
+                       - dot(c00.rgb, w) - 2.0 * dot(c10.rgb, w) - dot(c20.rgb, w);
+
+              float gy = dot(c00.rgb, w) + 2.0 * dot(c01.rgb, w) + dot(c02.rgb, w)
+                       - dot(c20.rgb, w) - 2.0 * dot(c21.rgb, w) - dot(c22.rgb, w);
+
+              float edge = sqrt(gx * gx + gy * gy);
+              float outline = smoothstep(threshold, threshold * 0.3, edge);
+              float fill = smoothstep(0.0, 1.0, dot(c11.rgb, w));
+
+              float3 ink = float3(1.0 - outline);
+              float3 blended = mix(ink, c11.rgb, smoothness);
+
+              return half4(blended * fill, c11.a);
+            }
+          `;
+
+          return compile(source, {
+            threshold,
+            smoothness,
+          });
+        }
+
+        case 'spatter': {
+          const density = params.density ?? 0.5;
+          const size = Math.max(params.size ?? 10, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float density;
+            uniform float size;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float2 uv = coord / resolution;
+              float d = clamp(density, 0.0, 1.0);
+              float scale = max(size, 1.0);
+
+              float n = fbm(coord / (scale * 6.0));
+              float splat = step(1.0 - d, n);
+              float jitter1 = rand(coord / scale);
+              float jitter2 = rand(coord / scale + float2(3.17, 1.23));
+
+              float2 offset = (float2(jitter1, jitter2) - 0.5) * scale * 4.0;
+              half4 sample = image.eval(coord + offset);
+
+              float mask = splat * clamp(d * 1.5, 0.0, 1.0);
+              return half4(mix(base.rgb, sample.rgb, mask), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            density,
+            size,
+          });
+        }
+
+        case 'sumi-e': {
+          const ink = params.ink ?? 0.6;
+          const wash = params.wash ?? 0.4;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float ink;
+            uniform float wash;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float3 w = float3(0.299, 0.587, 0.114);
+              float lum = dot(base.rgb, w);
+
+              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
+              half4 c12 = image.eval(coord + float2(1.0, 0.0));
+              half4 c01 = image.eval(coord + float2(0.0, -1.0));
+              half4 c21 = image.eval(coord + float2(0.0, 1.0));
+
+              float lumLeft = dot(c10.rgb, w);
+              float lumRight = dot(c12.rgb, w);
+              float lumUp = dot(c01.rgb, w);
+              float lumDown = dot(c21.rgb, w);
+
+              float edge = abs(lumLeft - lumRight) + abs(lumUp - lumDown);
+
+              float grain = fbm(coord / (resolution * 0.8));
+              float washMask = smoothstep(0.0, 1.0, lum + (grain - 0.5) * wash);
+
+              float inkLevel = pow(lum, mix(0.6, 1.4, clamp(ink, 0.0, 1.0)));
+              float outline = smoothstep(0.05, 0.25, edge * 3.0);
+
+              float3 inked = float3(inkLevel);
+              float3 result = mix(float3(1.0 - outline), inked, washMask);
+
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            ink,
+            wash,
+          });
+        }
+
+        case 'plastic-wrap': {
+          const highlight = params.highlight ?? 0.7;
+          const detail = params.detail ?? 0.4;
+
+          const source = `
+            uniform shader image;
+            uniform float highlight;
+            uniform float detail;
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+
+              half4 c00 = image.eval(coord + float2(-2.0, -2.0));
+              half4 c01 = image.eval(coord + float2(0.0, -2.0));
+              half4 c02 = image.eval(coord + float2(2.0, -2.0));
+              half4 c10 = image.eval(coord + float2(-2.0, 0.0));
+              half4 c12 = image.eval(coord + float2(2.0, 0.0));
+              half4 c20 = image.eval(coord + float2(-2.0, 2.0));
+              half4 c21 = image.eval(coord + float2(0.0, 2.0));
+              half4 c22 = image.eval(coord + float2(2.0, 2.0));
+
+              half4 smooth = (c00 + c02 + c20 + c22) * 0.0625;
+              smooth += (c01 + c10 + c12 + c21) * 0.125;
+              smooth += base * 0.25;
+
+              half4 detailMap = base - smooth;
+              float h = clamp(highlight, 0.0, 1.0);
+              float d = clamp(detail, 0.0, 1.0);
+
+              float3 spec = clamp(detailMap.rgb * 2.5 + h, 0.0, 1.0);
+              float3 finalColor = clamp(base.rgb * (1.0 + d) + spec * d, 0.0, 1.0);
+
+              return half4(finalColor, base.a);
+            }
+          `;
+
+          return compile(source, {
+            highlight,
+            detail,
+          });
+        }
+
+        case 'reduce-noise': {
+          const strength = params.strength ?? 0.4;
+          const threshold = params.threshold ?? 0.2;
+
+          const source = `
+            uniform shader image;
+            uniform float strength;
+            uniform float threshold;
+
+            half4 main(float2 coord) {
+              half4 center = image.eval(coord);
+              float3 accum = center.rgb;
+              float weightSum = 1.0;
+
+              int radius = 3;
+
+              for (int x = -radius; x <= radius; ++x) {
+                for (int y = -radius; y <= radius; ++y) {
+                  if (x == 0 && y == 0) {
+                    continue;
+                  }
+
+                  float2 offset = float2(float(x), float(y));
+                  half4 sample = image.eval(coord + offset);
+                  float diff = length(sample.rgb - center.rgb);
+
+                  if (diff < threshold) {
+                    float weight = exp(-diff * 10.0);
+                    accum += sample.rgb * weight;
+                    weightSum += weight;
+                  }
+                }
+              }
+
+              float3 smooth = accum / max(weightSum, 0.001);
+              float3 result = mix(center.rgb, smooth, clamp(strength, 0.0, 1.0));
+
+              return half4(result, center.a);
+            }
+          `;
+
+          return compile(source, {
+            strength,
+            threshold,
+          });
+        }
+
+        case 'clouds-fibers': {
+          const scale = params.scale ?? 2;
+          const contrast = params.contrast ?? 1;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float scale;
+            uniform float contrast;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float2 uv = coord / resolution;
+              float s = max(scale, 0.1);
+
+              float cloud = fbm(uv * s * 4.0);
+              float fibers = fbm(float2(uv.y, uv.x) * s * 8.0);
+              float texture = clamp(cloud * 0.7 + fibers * 0.3, 0.0, 1.0);
+
+              float gain = clamp(contrast, 0.0, 2.0);
+              texture = pow(texture, gain);
+
+              float3 blend = mix(base.rgb, float3(texture), 0.5);
+              float3 result = clamp(blend * (0.6 + texture * 0.4), 0.0, 1.0);
+
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            scale,
+            contrast,
+          });
+        }
+
+        case 'bilateral-filter': {
+          const radius = Math.max(params.radius ?? 8, 1);
+          const sigmaColor = params.sigmaColor ?? 0.6;
+          const sigmaSpace = params.sigmaSpace ?? 0.8;
+
+          const source = `
+            uniform shader image;
+            uniform float radius;
+            uniform float sigmaColor;
+            uniform float sigmaSpace;
+
+            half4 main(float2 coord) {
+              half4 center = image.eval(coord);
+              float r = clamp(radius, 1.0, 15.0);
+              float colorSigma = max(sigmaColor, 0.01);
+              float spaceSigma = max(sigmaSpace, 0.01);
+
+              half4 sum = center;
+              float weightSum = 1.0;
+
+              int maxSamples = 10;
+
+              for (int x = -maxSamples; x <= maxSamples; ++x) {
+                for (int y = -maxSamples; y <= maxSamples; ++y) {
+                  if (x == 0 && y == 0) {
+                    continue;
+                  }
+
+                  float2 offset = float2(float(x), float(y));
+                  float dist = length(offset);
+                  if (dist > r) {
+                    continue;
+                  }
+
+                  half4 sample = image.eval(coord + offset);
+
+                  float spaceWeight = exp(-(dist * dist) / (2.0 * spaceSigma * spaceSigma * r));
+                  float colorDiff = length(sample.rgb - center.rgb);
+                  float colorWeight = exp(-(colorDiff * colorDiff) / (2.0 * colorSigma * colorSigma));
+
+                  float weight = spaceWeight * colorWeight;
+
+                  sum += sample * weight;
+                  weightSum += weight;
+                }
+              }
+
+              return sum / max(weightSum, 0.001);
+            }
+          `;
+
+          return compile(source, {
+            radius,
+            sigmaColor,
+            sigmaSpace,
+          });
+        }
+
+        case 'median-filter': {
+          const radius = Math.max(params.radius ?? 3, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float radius;
+
+            half4 main(float2 coord) {
+              float r = clamp(radius, 1.0, 5.0);
+              float3 samples[9];
+              float luminance[9];
+              float3 w = float3(0.299, 0.587, 0.114);
+
+              int idx = 0;
+              for (int y = -1; y <= 1; ++y) {
+                for (int x = -1; x <= 1; ++x) {
+                  float2 offset = float2(float(x), float(y)) * r;
+                  half4 sample = image.eval(coord + offset);
+                  samples[idx] = sample.rgb;
+                  luminance[idx] = dot(sample.rgb, w);
+                  idx += 1;
+                }
+              }
+
+              for (int i = 0; i < 9; ++i) {
+                for (int j = i + 1; j < 9; ++j) {
+                  if (luminance[i] > luminance[j]) {
+                    float tmp = luminance[i];
+                    luminance[i] = luminance[j];
+                    luminance[j] = tmp;
+
+                    float3 tmpColor = samples[i];
+                    samples[i] = samples[j];
+                    samples[j] = tmpColor;
+                  }
+                }
+              }
+
+              float3 medianColor = samples[4];
+              half4 center = image.eval(coord);
+              float3 result = mix(center.rgb, medianColor, 0.85);
+
+              return half4(result, center.a);
+            }
+          `;
+
+          return compile(source, {
+            radius,
+          });
+        }
+
+        case 'liquify': {
+          const amount = params.amount ?? 0.4;
+          const radius = params.radius ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float amount;
+            uniform float radius;
+
+            const float PI = 3.14159265359;
+
+            half4 main(float2 coord) {
+              float2 center = resolution * 0.5;
+              float2 pos = coord - center;
+
+              float maxRadius = max(max(resolution.x, resolution.y) * max(radius, 0.1), 1.0);
+              float dist = length(pos);
+              float norm = dist / maxRadius;
+
+              float falloff = smoothstep(1.0, 0.0, norm);
+              float swirl = amount * PI * falloff;
+
+              float cosA = cos(swirl);
+              float sinA = sin(swirl);
+              float2 rotated = float2(
+                pos.x * cosA - pos.y * sinA,
+                pos.x * sinA + pos.y * cosA
+              );
+
+              float push = amount * 40.0 * falloff * falloff;
+              float2 direction = normalize(pos + float2(0.0001, 0.0001));
+              float2 displaced = rotated + direction * push;
+
+              return image.eval(displaced + center);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            amount,
+            radius,
+          });
+        }
+
+        case 'lens-correction': {
+          const distortion = params.distortion ?? -0.2;
+          const centerOffset = params.center ?? 0;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float distortion;
+            uniform float center;
+
+            half4 main(float2 coord) {
+              float2 uv = coord / resolution;
+              float2 c = float2(0.5 + center, 0.5);
+              float2 delta = uv - c;
+              float r2 = dot(delta, delta);
+              float factor = 1.0 + distortion * r2;
+              float2 sampleUv = c + delta * factor;
+              sampleUv = clamp(sampleUv, float2(0.0), float2(1.0));
+              float2 sampleCoord = sampleUv * resolution;
+
+              return image.eval(sampleCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            distortion,
+            center: centerOffset,
+          });
+        }
+
+        case 'high-pass': {
+          const radius = Math.max(params.radius ?? 12, 1);
+          const amount = params.amount ?? 0.8;
+
+          const source = `
+            uniform shader image;
+            uniform float radius;
+            uniform float amount;
+
+            half4 gaussianBlur(float2 coord, float r) {
+              float2 step = float2(max(r, 1.0));
+
+              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
+              half4 c01 = image.eval(coord + float2(0.0, -step.y));
+              half4 c02 = image.eval(coord + float2(step.x, -step.y));
+              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(step.x, 0.0));
+              half4 c20 = image.eval(coord + float2(-step.x, step.y));
+              half4 c21 = image.eval(coord + float2(0.0, step.y));
+              half4 c22 = image.eval(coord + float2(step.x, step.y));
+
+              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
+              blur += (c01 + c10 + c12 + c21) * 0.125;
+              blur += c11 * 0.25;
+
+              return blur;
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              half4 blur = gaussianBlur(coord, radius);
+              half4 detail = base - blur;
+              float amt = clamp(amount, 0.0, 2.0);
+              float3 result = clamp(base.rgb + detail.rgb * amt, 0.0, 1.0);
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            radius,
+            amount,
+          });
+        }
+
+        case 'low-pass': {
+          const radius = Math.max(params.radius ?? 18, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float radius;
+
+            half4 gaussianBlur(float2 coord, float r) {
+              float2 step = float2(max(r, 1.0));
+
+              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
+              half4 c01 = image.eval(coord + float2(0.0, -step.y));
+              half4 c02 = image.eval(coord + float2(step.x, -step.y));
+              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(step.x, 0.0));
+              half4 c20 = image.eval(coord + float2(-step.x, step.y));
+              half4 c21 = image.eval(coord + float2(0.0, step.y));
+              half4 c22 = image.eval(coord + float2(step.x, step.y));
+
+              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
+              blur += (c01 + c10 + c12 + c21) * 0.125;
+              blur += c11 * 0.25;
+
+              return blur;
+            }
+
+            half4 main(float2 coord) {
+              return gaussianBlur(coord, radius);
+            }
+          `;
+
+          return compile(source, {
+            radius,
+          });
+        }
+
+        case 'gradient-filter': {
+          const angle = params.angle ?? 45;
+          const intensity = params.intensity ?? 0.6;
+
+          const source = `
+            uniform shader image;
+            uniform float angle;
+            uniform float intensity;
+
+            const float PI = 3.14159265359;
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float rad = angle * PI / 180.0;
+              float2 dir = float2(cos(rad), sin(rad));
+              float2 offset = dir * 2.0;
+
+              half4 ahead = image.eval(coord + offset);
+              half4 behind = image.eval(coord - offset);
+
+              float3 diff = ahead.rgb - behind.rgb;
+              float grad = dot(diff, float3(0.299, 0.587, 0.114));
+
+              float amt = clamp(intensity, 0.0, 1.0);
+              float3 result = clamp(base.rgb + grad * amt, 0.0, 1.0);
+
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            angle,
+            intensity,
+          });
+        }
+
+        case 'fourier-mask': {
+          const band = params.band ?? 0.5;
+          const contrast = params.contrast ?? 1;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float band;
+            uniform float contrast;
+
+            half4 gaussianBlur(float2 coord, float r) {
+              float2 step = float2(max(r, 1.0));
+
+              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
+              half4 c01 = image.eval(coord + float2(0.0, -step.y));
+              half4 c02 = image.eval(coord + float2(step.x, -step.y));
+              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
+              half4 c11 = image.eval(coord);
+              half4 c12 = image.eval(coord + float2(step.x, 0.0));
+              half4 c20 = image.eval(coord + float2(-step.x, step.y));
+              half4 c21 = image.eval(coord + float2(0.0, step.y));
+              half4 c22 = image.eval(coord + float2(step.x, step.y));
+
+              half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
+              blur += (c01 + c10 + c12 + c21) * 0.125;
+              blur += c11 * 0.25;
+
+              return blur;
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              half4 blur = gaussianBlur(coord, 12.0);
+              half4 high = base - blur;
+
+              float2 uv = coord / resolution - float2(0.5);
+              float radius = length(uv) * 2.0;
+
+              float mask = smoothstep(band, band + 0.2, radius);
+              float c = clamp(contrast, 0.0, 2.0);
+
+              float3 highColor = clamp(base.rgb + high.rgb * c, 0.0, 1.0);
+              float3 mixColor = mix(highColor, blur.rgb, mask);
+
+              return half4(mixColor, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            band,
+            contrast,
+          });
+        }
+
+        case 'flame-render': {
+          const intensity = params.intensity ?? 0.7;
+          const detail = params.detail ?? 1.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float intensity;
+            uniform float detail;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float2 uv = coord / resolution;
+
+              float scale = max(detail, 0.5);
+              float noiseVal = fbm(float2(uv.x * scale * 1.5, (1.0 - uv.y) * scale * 3.0));
+              float flame = pow(clamp(noiseVal, 0.0, 1.0), 3.0);
+              float glow = pow(clamp(noiseVal, 0.0, 1.0), 1.5);
+
+              float amount = clamp(intensity, 0.0, 1.0);
+              float3 flameColor = float3(
+                flame * (2.0 * amount),
+                glow * (1.2 * amount),
+                glow * 0.3 * amount
+              );
+
+              float3 result = clamp(base.rgb + flameColor, 0.0, 1.0);
+              return half4(result, base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            intensity,
+            detail,
+          });
+        }
+
+        case 'render-clouds': {
+          const scale = params.scale ?? 1.5;
+          const contrast = params.contrast ?? 0.8;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float scale;
+            uniform float contrast;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              float2 uv = coord / resolution;
+              float s = max(scale, 0.1);
+
+              float n = fbm(uv * s * 4.0);
+              float clouds = pow(clamp(n, 0.0, 1.0), clamp(contrast + 0.5, 0.5, 2.5));
+              float3 cloudColor = float3(clouds);
+
+              return half4(mix(base.rgb, cloudColor, 0.5), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            scale,
+            contrast,
+          });
         }
 
         default:

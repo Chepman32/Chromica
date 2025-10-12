@@ -48,15 +48,29 @@ const CATEGORIES = [
   { id: EffectCategory.CELLULAR, label: 'Cellular', icon: '⬛' },
   { id: EffectCategory.TILING, label: 'Tiling', icon: '🔄' },
   { id: EffectCategory.DISTORTION, label: 'Wave', icon: '〰️' },
+  { id: EffectCategory.CORRECTION, label: 'Correct', icon: 'FIX' },
+  { id: EffectCategory.BLUR_SHARPEN, label: 'Blur', icon: 'BLR' },
   { id: EffectCategory.GLITCH, label: 'Glitch', icon: '⚡' },
   { id: EffectCategory.RELIEF, label: 'Relief', icon: '🔲' },
   { id: EffectCategory.STYLIZATION, label: 'Style', icon: '🎨' },
+  { id: EffectCategory.BRUSH, label: 'Brush', icon: 'INK' },
+  { id: EffectCategory.NOISE_TEXTURE, label: 'Texture', icon: 'TXT' },
+  { id: EffectCategory.FREQUENCY, label: 'Frequency', icon: 'FQ' },
+  { id: EffectCategory.RENDER, label: 'Render', icon: 'RND' },
 ];
 
 export const EffectsEditorScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { imageUri } = route.params as { imageUri: string };
+
+  const categoryIconMap = useMemo(() => {
+    const map = new Map<EffectCategory, string>();
+    CATEGORIES.forEach(category => {
+      map.set(category.id, category.icon);
+    });
+    return map;
+  }, []);
 
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState(true);
@@ -424,7 +438,7 @@ export const EffectsEditorScreen: React.FC = () => {
                       />
                     ) : (
                       <Text style={styles.effectPreviewIcon}>
-                        {effect.category === EffectCategory.CELLULAR ? '⬛' : '🎨'}
+                        {categoryIconMap.get(effect.category) || '🎨'}
                       </Text>
                     )}
                   </View>
