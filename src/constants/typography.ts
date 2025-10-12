@@ -1,4 +1,4 @@
-// Typography system for Artifex using SF Pro
+// Typography system for Chromica using SF Pro
 
 export const Typography = {
   // Display Text (Headlines, Titles)

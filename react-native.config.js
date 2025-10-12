@@ -1,4 +1,4 @@
-// React Native configuration for Artifex
+// React Native configuration for Chromica
 
 module.exports = {
   project: {

@@ -1,6 +1,6 @@
-# Artifex Development Guide
+# Chromica Development Guide
 
-This guide covers the development setup and workflow for the Artifex React Native app.
+This guide covers the development setup and workflow for the Chromica React Native app.
 
 ## 🛠 Development Environment Setup
 
@@ -18,7 +18,7 @@ This guide covers the development setup and workflow for the Artifex React Nativ
 
 ```bash
 git clone <repository-url>
-cd Artifex
+cd Chromica
 ```
 
 2. **Install Node dependencies:**
@@ -51,7 +51,7 @@ yarn ios
 ## 📁 Project Structure
 
 ```
-Artifex/
+Chromica/
 ├── src/                    # Source code
 │   ├── components/         # Reusable UI components
 │   ├── constants/         # Design system constants

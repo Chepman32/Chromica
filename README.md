@@ -1,6 +1,6 @@
-# Artifex - Offline Photo Annotation App
+# Chromica - Offline Photo Annotation App
 
-Artifex is a premium iOS photo annotation app built with React Native, designed to provide an elegant, gesture-driven interface for adding watermarks, text, stickers, and stamps to photos. The app operates completely offline, ensuring user privacy and reliability.
+Chromica is a premium iOS photo annotation app built with React Native, designed to provide an elegant, gesture-driven interface for adding watermarks, text, stickers, and stamps to photos. The app operates completely offline, ensuring user privacy and reliability.
 
 ## 🎯 Key Features
 
@@ -17,7 +17,7 @@ Artifex is a premium iOS photo annotation app built with React Native, designed 
 - ✅ 8 fonts, 30 stickers, 10 watermark templates, 8 stamps
 - ✅ Full gesture editing capabilities
 - ✅ Unlimited project saves
-- ⚠️ Exported photos include small "Made with Artifex" watermark
+- ⚠️ Exported photos include small "Made with Chromica" watermark
 
 ### Pro Tier ($9.99 one-time purchase)
 
@@ -77,7 +77,7 @@ src/
 
 ```bash
 git clone <repository-url>
-cd Artifex
+cd Chromica
 yarn install
 ```
 
@@ -252,24 +252,18 @@ This project is proprietary software. All rights reserved.
 
 ## 🤝 Contributing
 
-This is a commercial project. For bug reports or feature requests, please contact support@artifex.app.
+This is a commercial project. For bug reports or feature requests, please contact support@chromica.app.
 
 ## 📞 Support
 
-- **Email**: support@artifex.app
-- **Privacy Policy**: artifex.app/privacy
-- **Terms of Service**: artifex.app/terms
+- **Email**: support@chromica.app
+- **Privacy Policy**: chromica.app/privacy
+- **Terms of Service**: chromica.app/terms
 
 ---
 
 Built with ❤️ using React Native
 
-TODO: add feeling/resizing button ![alt text](image.png)
-TODO: watermark modal's slider gestures
-TODO: fix - watermarks are not visible on the exported image
-TODO: fix - the exported image with sepia filter is broken
-TODO: fix - Myafair and Rise filters have wrong effect
-TODO: add opacity slider for watermarks
-Make the Stamps and Stickers assets categorized
-TODO: fix - Lo-Fi filter effect should be stronger
-TODO: replace emojis
+TODO: fix these effects (it just shows a small black rectangle with no effects when these ones are chosen):
+- Scanlines
+- Oil Paint

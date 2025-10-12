@@ -14,6 +14,7 @@ import {
   ImageShader,
   Fill,
 } from '@shopify/react-native-skia';
+import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import { Effect } from '../../domain/effects/types';
 
 interface EffectRendererProps {
@@ -35,8 +36,13 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
   width,
   height,
 }) => {
+  type ShaderData = {
+    source: SkRuntimeEffect;
+    uniforms: Record<string, number | number[]>;
+  };
+
   // Create shader source and uniforms for the effect
-  const effectData = useMemo(() => {
+  const effectData = useMemo<ShaderData | null>(() => {
     if (!effect || !params) return null;
 
     try {
@@ -341,39 +347,42 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         }
 
         case 'scanlines': {
-          const lineCount = params.lineCount || 300;
-          const opacity = params.opacity || 0.5;
+          const lineCount = Math.max(params.lineCount ?? 300, 1);
+          const opacity = Math.min(Math.max(params.opacity ?? 0.5, 0), 1);
 
-          const source = `
+          const source = Skia.RuntimeEffect.Make(`
             uniform shader image;
             uniform float2 resolution;
             uniform float lineCount;
             uniform float opacity;
 
-            const float PI = 3.14159265359;
+            const float TWO_PI = 6.28318530718;
 
             half4 main(float2 coord) {
+              float2 safeResolution = max(resolution, float2(1.0));
+              float2 uv = coord / safeResolution;
               half4 color = image.eval(coord);
 
-              float line = sin(coord.y / resolution.y * lineCount * 2.0 * PI);
-              float scanline = 1.0 - (line * 0.5 + 0.5) * opacity;
+              float stripe = 0.5 + 0.5 * sin(uv.y * lineCount * TWO_PI);
+              float mask = mix(1.0, stripe, opacity);
 
-              return color * scanline;
+              return half4(color.rgb * mask, color.a);
             }
-          `;
+          `);
 
-          const runtimeEffect = Skia.RuntimeEffect.Make(source);
-          if (runtimeEffect) {
-            return {
-              source: runtimeEffect,
-              uniforms: {
-                resolution: [width, height],
-                lineCount: lineCount,
-                opacity: opacity,
-              },
-            };
+          if (!source) {
+            console.error('Scanlines shader failed to compile');
+            return null;
           }
-          break;
+
+          return {
+            source: source,
+            uniforms: {
+              resolution: [width, height],
+              lineCount: lineCount,
+              opacity: opacity,
+            },
+          };
         }
 
         case 'halftone': {
@@ -466,6 +475,71 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             };
           }
           break;
+        }
+
+        case 'oil-paint': {
+          const brushSize = Math.max(params.brushSize ?? 5, 1);
+          const detail = Math.max(params.detail ?? 5, 1);
+
+          const source = Skia.RuntimeEffect.Make(`
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float brushSize;
+            uniform float detail;
+
+            const float3 LUMA_WEIGHTS = float3(0.299, 0.587, 0.114);
+
+            half4 main(float2 coord) {
+              float2 safeResolution = max(resolution, float2(1.0));
+              float sampleStep = max(brushSize, 1.0);
+              float levels = max(detail, 1.0);
+
+              float3 accum = float3(0.0);
+              float3 accumDetail = float3(0.0);
+              float totalSamples = 0.0;
+              float totalDetail = 0.0;
+
+              for (int x = -3; x <= 3; ++x) {
+                for (int y = -3; y <= 3; ++y) {
+                  float2 offset = float2(float(x), float(y)) * sampleStep;
+                  float2 sampleCoord = clamp(coord + offset, float2(0.0), safeResolution - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
+
+                  float intensity = dot(sample.rgb, LUMA_WEIGHTS);
+                  float quantized = floor(intensity * levels) / levels;
+                  float weight = 1.0 - abs(intensity - quantized);
+
+                  accum += sample.rgb;
+                  totalSamples += 1.0;
+
+                  accumDetail += sample.rgb * weight;
+                  totalDetail += weight;
+                }
+              }
+
+              float3 average = accum / max(totalSamples, 1.0);
+              float3 stylized = accumDetail / max(totalDetail, 0.001);
+              float3 color = mix(average, stylized, 0.7);
+              color = floor(color * levels) / levels;
+
+              half4 base = image.eval(coord);
+              return half4(color, base.a);
+            }
+          `);
+
+          if (!source) {
+            console.error('Oil Paint shader failed to compile');
+            return null;
+          }
+
+          return {
+            source: source,
+            uniforms: {
+              resolution: [width, height],
+              brushSize: brushSize,
+              detail: detail,
+            },
+          };
         }
 
         default:

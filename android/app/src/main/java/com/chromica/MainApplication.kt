@@ -1,4 +1,4 @@
-package com.artifex
+package com.chromica
 
 import android.app.Application
 import com.facebook.react.PackageList

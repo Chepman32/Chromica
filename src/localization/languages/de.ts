@@ -40,7 +40,7 @@ export const de: Translations = {
     hapticFeedback: 'Haptisches Feedback',
     hapticFeedbackDesc: 'Vibration für Interaktionen',
     version: 'Version',
-    rateApp: 'Artifex bewerten',
+    rateApp: 'Chromica bewerten',
     rateAppDesc: 'Helfen Sie uns mit Ihrem Feedback zu verbessern',
     contactSupport: 'Support kontaktieren',
     contactSupportDesc: 'Hilfe erhalten oder Probleme melden',

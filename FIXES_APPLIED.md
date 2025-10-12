@@ -4,7 +4,7 @@
 
 ### 1. ✅ App Registration Error
 
-**Problem**: "Artifex has not been registered"
+**Problem**: "Chromica has not been registered"
 **Solution**: Updated `Info.plist` to use "Chromica" as display name
 
 ### 2. ✅ Navigation Error in Splash Screen
@@ -35,7 +35,7 @@
 
 ## Files Modified
 
-1. `ios/Artifex/Info.plist` - Updated display name and permissions
+1. `ios/Chromica/Info.plist` - Updated display name and permissions
 2. `src/screens/ChromicaSplashScreen.tsx` - Removed navigation dependency
 3. `src/navigation/AppNavigator.tsx` - Added onFinish callback
 4. `src/stores/effectsStore.ts` - Safe MMKV initialization
@@ -88,7 +88,7 @@ rm -rf $TMPDIR/metro-* && rm -rf $TMPDIR/haste-*
 yarn ios
 
 # Or open in Xcode
-open ios/Artifex.xcworkspace
+open ios/Chromica.xcworkspace
 ```
 
 ## Debugging Tips

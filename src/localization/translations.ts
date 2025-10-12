@@ -1,4 +1,4 @@
-// Translations for Artifex
+// Translations for Chromica
 
 export type Language =
   | 'en'

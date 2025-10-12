@@ -1,7 +1,7 @@
 
-**Objective:** Generate a comprehensive, production-ready Software Design Document (SDD) for a new iOS-first mobile application named "Artifex". This document should be incredibly detailed, omitting only time/cost estimates. It must serve as the single source of truth for the design, development, and user experience of the application.
+**Objective:** Generate a comprehensive, production-ready Software Design Document (SDD) for a new iOS-first mobile application named "Chromica". This document should be incredibly detailed, omitting only time/cost estimates. It must serve as the single source of truth for the design, development, and user experience of the application.
 
-**App Vision:** Artifex is a premium, offline-first photo editing application for iOS, built with React Native. Its core purpose is to allow users to add high-quality, artistic annotations—watermarks, stickers, text, and stamps—to their photos. The user experience is paramount, defined by a fluid, gesture-driven interface and a rich set of "gorgeous," physics-based animations powered by React Native Reanimated and Skia. Monetization is handled exclusively through a one-time In-App Purchase (IAP) to unlock "Pro" features.
+**App Vision:** Chromica is a premium, offline-first photo editing application for iOS, built with React Native. Its core purpose is to allow users to add high-quality, artistic annotations—watermarks, stickers, text, and stamps—to their photos. The user experience is paramount, defined by a fluid, gesture-driven interface and a rich set of "gorgeous," physics-based animations powered by React Native Reanimated and Skia. Monetization is handled exclusively through a one-time In-App Purchase (IAP) to unlock "Pro" features.
 
 ---
 
@@ -10,7 +10,7 @@
 Please generate the SDD following this precise structure and level of detail:
 
 **1. Introduction & Overview**
-   - **1.1. Project Name:** Artifex
+   - **1.1. Project Name:** Chromica
    - **1.2. Vision Statement:** To be the most elegant and intuitive mobile tool for creative photo annotation, combining powerful offline capabilities with a delightful, animation-rich user experience.
    - **1.3. Target Audience:** Social media creators, small business owners, photographers, and casual users who want to protect or stylize their images before sharing.
    - **1.4. Core Philosophies:**
@@ -27,7 +27,7 @@ Describe the complete user journey, screen by screen. For each screen, detail it
       - **Animated Splash Screen:**
          - **Concept:** Describe one of these two concepts in extreme detail.
             - **Option A (Physics-based Logo Shatter):** The app logo (a stylized "A") appears, then shatters into dozens of tiny particles using a physics simulation. These particles then gracefully reassemble into the main UI of the home screen.
-            - **Option B (Kinetic Typography):** The word "Artifex" rapidly twists and morphs in 3D space on the screen, transitioning seamlessly into the main title of the home screen.
+            - **Option B (Kinetic Typography):** The word "Chromica" rapidly twists and morphs in 3D space on the screen, transitioning seamlessly into the main title of the home screen.
          - **Technology:** Specify the use of React Native Skia for custom shaders/drawing and Reanimated for the physics-based animation logic.
       - **Onboarding Carousel:** A three-screen, gesture-driven carousel (swipe left/right) highlighting the app's core features: (1) "Add Your Mark," (2) "Gesture-Powered Editing," (3) "Unlock Pro."
          - **UI/UX:** Full-screen, edge-to-edge visuals with minimal text. A parallax effect should be applied to the background images and text as the user swipes. The final screen has a prominent call-to-action button to enter the app.
@@ -92,13 +92,13 @@ Describe the complete user journey, screen by screen. For each screen, detail it
       - Detail the process from image selection to export. Use a library like `react-native-skia` for rendering the final image by drawing the source image onto a canvas and then sequentially applying all user-added Skia objects on top before exporting the canvas as a high-resolution image file.
 
 **5. Monetization Strategy (IAP)**
-   - **5.1. Model:** Freemium with a one-time purchase ("Artifex Pro").
+   - **5.1. Model:** Freemium with a one-time purchase ("Chromica Pro").
    - **5.2. Free Tier:**
       - Access to a limited set of stickers, fonts, and stamps.
-      - A small, non-intrusive "Made with Artifex" watermark is automatically added on export (can be removed by watching a rewarded ad, if we decide to add that later, but the primary goal is the IAP).
+      - A small, non-intrusive "Made with Chromica" watermark is automatically added on export (can be removed by watching a rewarded ad, if we decide to add that later, but the primary goal is the IAP).
    - **5.3. Pro Tier (Unlocked via IAP):**
       - Access to all premium asset packs (100+ exclusive stickers, 30+ pro fonts, etc.).
-      - Removal of the "Made with Artifex" watermark.
+      - Removal of the "Made with Chromica" watermark.
       - Access to advanced features like custom font installation and saving personal watermarks as templates.
    - **5.4. "Go Pro" UI/UX:**
       - **Paywall Screen:** A beautifully designed screen explaining the benefits of Pro. It should not be intrusive but accessible from key points (e.g., a crown icon in the UI).

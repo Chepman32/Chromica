@@ -1,4 +1,4 @@
-# Artifex Implementation Status
+# Chromica Implementation Status
 
 ## ✅ Completed Features
 
@@ -130,7 +130,7 @@
 // - Apply all transformations
 // - Export at native resolution (4K support)
 // - Save to Photos or Share
-// - Add "Made with Artifex" watermark for free users
+// - Add "Made with Chromica" watermark for free users
 ```
 
 **Implementation Plan**:
@@ -318,7 +318,7 @@ import {
   finishTransaction,
 } from 'react-native-iap';
 
-// Product ID: 'com.artifex.pro'
+// Product ID: 'com.chromica.pro'
 // Price: $9.99 USD
 // Type: Non-consumable
 
@@ -505,7 +505,7 @@ If you want to add some final polish, these are the easiest improvements:
 
 ## 🎉 ACHIEVEMENT UNLOCKED
 
-**Artifex is now a fully functional, production-ready photo editing app!**
+**Chromica is now a fully functional, production-ready photo editing app!**
 
 All major SDD requirements have been implemented:
 

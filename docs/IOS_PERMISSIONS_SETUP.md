@@ -2,14 +2,14 @@
 
 ## Required Info.plist Entries
 
-Add these entries to your `ios/Artifex/Info.plist` file:
+Add these entries to your `ios/Chromica/Info.plist` file:
 
 ```xml
 <key>NSPhotoLibraryUsageDescription</key>
-<string>Artifex needs access to your photo library to let you select images for editing.</string>
+<string>Chromica needs access to your photo library to let you select images for editing.</string>
 
 <key>NSPhotoLibraryAddUsageDescription</key>
-<string>Artifex needs permission to save your edited photos to your photo library.</string>
+<string>Chromica needs permission to save your edited photos to your photo library.</string>
 ```
 
 ## Location in File
@@ -27,10 +27,10 @@ Add these entries inside the `<dict>` section of your Info.plist file, typically
 
     <!-- Photo Library Permissions -->
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Artifex needs access to your photo library to let you select images for editing.</string>
+    <string>Chromica needs access to your photo library to let you select images for editing.</string>
 
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>Artifex needs permission to save your edited photos to your photo library.</string>
+    <string>Chromica needs permission to save your edited photos to your photo library.</string>
 
     <!-- Other existing entries -->
 </dict>

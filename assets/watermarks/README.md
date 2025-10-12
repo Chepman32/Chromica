@@ -1,6 +1,6 @@
 # Watermarks Directory
 
-This directory contains watermark templates for the Artifex app.
+This directory contains watermark templates for the Chromica app.
 
 ## Structure
 

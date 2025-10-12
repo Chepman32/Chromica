@@ -39,7 +39,7 @@ export const zh: Translations = {
     hapticFeedback: '触觉反馈',
     hapticFeedbackDesc: '交互振动',
     version: '版本',
-    rateApp: '评价Artifex',
+    rateApp: '评价Chromica',
     rateAppDesc: '通过您的反馈帮助我们改进',
     contactSupport: '联系支持',
     contactSupportDesc: '获取帮助或报告问题',

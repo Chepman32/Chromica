@@ -467,4 +467,4 @@ When adding new presets:
 
 ## License
 
-Part of the Artifex image editor project.
+Part of the Chromica image editor project.

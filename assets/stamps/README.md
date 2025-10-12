@@ -1,6 +1,6 @@
 # Stamps Directory
 
-This directory contains stamp assets for the Artifex app.
+This directory contains stamp assets for the Chromica app.
 
 ## Structure
 

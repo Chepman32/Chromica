@@ -219,7 +219,7 @@ const OnboardingScreen: React.FC = () => {
             <View style={styles.beforeAfterSide}>
               <Text style={styles.beforeAfterLabel}>Free</Text>
               <View style={styles.beforeAfterImage}>
-                <Text style={styles.beforeAfterWatermark}>Made with Artifex</Text>
+                <Text style={styles.beforeAfterWatermark}>Made with Chromica</Text>
               </View>
             </View>
             <View style={styles.beforeAfterSide}>

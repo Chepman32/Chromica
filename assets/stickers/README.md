@@ -1,6 +1,6 @@
 # Stickers Directory
 
-This directory contains sticker assets for the Artifex app.
+This directory contains sticker assets for the Chromica app.
 
 ## Structure
 

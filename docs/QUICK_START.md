@@ -1,4 +1,4 @@
-# Artifex - Quick Start Guide
+# Chromica - Quick Start Guide
 
 ## 🚀 Running the App
 

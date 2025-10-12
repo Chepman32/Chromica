@@ -1,4 +1,4 @@
-# Running Artifex App
+# Running Chromica App
 
 ## Current Status
 

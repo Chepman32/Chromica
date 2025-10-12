@@ -2,7 +2,7 @@
 
 ## Why This Is Required
 
-The app is currently configured with the old "Artifex" bundle identifier. You must update it to "Chromica" before building.
+The app ships with the placeholder bundle identifier `com.chromica`. Update it to your organization-specific identifier before distributing the app.
 
 ## iOS Configuration
 
@@ -46,7 +46,7 @@ Replace all instances with: com.yourcompany.chromica
 If you renamed the app folder:
 
 1. In Xcode: Product → Scheme → Manage Schemes
-2. Rename scheme from "Artifex" to "Chromica"
+2. Ensure the scheme is named "Chromica" to match the project
 
 ### 4. Clean Build
 
@@ -92,8 +92,8 @@ If you want to match package structure to bundle ID:
 ```bash
 cd android/app/src/main/java/com/
 
-# If current structure is com/artifex
-mv artifex chromica
+# If current structure is com/chromica
+mv chromica chromica
 
 # Update package declarations in all Java/Kotlin files
 # In MainActivity.java:

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the theming and localization system implemented for Artifex.
+This document describes the theming and localization system implemented for Chromica.
 
 ## Features Implemented
 

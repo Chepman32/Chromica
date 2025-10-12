@@ -91,7 +91,7 @@ export const rasterizeTextElementToWatermark = async (
 
   const snapshot = surface.makeImageSnapshot();
   const base64 = snapshot.encodeToBase64();
-  const filename = `artifex_wm_text_${Date.now()}.png`;
+  const filename = `chromica_wm_text_${Date.now()}.png`;
   const filepath = `${RNFS.TemporaryDirectoryPath}/${filename}`;
   await RNFS.writeFile(filepath, base64, 'base64');
 

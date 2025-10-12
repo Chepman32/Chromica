@@ -13,7 +13,7 @@ export interface ExportOptions {
   canvasSize?: { width: number; height: number };
 }
 
-const ARTIFEX_WATERMARK_TEXT = 'Made with Artifex';
+const CHROMICA_WATERMARK_TEXT = 'Made with Chromica';
 const WATERMARK_FONT_SIZE = 14;
 const WATERMARK_OPACITY = 0.6;
 const WATERMARK_PADDING = 12;
@@ -178,7 +178,7 @@ export const exportCanvasToImage = async (
       }
     }
 
-    const filename = `artifex_export_${Date.now()}.${actualFormat}`;
+    const filename = `chromica_export_${Date.now()}.${actualFormat}`;
     const filepath = `${RNFS.TemporaryDirectoryPath}/${filename}`;
     await RNFS.writeFile(filepath, encoded, 'base64');
 
@@ -247,7 +247,7 @@ const resolveImageUriToPath = async (
       const ext = 'jpg';
       const dest = `${
         RNFS.TemporaryDirectoryPath
-      }/artifex_ph_${Date.now()}.${ext}`;
+      }/chromica_ph_${Date.now()}.${ext}`;
       await RNFS.copyAssetsFileIOS(
         uri,
         dest,
@@ -264,7 +264,7 @@ const resolveImageUriToPath = async (
       const ext = guessImageExtension(assetPath, 'png');
       const dest = `${
         RNFS.CachesDirectoryPath
-      }/artifex_asset_${Date.now()}.${ext}`;
+      }/chromica_asset_${Date.now()}.${ext}`;
       await RNFS.copyFileAssets(assetPath, dest);
       return dest;
     }
@@ -273,7 +273,7 @@ const resolveImageUriToPath = async (
       const ext = guessImageExtension(uri, 'jpg');
       const dest = `${
         RNFS.TemporaryDirectoryPath
-      }/artifex_remote_${Date.now()}.${ext}`;
+      }/chromica_remote_${Date.now()}.${ext}`;
       const downloadResult = await RNFS.downloadFile({
         fromUrl: uri,
         toFile: dest,
@@ -740,7 +740,7 @@ const drawWatermark = (
     return;
   }
   const metrics = font.getMetrics();
-  const textWidth = font.measureText(ARTIFEX_WATERMARK_TEXT).width;
+  const textWidth = font.measureText(CHROMICA_WATERMARK_TEXT).width;
   const paint = Skia.Paint();
   paint.setAntiAlias(true);
   paint.setColor(Skia.Color('#FFFFFF'));
@@ -751,5 +751,5 @@ const drawWatermark = (
 
   const x = canvasWidth - textWidth - paddingX;
   const baseline = canvasHeight - paddingY - metrics.descent;
-  canvas.drawText(ARTIFEX_WATERMARK_TEXT, x, baseline, paint, font);
+  canvas.drawText(CHROMICA_WATERMARK_TEXT, x, baseline, paint, font);
 };

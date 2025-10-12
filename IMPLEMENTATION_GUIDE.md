@@ -37,7 +37,7 @@ Rename package directories:
 
 ```bash
 cd android/app/src/main/java/com/
-mv artifex chromica
+mv chromica chromica
 ```
 
 Update package declarations in all Java/Kotlin files.

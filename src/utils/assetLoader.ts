@@ -6,10 +6,10 @@ import { useAppStore } from '../stores/appStore';
 
 // AsyncStorage keys for asset caching
 const ASSET_KEYS = {
-  stickers: 'artifex_stickers',
-  watermarks: 'artifex_watermarks',
-  stamps: 'artifex_stamps',
-  fonts: 'artifex_fonts',
+  stickers: 'chromica_stickers',
+  watermarks: 'chromica_watermarks',
+  stamps: 'chromica_stamps',
+  fonts: 'chromica_fonts',
 };
 
 export interface LoadedAsset {

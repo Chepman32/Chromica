@@ -1,4 +1,4 @@
-# Artifex - Complete Implementation Session Summary
+# Chromica - Complete Implementation Session Summary
 
 **Date**: 2025-10-07
 **Status**: Major Milestone Achieved ✅
@@ -310,7 +310,7 @@ yarn ios
 - Render canvas to high-res image with Skia
 - Format selection (PNG/JPG)
 - Quality selection (90%/100%)
-- Add "Made with Artifex" watermark (free users)
+- Add "Made with Chromica" watermark (free users)
 - Save to Photos library
 - Share functionality
 
@@ -351,7 +351,7 @@ yarn ios
 **Tasks**:
 - Install `react-native-iap`
 - Create `src/utils/iap.ts`
-- Product ID: `com.artifex.pro`
+- Product ID: `com.chromica.pro`
 - Price: $9.99 USD
 - Implement purchase flow
 - Implement restore purchases
@@ -419,7 +419,7 @@ yarn ios
 ## 📱 App Architecture Summary
 
 ```
-Artifex/
+Chromica/
 ├── App.tsx                      # Entry point
 ├── src/
 │   ├── components/

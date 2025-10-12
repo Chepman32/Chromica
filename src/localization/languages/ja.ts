@@ -39,7 +39,7 @@ export const ja: Translations = {
     hapticFeedback: '触覚フィードバック',
     hapticFeedbackDesc: 'インタラクションの振動',
     version: 'バージョン',
-    rateApp: 'Artifexを評価',
+    rateApp: 'Chromicaを評価',
     rateAppDesc: 'フィードバックで改善にご協力ください',
     contactSupport: 'サポートに連絡',
     contactSupportDesc: 'ヘルプを取得または問題を報告',

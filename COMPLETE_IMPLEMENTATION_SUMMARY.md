@@ -8,7 +8,7 @@ Chromica is now a fully functional professional mobile image editor with real-ti
 
 ### Phase 1: Foundation ✅
 
-- [x] App rebranded from Artifex to Chromica
+- [x] App rebranded from Chromica to Chromica
 - [x] Complete effects engine architecture
 - [x] 15+ effects defined across 6 categories
 - [x] 10 GPU-accelerated SkSL shaders

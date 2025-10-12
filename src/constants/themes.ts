@@ -1,4 +1,4 @@
-// Theme definitions for Artifex
+// Theme definitions for Chromica
 
 export type ThemeType = 'light' | 'dark' | 'solar' | 'mono';
 

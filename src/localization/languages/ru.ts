@@ -40,7 +40,7 @@ export const ru: Translations = {
     hapticFeedback: 'Тактильная обратная связь',
     hapticFeedbackDesc: 'Вибрация при взаимодействии',
     version: 'Версия',
-    rateApp: 'Оценить Artifex',
+    rateApp: 'Оценить Chromica',
     rateAppDesc: 'Помогите нам улучшиться с вашим отзывом',
     contactSupport: 'Связаться с поддержкой',
     contactSupportDesc: 'Получить помощь или сообщить о проблеме',

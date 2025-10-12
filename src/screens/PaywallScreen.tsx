@@ -37,7 +37,7 @@ const PaywallScreen: React.FC = () => {
       setProUser(true);
 
       Alert.alert(
-        'Welcome to Artifex Pro!',
+        'Welcome to Chromica Pro!',
         'You now have access to all premium features.',
         [
           {
@@ -104,7 +104,7 @@ const PaywallScreen: React.FC = () => {
           <View style={styles.crownContainer}>
             <Image source={crown} style={styles.crownIcon} />
           </View>
-          <Text style={styles.heroTitle}>Artifex Pro</Text>
+          <Text style={styles.heroTitle}>Chromica Pro</Text>
           <Text style={styles.heroSubtitle}>Unlock the Full Experience</Text>
         </View>
 
@@ -114,7 +114,7 @@ const PaywallScreen: React.FC = () => {
           {renderFeature('✓', '30+ Exclusive Fonts')}
           {renderFeature('✓', 'Advanced Filters')}
           {renderFeature('✓', 'Custom Watermarks')}
-          {renderFeature('✓', 'No "Made with Artifex" Mark')}
+          {renderFeature('✓', 'No "Made with Chromica" Mark')}
           {renderFeature('✓', 'Priority Support')}
         </View>
 

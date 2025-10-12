@@ -1,6 +1,6 @@
 # Fonts Directory
 
-This directory contains font files for the Artifex app.
+This directory contains font files for the Chromica app.
 
 ## Structure
 

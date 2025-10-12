@@ -30,7 +30,7 @@ MMKV library cannot be used when React Native is running with a remote debugger 
 ### Before (MMKV - Debugger Issues)
 
 ```typescript
-const storage = new MMKV({ id: 'artifex-projects' });
+const storage = new MMKV({ id: 'chromica-projects' });
 storage.set('key', 'value'); // Synchronous, fails in debugger
 ```
 

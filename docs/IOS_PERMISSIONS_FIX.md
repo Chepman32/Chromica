@@ -10,14 +10,14 @@ When an iOS app tries to access the photo library without declaring the required
 
 ### 1. **Added Required iOS Permissions**
 
-Added these entries to `ios/Artifex/Info.plist`:
+Added these entries to `ios/Chromica/Info.plist`:
 
 ```xml
 <key>NSPhotoLibraryUsageDescription</key>
-<string>Artifex needs access to your photo library to let you select images for editing.</string>
+<string>Chromica needs access to your photo library to let you select images for editing.</string>
 
 <key>NSPhotoLibraryAddUsageDescription</key>
-<string>Artifex needs permission to save your edited photos to your photo library.</string>
+<string>Chromica needs permission to save your edited photos to your photo library.</string>
 ```
 
 ### 2. **Permission Descriptions**
@@ -39,7 +39,7 @@ Now that permissions are properly declared, the app can safely:
 ### **First Launch Experience**
 
 1. **Tap + button** → ImagePicker opens (no crash!)
-2. **iOS shows permission dialog**: "Artifex would like to access your photos"
+2. **iOS shows permission dialog**: "Chromica would like to access your photos"
 3. **User grants permission** → Shows real photos from gallery
 4. **User denies permission** → Shows beautiful sample photos
 

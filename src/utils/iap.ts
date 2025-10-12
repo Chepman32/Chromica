@@ -1,4 +1,4 @@
-// In-App Purchase utilities for Artifex Pro
+// In-App Purchase utilities for Chromica Pro
 
 import { Alert } from 'react-native';
 import { useAppStore } from '../stores/appStore';
@@ -20,14 +20,14 @@ export interface PurchaseResult {
   error?: string;
 }
 
-const ARTIFEX_PRO_PRODUCT_ID = 'com.artifex.pro';
+const CHROMICA_PRO_PRODUCT_ID = 'com.chromica.pro';
 
 // Mock product data
 const MOCK_PRODUCT: IAPProduct = {
-  productId: ARTIFEX_PRO_PRODUCT_ID,
+  productId: CHROMICA_PRO_PRODUCT_ID,
   price: '$9.99',
   currency: 'USD',
-  title: 'Artifex Pro',
+  title: 'Chromica Pro',
   description:
     'Unlock all premium features, remove watermarks, and access 100+ exclusive assets',
 };
@@ -55,7 +55,7 @@ class IAPManager {
       // Mock purchase flow
       return new Promise(resolve => {
         Alert.alert(
-          'Purchase Artifex Pro',
+          'Purchase Chromica Pro',
           `${MOCK_PRODUCT.price} - ${MOCK_PRODUCT.description}`,
           [
             {
@@ -113,7 +113,7 @@ class IAPManager {
 
     Alert.alert(
       'Purchase Successful! 🎉',
-      'Welcome to Artifex Pro! All premium features are now unlocked.',
+      'Welcome to Chromica Pro! All premium features are now unlocked.',
       [{ text: 'Awesome!', style: 'default' }],
     );
   }
@@ -130,7 +130,7 @@ class IAPManager {
 export const iapManager = new IAPManager();
 
 // Convenience functions
-export const purchaseArtifexPro = () => iapManager.purchasePro();
+export const purchaseChromicaPro = () => iapManager.purchasePro();
 export const restorePurchases = () => iapManager.restorePurchases();
 export const getIAPProducts = () => iapManager.getProducts();
 
@@ -140,7 +140,7 @@ export const useIAP = () => {
 
   return {
     isProUser,
-    purchasePro: purchaseArtifexPro,
+    purchasePro: purchaseChromicaPro,
     restorePurchases,
     getProducts: getIAPProducts,
   };

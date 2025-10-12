@@ -1,4 +1,4 @@
-// Core type definitions for Artifex
+// Core type definitions for Chromica
 
 export interface Project {
   id: string;

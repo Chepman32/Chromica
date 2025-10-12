@@ -10,7 +10,7 @@ Chromica is a professional-grade, offline-first mobile image editor for iOS, spe
 
 #### 1. Rebranding
 
-- ✅ App renamed from "Artifex" to "Chromica"
+- ✅ Chromica branding standardized across all platforms and assets
 - ✅ Updated package.json, app.json, and all references
 - ✅ Added new dependencies (react-native-iap, react-native-image-picker, jotai, react-query)
 
@@ -285,7 +285,7 @@ yarn android
 
 ## Contributing
 
-This is a transformation from Artifex to Chromica. The foundation is solid, but many features need completion. Priority should be given to:
+This is a transformation from Chromica to Chromica. The foundation is solid, but many features need completion. Priority should be given to:
 
 1. Connecting shaders to canvas rendering
 2. Implementing parameter controls
