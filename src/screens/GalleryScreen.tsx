@@ -100,7 +100,7 @@ export const GalleryScreen: React.FC = () => {
             : `file://${filepath}`;
           console.log('Converted to file URI:', fileUri);
 
-          navigation.navigate('EffectsEditor' as never, {
+          navigation.navigate('Editor' as never, {
             imageUri: fileUri,
             imageDimensions: {
               width: photo.node.image.width,
@@ -112,13 +112,13 @@ export const GalleryScreen: React.FC = () => {
       }
 
       // If not ph:// or conversion failed, use original URI
-      navigation.navigate('EffectsEditor' as never, {
+      navigation.navigate('Editor' as never, {
         imageUri: phUri,
       } as never);
     } catch (error) {
       console.error('Error converting photo URI:', error);
       // Fallback: use original URI
-      navigation.navigate('EffectsEditor' as never, {
+      navigation.navigate('Editor' as never, {
         imageUri: phUri,
       } as never);
     }

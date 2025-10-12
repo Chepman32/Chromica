@@ -114,6 +114,8 @@ export const EffectsEditorScreen: React.FC = () => {
 
   const {
     effectStack,
+    history,
+    historyIndex,
     addEffect,
     updateEffectParams,
     clearEffects,
@@ -212,24 +214,48 @@ export const EffectsEditorScreen: React.FC = () => {
     updateEffectParams(currentLayer.id, { [paramName]: value });
   };
 
+  // Sync selectedEffectId with effectStack changes (for undo/redo)
+  useEffect(() => {
+    if (effectStack.length > 0) {
+      const lastEffect = effectStack[effectStack.length - 1];
+      setSelectedEffectId(lastEffect.effectId);
+    } else {
+      setSelectedEffectId(null);
+    }
+  }, [effectStack]);
+
   const handleUndo = () => {
+    console.log('Undo - historyIndex:', historyIndex, 'history.length:', history.length);
     if (canUndo()) {
       undo();
       ReactNativeHapticFeedback.trigger('impactLight');
+      console.log('Undo executed');
+    } else {
+      console.log('Cannot undo');
     }
   };
 
   const handleRedo = () => {
+    console.log('Redo - historyIndex:', historyIndex, 'history.length:', history.length);
     if (canRedo()) {
       redo();
       ReactNativeHapticFeedback.trigger('impactLight');
+      console.log('Redo executed');
+    } else {
+      console.log('Cannot redo');
     }
   };
 
   const handleReset = () => {
+    console.log('Reset clicked');
+    console.log('Before reset - canUndo:', canUndo(), 'canRedo:', canRedo());
     clearEffects();
     setSelectedEffectId(null);
     ReactNativeHapticFeedback.trigger('notificationWarning');
+    // Check state after reset
+    setTimeout(() => {
+      console.log('After reset - canUndo:', canUndo(), 'canRedo:', canRedo());
+    }, 100);
   };
 
   return (
@@ -242,9 +268,23 @@ export const EffectsEditorScreen: React.FC = () => {
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.topBarTitle} numberOfLines={1}>
-          {imageUri.split('/').pop()}
-        </Text>
+
+        <View style={styles.topBarCenter}>
+          <TouchableOpacity
+            onPress={handleUndo}
+            style={[styles.topToolButton, !canUndo() && styles.topToolButtonDisabled]}
+          >
+            <Text style={[styles.topToolIcon, !canUndo() && styles.topToolIconDisabled]}>↶</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleRedo}
+            style={[styles.topToolButton, !canRedo() && styles.topToolButtonDisabled]}
+          >
+            <Text style={[styles.topToolIcon, !canRedo() && styles.topToolIconDisabled]}>↷</Text>
+          </TouchableOpacity>
+        </View>
+
         <TouchableOpacity
           onPress={() => {
             navigation.navigate(
@@ -314,24 +354,6 @@ export const EffectsEditorScreen: React.FC = () => {
 
       {/* Quick Tools Bar */}
       <View style={styles.quickTools}>
-        <TouchableOpacity
-          onPress={handleUndo}
-          disabled={!canUndo()}
-          style={[styles.toolButton, !canUndo() && styles.toolButtonDisabled]}
-        >
-          <Text style={styles.toolIcon}>↶</Text>
-          <Text style={styles.toolLabel}>Undo</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={handleRedo}
-          disabled={!canRedo()}
-          style={[styles.toolButton, !canRedo() && styles.toolButtonDisabled]}
-        >
-          <Text style={styles.toolIcon}>↷</Text>
-          <Text style={styles.toolLabel}>Redo</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity onPress={() => {}} style={styles.toolButton}>
           <Text style={styles.toolIcon}>👁</Text>
           <Text style={styles.toolLabel}>Compare</Text>
@@ -465,6 +487,26 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textAlign: 'center',
     marginHorizontal: 16,
+  },
+  topBarCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 24,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  topToolButton: {
+    padding: 8,
+  },
+  topToolButtonDisabled: {
+    opacity: 0.3,
+  },
+  topToolIcon: {
+    fontSize: 28,
+    color: '#FFFFFF',
+  },
+  topToolIconDisabled: {
+    color: '#666666',
   },
   shareButton: {
     padding: 8,
