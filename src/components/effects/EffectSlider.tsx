@@ -20,6 +20,7 @@ interface EffectSliderProps {
   max: number;
   step?: number;
   onChange: (value: number) => void;
+  onChangeEnd?: (value: number) => void;
 }
 
 const SLIDER_WIDTH = 280;
@@ -31,13 +32,16 @@ export const EffectSlider: React.FC<EffectSliderProps> = ({
   max,
   step = 1,
   onChange,
+  onChangeEnd,
 }) => {
   const position = useSharedValue(((value - min) / (max - min)) * SLIDER_WIDTH);
   const scale = useSharedValue(1);
+  const lastValue = useSharedValue(value);
 
   const gesture = Gesture.Pan()
     .onBegin(() => {
       scale.value = withSpring(1.3);
+      lastValue.value = value;
       runOnJS(ReactNativeHapticFeedback.trigger)('impactLight');
     })
     .onUpdate(e => {
@@ -51,6 +55,13 @@ export const EffectSlider: React.FC<EffectSliderProps> = ({
     })
     .onEnd(() => {
       scale.value = withSpring(1);
+
+      if (onChangeEnd) {
+        const finalPos = position.value;
+        const finalValue = min + (finalPos / SLIDER_WIDTH) * (max - min);
+        const steppedFinalValue = Math.round(finalValue / step) * step;
+        runOnJS(onChangeEnd)(steppedFinalValue);
+      }
     });
 
   const thumbStyle = useAnimatedStyle(() => ({

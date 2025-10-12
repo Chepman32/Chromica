@@ -64,6 +64,8 @@ interface EffectsState {
   // Actions
   addEffect: (effectId: string, params: Record<string, any>) => void;
   updateEffectParams: (layerId: string, params: Record<string, any>) => void;
+  updateEffectParamsNoHistory: (layerId: string, params: Record<string, any>) => void;
+  commitEffectParamsToHistory: (layerId: string) => void;
   removeEffect: (layerId: string) => void;
   reorderEffects: (fromIndex: number, toIndex: number) => void;
   toggleEffectVisibility: (layerId: string) => void;
@@ -145,6 +147,32 @@ export const useEffectsStore = create<EffectsState>()(
 
           return {
             effectStack: newStack,
+            history: newHistory,
+            historyIndex: newHistory.length - 1,
+          };
+        });
+      },
+
+      updateEffectParamsNoHistory: (layerId, params) => {
+        set(state => {
+          const newStack = state.effectStack.map(layer =>
+            layer.id === layerId
+              ? { ...layer, params: { ...layer.params, ...params } }
+              : layer,
+          );
+
+          return {
+            effectStack: newStack,
+          };
+        });
+      },
+
+      commitEffectParamsToHistory: (layerId) => {
+        set(state => {
+          const newHistory = state.history.slice(0, state.historyIndex + 1);
+          newHistory.push([...state.effectStack]);
+
+          return {
             history: newHistory,
             historyIndex: newHistory.length - 1,
           };

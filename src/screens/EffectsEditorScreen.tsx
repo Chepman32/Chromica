@@ -119,6 +119,8 @@ export const EffectsEditorScreen: React.FC = () => {
     historyIndex,
     addEffect,
     updateEffectParams,
+    updateEffectParamsNoHistory,
+    commitEffectParamsToHistory,
     clearEffects,
     undo,
     redo,
@@ -201,7 +203,14 @@ export const EffectsEditorScreen: React.FC = () => {
     if (!selectedEffectId || effectStack.length === 0) return;
 
     const currentLayer = effectStack[effectStack.length - 1];
-    updateEffectParams(currentLayer.id, { [paramName]: value });
+    updateEffectParamsNoHistory(currentLayer.id, { [paramName]: value });
+  };
+
+  const handleParameterChangeEnd = (paramName: string, value: any) => {
+    if (!selectedEffectId || effectStack.length === 0) return;
+
+    const currentLayer = effectStack[effectStack.length - 1];
+    commitEffectParamsToHistory(currentLayer.id);
   };
 
   // Sync selectedEffectId with effectStack changes (for undo/redo)
@@ -435,23 +444,29 @@ export const EffectsEditorScreen: React.FC = () => {
         {selectedEffect && currentParams && (
           <View style={styles.parametersPage}>
             <Text style={styles.parametersPanelTitle}>{selectedEffect.name}</Text>
-            {selectedEffect.parameters.map(param => {
-              if (param.type === 'slider') {
-                const currentValue = currentParams[param.name] ?? param.default;
-                return (
-                  <EffectSlider
-                    key={param.name}
-                    label={param.label}
-                    value={currentValue as number}
-                    min={param.min!}
-                    max={param.max!}
-                    step={param.step}
-                    onChange={value => handleParameterChange(param.name, value)}
-                  />
-                );
-              }
-              return null;
-            })}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.parametersScrollContent}
+            >
+              {selectedEffect.parameters.map(param => {
+                if (param.type === 'slider') {
+                  const currentValue = currentParams[param.name] ?? param.default;
+                  return (
+                    <EffectSlider
+                      key={param.name}
+                      label={param.label}
+                      value={currentValue as number}
+                      min={param.min!}
+                      max={param.max!}
+                      step={param.step}
+                      onChange={value => handleParameterChange(param.name, value)}
+                      onChangeEnd={value => handleParameterChangeEnd(param.name, value)}
+                    />
+                  );
+                }
+                return null;
+              })}
+            </ScrollView>
           </View>
         )}
       </ScrollView>
@@ -580,7 +595,10 @@ const styles = StyleSheet.create({
   parametersPage: {
     height: SCREEN_HEIGHT * 0.3,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingTop: 16,
+  },
+  parametersScrollContent: {
+    paddingBottom: 16,
   },
   categoryTabsContainer: {
     paddingVertical: 12,
