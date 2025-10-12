@@ -486,6 +486,39 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
+        case 'glitch-rows': {
+          const amount = params.amount ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float amount;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float row = floor(coord.y);
+
+              float noiseVal = fbm(float2(row * 0.013, 0.0));
+              float mask = step(0.65, fract(noiseVal * 7.0));
+              float shift = (noiseVal - 0.5) * amount * 120.0 * mask;
+
+              float2 sampleCoord = clamp(coord + float2(shift, 0.0), float2(0.0), size - float2(1.0));
+              half4 color = image.eval(sampleCoord);
+
+              float band = step(0.75, fract(coord.y * 0.2));
+              color.rgb *= mix(1.0, 0.7, band * amount * 0.5);
+
+              return color;
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            amount,
+          });
+        }
+
         case 'halftone': {
           const dotSize = params.dotSize || 8;
           const angle = params.angle || 45;
@@ -690,30 +723,56 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
               float2 size = max(resolution, float2(1.0));
               half4 base = image.eval(coord);
 
-              float3 accum = float3(0.0);
-              float total = 0.0;
-              int radius = 3;
-
-              for (int y = -radius; y <= radius; ++y) {
-                for (int x = -radius; x <= radius; ++x) {
+              float3 blurAccum = float3(0.0);
+              float blurWeight = 0.0;
+              for (int y = -3; y <= 3; ++y) {
+                for (int x = -3; x <= 3; ++x) {
                   float2 offset = float2(float(x), float(y));
-                  float weight = exp(-dot(offset, offset) * 0.12);
+                  float weight = exp(-dot(offset, offset) * 0.18);
                   float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
                   half4 sample = image.eval(sampleCoord);
-                  accum += sample.rgb * weight;
-                  total += weight;
+                  blurAccum += sample.rgb * weight;
+                  blurWeight += weight;
                 }
               }
 
-              float3 smooth = accum / max(total, 0.001);
-              float3 quant = floor(smooth * 7.0 + 0.5) / 7.0;
+              float3 smooth = blurAccum / max(blurWeight, 0.001);
 
-              float texture = fbm(coord / (size * 0.6));
-              float bleed = smoothstep(0.2, 0.8, texture);
+              float3 localAccum = float3(0.0);
+              float localWeight = 0.0;
+              for (int y = -1; y <= 1; ++y) {
+                for (int x = -1; x <= 1; ++x) {
+                  float2 offset = float2(float(x), float(y));
+                  float weight = exp(-dot(offset, offset) * 0.7);
+                  float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
+                  localAccum += sample.rgb * weight;
+                  localWeight += weight;
+                }
+              }
+
+              float3 localAverage = localAccum / max(localWeight, 0.001);
+              float3 wash = mix(base.rgb, smooth, 0.7);
+              float3 poster = floor(wash * 5.0 + 0.5) / 5.0;
+
+              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
+              half4 c12 = image.eval(coord + float2(1.0, 0.0));
+              half4 c01 = image.eval(coord + float2(0.0, -1.0));
+              half4 c21 = image.eval(coord + float2(0.0, 1.0));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+              float edge = abs(dot(c10.rgb - c12.rgb, w)) + abs(dot(c01.rgb - c21.rgb, w));
+              float edgeMask = smoothstep(0.08, 0.25, edge);
+
+              float textureA = fbm(coord / (size * 0.6));
+              float textureB = fbm((coord + float2(37.1, 91.7)) / (size * 0.35));
+              float texture = clamp(textureA * 0.7 + textureB * 0.3, 0.0, 1.0);
 
               float t = clamp(intensity, 0.0, 1.0);
-              float3 mixed = mix(base.rgb, quant, t);
-              float3 result = mix(mixed, mixed * (bleed * 0.4 + 0.8), t * 0.6);
+              float3 bleeds = mix(poster, localAverage, 0.35);
+              float3 textured = bleeds * (0.65 + texture * 0.7 * t);
+              float3 outlined = textured - edgeMask * 0.28 * t;
+              float3 result = clamp(outlined, 0.0, 1.0);
 
               return half4(result, base.a);
             }
@@ -788,36 +847,40 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         }
 
         case 'motion-blur': {
-          const distance = params.distance ?? 25;
+          const blurDistance = params.distance ?? 25;
           const angle = params.angle ?? 0;
 
           const source = `
             uniform shader image;
             uniform float2 resolution;
-            uniform float distance;
+            uniform float blurDistance;
             uniform float angle;
 
             const float PI = 3.14159265359;
+            const int STEPS = 32;
 
             half4 main(float2 coord) {
-              float dist = max(distance, 0.0);
+              float2 size = max(resolution, float2(1.0));
+              float dist = max(blurDistance, 0.0);
               if (dist < 0.001) {
-                return image.eval(coord);
+                float2 clamped = clamp(coord, float2(0.0), size - float2(1.0));
+                return image.eval(clamped);
               }
 
               float rad = angle * PI / 180.0;
               float2 dir = float2(cos(rad), sin(rad));
-              int steps = 24;
-              float stepSize = dist / float(steps - 1);
+              float stepSize = dist / float(STEPS - 1);
 
               half4 sum = half4(0.0);
               float total = 0.0;
 
-              for (int i = 0; i < steps; ++i) {
-                float offset = (float(i) - float(steps - 1) * 0.5) * stepSize;
-                float2 sampleCoord = coord + dir * offset;
+              for (int i = 0; i < STEPS; ++i) {
+                float idx = float(i);
+                float offset = (idx - float(STEPS - 1) * 0.5) * stepSize;
+                float2 sampleCoord = clamp(coord + dir * offset, float2(0.0), size - float2(1.0));
                 half4 sample = image.eval(sampleCoord);
-                float weight = 1.0 - abs(float(i) - float(steps - 1) * 0.5) / float(steps * 0.5);
+                float weight = 1.0 - abs(idx - float(STEPS - 1) * 0.5) / (float(STEPS) * 0.5);
+                weight = clamp(weight, 0.0, 1.0);
                 sum += sample * weight;
                 total += weight;
               }
@@ -828,7 +891,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
           return compile(source, {
             resolution: [width, height],
-            distance,
+            blurDistance,
             angle,
           });
         }
@@ -841,18 +904,21 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform shader image;
             uniform float radius;
             uniform float threshold;
+            uniform float2 resolution;
+            const int MAX_KERNEL = 40;
 
             half4 main(float2 coord) {
-              half4 center = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
+              float2 clamped = clamp(coord, float2(0.0), size - float2(1.0));
+              half4 center = image.eval(clamped);
               float r = max(radius, 1.0);
               float t = clamp(threshold, 0.0, 1.0);
 
               half4 accum = center;
               float weightSum = 1.0;
-              int maxSamples = 8;
 
-              for (int x = -maxSamples; x <= maxSamples; ++x) {
-                for (int y = -maxSamples; y <= maxSamples; ++y) {
+              for (int x = -MAX_KERNEL; x <= MAX_KERNEL; ++x) {
+                for (int y = -MAX_KERNEL; y <= MAX_KERNEL; ++y) {
                   if (x == 0 && y == 0) {
                     continue;
                   }
@@ -863,7 +929,8 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
                     continue;
                   }
 
-                  half4 sample = image.eval(coord + offset);
+                  float2 sampleCoord = clamp(clamped + offset, float2(0.0), size - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
                   float diff = length(sample.rgb - center.rgb);
                   float falloff = exp(-dist / r);
                   float weight = falloff * exp(-diff * 20.0);
@@ -884,6 +951,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           return compile(source, {
             radius,
             threshold,
+            resolution: [width, height],
           });
         }
 
@@ -895,20 +963,23 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform shader image;
             uniform float amount;
             uniform float radius;
+            uniform float2 resolution;
 
             half4 main(float2 coord) {
-              half4 center = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
+              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
               float r = max(radius, 1.0);
               float2 step = float2(r);
 
-              half4 c00 = image.eval(coord + float2(-step.x, -step.y));
-              half4 c01 = image.eval(coord + float2(0.0, -step.y));
-              half4 c02 = image.eval(coord + float2(step.x, -step.y));
-              half4 c10 = image.eval(coord + float2(-step.x, 0.0));
-              half4 c12 = image.eval(coord + float2(step.x, 0.0));
-              half4 c20 = image.eval(coord + float2(-step.x, step.y));
-              half4 c21 = image.eval(coord + float2(0.0, step.y));
-              half4 c22 = image.eval(coord + float2(step.x, step.y));
+              half4 center = image.eval(centerCoord);
+              half4 c00 = image.eval(clamp(centerCoord + float2(-step.x, -step.y), float2(0.0), size - float2(1.0)));
+              half4 c01 = image.eval(clamp(centerCoord + float2(0.0, -step.y), float2(0.0), size - float2(1.0)));
+              half4 c02 = image.eval(clamp(centerCoord + float2(step.x, -step.y), float2(0.0), size - float2(1.0)));
+              half4 c10 = image.eval(clamp(centerCoord + float2(-step.x, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c12 = image.eval(clamp(centerCoord + float2(step.x, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c20 = image.eval(clamp(centerCoord + float2(-step.x, step.y), float2(0.0), size - float2(1.0)));
+              half4 c21 = image.eval(clamp(centerCoord + float2(0.0, step.y), float2(0.0), size - float2(1.0)));
+              half4 c22 = image.eval(clamp(centerCoord + float2(step.x, step.y), float2(0.0), size - float2(1.0)));
 
               half4 blur = (c00 + c02 + c20 + c22) * 0.0625;
               blur += (c01 + c10 + c12 + c21) * 0.125;
@@ -925,6 +996,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           return compile(source, {
             amount,
             radius,
+            resolution: [width, height],
           });
         }
 
@@ -940,15 +1012,16 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
             half4 main(float2 coord) {
               float2 size = max(resolution, float2(1.0));
-              half4 c00 = image.eval(coord + float2(-1.0, -1.0));
-              half4 c01 = image.eval(coord + float2(0.0, -1.0));
-              half4 c02 = image.eval(coord + float2(1.0, -1.0));
-              half4 c10 = image.eval(coord + float2(-1.0, 0.0));
-              half4 c11 = image.eval(coord);
-              half4 c12 = image.eval(coord + float2(1.0, 0.0));
-              half4 c20 = image.eval(coord + float2(-1.0, 1.0));
-              half4 c21 = image.eval(coord + float2(0.0, 1.0));
-              half4 c22 = image.eval(coord + float2(1.0, 1.0));
+              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
+              half4 c00 = image.eval(clamp(centerCoord + float2(-1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c01 = image.eval(clamp(centerCoord + float2(0.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c02 = image.eval(clamp(centerCoord + float2(1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c10 = image.eval(clamp(centerCoord + float2(-1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c11 = image.eval(centerCoord);
+              half4 c12 = image.eval(clamp(centerCoord + float2(1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c20 = image.eval(clamp(centerCoord + float2(-1.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c21 = image.eval(clamp(centerCoord + float2(0.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c22 = image.eval(clamp(centerCoord + float2(1.0, 1.0), float2(0.0), size - float2(1.0)));
 
               float3 w = float3(0.299, 0.587, 0.114);
 
@@ -1206,22 +1279,25 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform shader image;
             uniform float strength;
             uniform float threshold;
+            uniform float2 resolution;
+            const int NOISE_RADIUS = 3;
 
             half4 main(float2 coord) {
-              half4 center = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
+              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
+              half4 center = image.eval(centerCoord);
               float3 accum = center.rgb;
               float weightSum = 1.0;
 
-              int radius = 3;
-
-              for (int x = -radius; x <= radius; ++x) {
-                for (int y = -radius; y <= radius; ++y) {
+              for (int x = -NOISE_RADIUS; x <= NOISE_RADIUS; ++x) {
+                for (int y = -NOISE_RADIUS; y <= NOISE_RADIUS; ++y) {
                   if (x == 0 && y == 0) {
                     continue;
                   }
 
                   float2 offset = float2(float(x), float(y));
-                  half4 sample = image.eval(coord + offset);
+                  float2 sampleCoord = clamp(centerCoord + offset, float2(0.0), size - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
                   float diff = length(sample.rgb - center.rgb);
 
                   if (diff < threshold) {
@@ -1242,6 +1318,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           return compile(source, {
             strength,
             threshold,
+            resolution: [width, height],
           });
         }
 
@@ -1292,9 +1369,13 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float radius;
             uniform float sigmaColor;
             uniform float sigmaSpace;
+            uniform float2 resolution;
+            const int MAX_BILATERAL_RADIUS = 25;
 
             half4 main(float2 coord) {
-              half4 center = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
+              float2 clampedCoord = clamp(coord, float2(0.0), size - float2(1.0));
+              half4 center = image.eval(clampedCoord);
               float r = clamp(radius, 1.0, 15.0);
               float colorSigma = max(sigmaColor, 0.01);
               float spaceSigma = max(sigmaSpace, 0.01);
@@ -1302,10 +1383,8 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
               half4 sum = center;
               float weightSum = 1.0;
 
-              int maxSamples = 10;
-
-              for (int x = -maxSamples; x <= maxSamples; ++x) {
-                for (int y = -maxSamples; y <= maxSamples; ++y) {
+              for (int x = -MAX_BILATERAL_RADIUS; x <= MAX_BILATERAL_RADIUS; ++x) {
+                for (int y = -MAX_BILATERAL_RADIUS; y <= MAX_BILATERAL_RADIUS; ++y) {
                   if (x == 0 && y == 0) {
                     continue;
                   }
@@ -1316,7 +1395,8 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
                     continue;
                   }
 
-                  half4 sample = image.eval(coord + offset);
+                  float2 sampleCoord = clamp(clampedCoord + offset, float2(0.0), size - float2(1.0));
+                  half4 sample = image.eval(sampleCoord);
 
                   float spaceWeight = exp(-(dist * dist) / (2.0 * spaceSigma * spaceSigma * r));
                   float colorDiff = length(sample.rgb - center.rgb);
@@ -1337,6 +1417,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             radius,
             sigmaColor,
             sigmaSpace,
+            resolution: [width, height],
           });
         }
 
@@ -1346,48 +1427,107 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           const source = `
             uniform shader image;
             uniform float radius;
+            uniform float2 resolution;
+
+            void swapIfGreater(inout float la, inout float3 ca, inout float lb, inout float3 cb) {
+              if (la > lb) {
+                float tempL = la;
+                la = lb;
+                lb = tempL;
+
+                float3 tempC = ca;
+                ca = cb;
+                cb = tempC;
+              }
+            }
 
             half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float2 centerCoord = clamp(coord, float2(0.0), size - float2(1.0));
               float r = clamp(radius, 1.0, 5.0);
-              float3 samples[9];
-              float luminance[9];
               float3 w = float3(0.299, 0.587, 0.114);
 
-              int idx = 0;
-              for (int y = -1; y <= 1; ++y) {
-                for (int x = -1; x <= 1; ++x) {
-                  float2 offset = float2(float(x), float(y)) * r;
-                  half4 sample = image.eval(coord + offset);
-                  samples[idx] = sample.rgb;
-                  luminance[idx] = dot(sample.rgb, w);
-                  idx += 1;
-                }
-              }
+              float2 o0 = float2(-1.0, -1.0) * r;
+              float2 o1 = float2(0.0, -1.0) * r;
+              float2 o2 = float2(1.0, -1.0) * r;
+              float2 o3 = float2(-1.0, 0.0) * r;
+              float2 o4 = float2(0.0, 0.0);
+              float2 o5 = float2(1.0, 0.0) * r;
+              float2 o6 = float2(-1.0, 1.0) * r;
+              float2 o7 = float2(0.0, 1.0) * r;
+              float2 o8 = float2(1.0, 1.0) * r;
 
-              for (int i = 0; i < 9; ++i) {
-                for (int j = i + 1; j < 9; ++j) {
-                  if (luminance[i] > luminance[j]) {
-                    float tmp = luminance[i];
-                    luminance[i] = luminance[j];
-                    luminance[j] = tmp;
+              half4 s0 = image.eval(clamp(centerCoord + o0, float2(0.0), size - float2(1.0)));
+              half4 s1 = image.eval(clamp(centerCoord + o1, float2(0.0), size - float2(1.0)));
+              half4 s2 = image.eval(clamp(centerCoord + o2, float2(0.0), size - float2(1.0)));
+              half4 s3 = image.eval(clamp(centerCoord + o3, float2(0.0), size - float2(1.0)));
+              half4 s4 = image.eval(centerCoord);
+              half4 s5 = image.eval(clamp(centerCoord + o5, float2(0.0), size - float2(1.0)));
+              half4 s6 = image.eval(clamp(centerCoord + o6, float2(0.0), size - float2(1.0)));
+              half4 s7 = image.eval(clamp(centerCoord + o7, float2(0.0), size - float2(1.0)));
+              half4 s8 = image.eval(clamp(centerCoord + o8, float2(0.0), size - float2(1.0)));
 
-                    float3 tmpColor = samples[i];
-                    samples[i] = samples[j];
-                    samples[j] = tmpColor;
-                  }
-                }
-              }
+              float3 c0 = s0.rgb;
+              float3 c1 = s1.rgb;
+              float3 c2 = s2.rgb;
+              float3 c3 = s3.rgb;
+              float3 c4 = s4.rgb;
+              float3 c5 = s5.rgb;
+              float3 c6 = s6.rgb;
+              float3 c7 = s7.rgb;
+              float3 c8 = s8.rgb;
 
-              float3 medianColor = samples[4];
-              half4 center = image.eval(coord);
-              float3 result = mix(center.rgb, medianColor, 0.85);
+              float l0 = dot(c0, w);
+              float l1 = dot(c1, w);
+              float l2 = dot(c2, w);
+              float l3 = dot(c3, w);
+              float l4 = dot(c4, w);
+              float l5 = dot(c5, w);
+              float l6 = dot(c6, w);
+              float l7 = dot(c7, w);
+              float l8 = dot(c8, w);
 
-              return half4(result, center.a);
+              swapIfGreater(l0, c0, l1, c1);
+              swapIfGreater(l3, c3, l4, c4);
+              swapIfGreater(l6, c6, l7, c7);
+              swapIfGreater(l1, c1, l2, c2);
+              swapIfGreater(l4, c4, l5, c5);
+              swapIfGreater(l7, c7, l8, c8);
+              swapIfGreater(l0, c0, l1, c1);
+              swapIfGreater(l3, c3, l4, c4);
+              swapIfGreater(l6, c6, l7, c7);
+              swapIfGreater(l0, c0, l3, c3);
+              swapIfGreater(l3, c3, l6, c6);
+              swapIfGreater(l0, c0, l3, c3);
+              swapIfGreater(l1, c1, l4, c4);
+              swapIfGreater(l4, c4, l7, c7);
+              swapIfGreater(l1, c1, l4, c4);
+              swapIfGreater(l2, c2, l5, c5);
+              swapIfGreater(l5, c5, l8, c8);
+              swapIfGreater(l2, c2, l5, c5);
+              swapIfGreater(l1, c1, l2, c2);
+              swapIfGreater(l4, c4, l5, c5);
+              swapIfGreater(l7, c7, l8, c8);
+              swapIfGreater(l2, c2, l5, c5);
+              swapIfGreater(l5, c5, l8, c8);
+              swapIfGreater(l2, c2, l5, c5);
+              swapIfGreater(l4, c4, l7, c7);
+              swapIfGreater(l4, c4, l6, c6);
+              swapIfGreater(l2, c2, l4, c4);
+              swapIfGreater(l4, c4, l6, c6);
+              swapIfGreater(l4, c4, l5, c5);
+
+              float3 medianColor = c4;
+              half4 centerSample = image.eval(centerCoord);
+              float3 result = mix(centerSample.rgb, medianColor, 0.85);
+
+              return half4(result, centerSample.a);
             }
           `;
 
           return compile(source, {
             radius,
+            resolution: [width, height],
           });
         }
 
