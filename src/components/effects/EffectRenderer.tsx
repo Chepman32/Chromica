@@ -356,15 +356,17 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float lineCount;
             uniform float opacity;
 
-            const float TWO_PI = 6.28318530718;
-
             half4 main(float2 coord) {
-              float2 safeResolution = max(resolution, float2(1.0));
-              float2 uv = coord / safeResolution;
-              half4 color = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
+              float clampedLineCount = max(lineCount, 1.0);
+              float clampedOpacity = clamp(opacity, 0.0, 1.0);
 
-              float stripe = 0.5 + 0.5 * sin(uv.y * lineCount * TWO_PI);
-              float mask = mix(1.0, stripe, opacity);
+              float2 sampleCoord = clamp(coord, float2(0.0), size - float2(1.0));
+              half4 color = image.eval(sampleCoord);
+
+              float uvY = sampleCoord.y / size.y;
+              float stripe = step(0.5, fract(uvY * clampedLineCount));
+              float mask = mix(1.0, stripe, clampedOpacity);
 
               return half4(color.rgb * mask, color.a);
             }
@@ -376,11 +378,11 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           }
 
           return {
-            source: source,
+            source,
             uniforms: {
               resolution: [width, height],
-              lineCount: lineCount,
-              opacity: opacity,
+              lineCount,
+              opacity,
             },
           };
         }
@@ -488,41 +490,58 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float detail;
 
             const float3 LUMA_WEIGHTS = float3(0.299, 0.587, 0.114);
+            const int MAX_RADIUS = 7;
+            const int MAX_LEVELS = 16;
 
             half4 main(float2 coord) {
-              float2 safeResolution = max(resolution, float2(1.0));
-              float sampleStep = max(brushSize, 1.0);
-              float levels = max(detail, 1.0);
+              float2 size = max(resolution, float2(1.0));
+              float radius = clamp(brushSize, 1.0, float(MAX_RADIUS));
+              float levelCountF = clamp(detail, 1.0, float(MAX_LEVELS));
+              int levelCount = int(levelCountF);
 
-              float3 accum = float3(0.0);
-              float3 accumDetail = float3(0.0);
-              float totalSamples = 0.0;
-              float totalDetail = 0.0;
+              float bins[MAX_LEVELS];
+              float3 sums[MAX_LEVELS];
 
-              for (int x = -3; x <= 3; ++x) {
-                for (int y = -3; y <= 3; ++y) {
-                  float2 offset = float2(float(x), float(y)) * sampleStep;
-                  float2 sampleCoord = clamp(coord + offset, float2(0.0), safeResolution - float2(1.0));
+              for (int i = 0; i < MAX_LEVELS; ++i) {
+                bins[i] = 0.0;
+                sums[i] = float3(0.0);
+              }
+
+              float2 clampedCoord = clamp(coord, float2(0.0), size - float2(1.0));
+
+              for (int ox = -MAX_RADIUS; ox <= MAX_RADIUS; ++ox) {
+                for (int oy = -MAX_RADIUS; oy <= MAX_RADIUS; ++oy) {
+                  float2 offset = float2(float(ox), float(oy));
+                  if (length(offset) > radius) {
+                    continue;
+                  }
+
+                  float2 sampleCoord = clamp(clampedCoord + offset, float2(0.0), size - float2(1.0));
                   half4 sample = image.eval(sampleCoord);
 
                   float intensity = dot(sample.rgb, LUMA_WEIGHTS);
-                  float quantized = floor(intensity * levels) / levels;
-                  float weight = 1.0 - abs(intensity - quantized);
+                  float scaled = clamp(intensity * levelCountF, 0.0, levelCountF - 1.0);
+                  int idx = int(floor(scaled + 0.5));
 
-                  accum += sample.rgb;
-                  totalSamples += 1.0;
-
-                  accumDetail += sample.rgb * weight;
-                  totalDetail += weight;
+                  bins[idx] += 1.0;
+                  sums[idx] += sample.rgb;
                 }
               }
 
-              float3 average = accum / max(totalSamples, 1.0);
-              float3 stylized = accumDetail / max(totalDetail, 0.001);
-              float3 color = mix(average, stylized, 0.7);
-              color = floor(color * levels) / levels;
+              float maxWeight = bins[0];
+              int maxIndex = 0;
+              for (int i = 1; i < MAX_LEVELS; ++i) {
+                if (i < levelCount && bins[i] > maxWeight) {
+                  maxWeight = bins[i];
+                  maxIndex = i;
+                }
+              }
 
-              half4 base = image.eval(coord);
+              float3 color = sums[maxIndex] / max(maxWeight, 0.001);
+              color = floor(color * levelCountF + float3(0.5)) / levelCountF;
+              color = clamp(color, float3(0.0), float3(1.0));
+
+              half4 base = image.eval(clampedCoord);
               return half4(color, base.a);
             }
           `);
@@ -533,11 +552,11 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           }
 
           return {
-            source: source,
+            source,
             uniforms: {
               resolution: [width, height],
-              brushSize: brushSize,
-              detail: detail,
+              brushSize,
+              detail,
             },
           };
         }

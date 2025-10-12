@@ -60,6 +60,87 @@ half4 main(float2 coord) {
   float b = image.eval(coord + offset).b;
   return half4(r, g, b, 1.0);
 }`,
+  'glitch/scanlines.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float lineCount;
+uniform float opacity;
+
+half4 main(float2 coord) {
+  float2 size = max(resolution, float2(1.0));
+  float clampedLineCount = max(lineCount, 1.0);
+  float clampedOpacity = clamp(opacity, 0.0, 1.0);
+
+  float2 sampleCoord = clamp(coord, float2(0.0), size - float2(1.0));
+  half4 color = image.eval(sampleCoord);
+
+  float uvY = sampleCoord.y / size.y;
+  float stripe = step(0.5, fract(uvY * clampedLineCount));
+  float mask = mix(1.0, stripe, clampedOpacity);
+
+  return half4(color.rgb * mask, color.a);
+}`,
+  'stylization/oil-paint.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float brushSize;
+uniform float detail;
+
+const float3 LUMA_WEIGHTS = float3(0.299, 0.587, 0.114);
+const int MAX_RADIUS = 7;
+const int MAX_LEVELS = 16;
+
+half4 main(float2 coord) {
+  float2 size = max(resolution, float2(1.0));
+  float radius = clamp(brushSize, 1.0, float(MAX_RADIUS));
+  float levelCountF = clamp(detail, 1.0, float(MAX_LEVELS));
+  int levelCount = int(levelCountF);
+
+  float bins[MAX_LEVELS];
+  float3 sums[MAX_LEVELS];
+
+  for (int i = 0; i < MAX_LEVELS; ++i) {
+    bins[i] = 0.0;
+    sums[i] = float3(0.0);
+  }
+
+  float2 clampedCoord = clamp(coord, float2(0.0), size - float2(1.0));
+
+  for (int ox = -MAX_RADIUS; ox <= MAX_RADIUS; ++ox) {
+    for (int oy = -MAX_RADIUS; oy <= MAX_RADIUS; ++oy) {
+      float2 offset = float2(float(ox), float(oy));
+      if (length(offset) > radius) {
+        continue;
+      }
+
+      float2 sampleCoord = clamp(clampedCoord + offset, float2(0.0), size - float2(1.0));
+      half4 sample = image.eval(sampleCoord);
+
+      float intensity = dot(sample.rgb, LUMA_WEIGHTS);
+      float scaled = clamp(intensity * levelCountF, 0.0, levelCountF - 1.0);
+      int idx = int(floor(scaled + 0.5));
+
+      bins[idx] += 1.0;
+      sums[idx] += sample.rgb;
+    }
+  }
+
+  float maxWeight = bins[0];
+  int maxIndex = 0;
+  for (int i = 1; i < MAX_LEVELS; ++i) {
+    if (i < levelCount && bins[i] > maxWeight) {
+      maxWeight = bins[i];
+      maxIndex = i;
+    }
+  }
+
+  float3 color = sums[maxIndex] / max(maxWeight, 0.001);
+  color = floor(color * levelCountF + float3(0.5)) / levelCountF;
+  color = clamp(color, float3(0.0), float3(1.0));
+
+  half4 base = image.eval(clampedCoord);
+  return half4(color, base.a);
+}`,
 };
 
 export class ShaderManager {
@@ -103,6 +184,8 @@ export class ShaderManager {
       'cellular/pixelate.sksl',
       'tiling/kaleidoscope.sksl',
       'glitch/rgb-split.sksl',
+      'glitch/scanlines.sksl',
+      'stylization/oil-paint.sksl',
       'distortion/wave.sksl',
     ];
 
