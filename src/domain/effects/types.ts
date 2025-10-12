@@ -39,6 +39,7 @@ export interface Effect {
   complexity: number; // 0-1, affects preview quality
   parameters: EffectParameter[];
   shaderPath?: string;
+  icon?: any; // Image source for effect preview icon
 }
 
 export interface EffectLayer {

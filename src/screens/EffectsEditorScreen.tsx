@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -406,9 +407,17 @@ export const EffectsEditorScreen: React.FC = () => {
                   ]}
                 >
                   <View style={styles.effectPreview}>
-                    <Text style={styles.effectPreviewIcon}>
-                      {effect.category === EffectCategory.CELLULAR ? '⬛' : '🎨'}
-                    </Text>
+                    {effect.icon ? (
+                      <Image
+                        source={effect.icon}
+                        style={styles.effectPreviewImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <Text style={styles.effectPreviewIcon}>
+                        {effect.category === EffectCategory.CELLULAR ? '⬛' : '🎨'}
+                      </Text>
+                    )}
                   </View>
                   <Text style={styles.effectName}>{effect.name}</Text>
                   {effect.isPremium && !isPremium && (
@@ -636,6 +645,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#2A2A3E',
+    overflow: 'hidden',
+  },
+  effectPreviewImage: {
+    width: '100%',
+    height: '100%',
   },
   effectPreviewIcon: {
     fontSize: 36,

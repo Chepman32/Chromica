@@ -13,6 +13,7 @@ export const EFFECTS: Effect[] = [
     description: 'Classic pixel mosaic effect',
     isPremium: false,
     complexity: 0.2,
+    icon: require('../../assets/icons/filters/pixelate_strong.png'),
     parameters: [
       {
         name: 'cellSize',
@@ -40,6 +41,7 @@ export const EFFECTS: Effect[] = [
     description: 'Voronoi cell-based effect',
     isPremium: true,
     complexity: 0.6,
+    icon: require('../../assets/icons/filters/stained_glass_strong.png'),
     parameters: [
       {
         name: 'cellCount',
@@ -68,6 +70,7 @@ export const EFFECTS: Effect[] = [
     description: 'Classic print halftone dots',
     isPremium: true,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/halftone_dots_strong.png'),
     parameters: [
       {
         name: 'dotSize',
@@ -90,6 +93,26 @@ export const EFFECTS: Effect[] = [
     ],
     shaderPath: 'cellular/halftone.sksl',
   },
+  {
+    id: 'pointillize',
+    name: 'Pointillize',
+    category: EffectCategory.CELLULAR,
+    description: 'Pointillist painting effect',
+    isPremium: true,
+    complexity: 0.6,
+    icon: require('../../assets/icons/filters/pointillize_strong.png'),
+    parameters: [
+      {
+        name: 'dotSize',
+        label: 'Dot Size',
+        type: 'slider',
+        min: 2,
+        max: 30,
+        default: 8,
+        step: 1,
+      },
+    ],
+  },
 
   // TILING EFFECTS
   {
@@ -99,6 +122,7 @@ export const EFFECTS: Effect[] = [
     description: 'Radial symmetry effect',
     isPremium: false,
     complexity: 0.3,
+    icon: require('../../assets/icons/filters/quad_mirror.png'),
     parameters: [
       {
         name: 'segments',
@@ -137,6 +161,7 @@ export const EFFECTS: Effect[] = [
     description: 'Mirror reflection effect',
     isPremium: false,
     complexity: 0.2,
+    icon: require('../../assets/icons/filters/quad_mirror.png'),
     parameters: [
       {
         name: 'axis',
@@ -157,6 +182,35 @@ export const EFFECTS: Effect[] = [
     ],
     shaderPath: 'tiling/mirror.sksl',
   },
+  {
+    id: 'tile',
+    name: 'Tile Offset',
+    category: EffectCategory.TILING,
+    description: 'Tiling offset effect',
+    isPremium: false,
+    complexity: 0.2,
+    icon: require('../../assets/icons/filters/tile_offset_big.png'),
+    parameters: [
+      {
+        name: 'offsetX',
+        label: 'Offset X',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+      {
+        name: 'offsetY',
+        label: 'Offset Y',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
 
   // DISTORTION EFFECTS
   {
@@ -166,6 +220,7 @@ export const EFFECTS: Effect[] = [
     description: 'Sinusoidal wave distortion',
     isPremium: false,
     complexity: 0.3,
+    icon: require('../../assets/icons/filters/ripple_sine_strong.png'),
     parameters: [
       {
         name: 'amplitude',
@@ -211,6 +266,7 @@ export const EFFECTS: Effect[] = [
     description: 'Spiral rotation effect',
     isPremium: true,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/swirl_strong.png'),
     parameters: [
       {
         name: 'angle',
@@ -240,6 +296,7 @@ export const EFFECTS: Effect[] = [
     description: 'Radial scale distortion',
     isPremium: true,
     complexity: 0.3,
+    icon: require('../../assets/icons/filters/bulge_strong.png'),
     parameters: [
       {
         name: 'strength',
@@ -262,6 +319,86 @@ export const EFFECTS: Effect[] = [
     ],
     shaderPath: 'distortion/bulge.sksl',
   },
+  {
+    id: 'pinch',
+    name: 'Pinch',
+    category: EffectCategory.DISTORTION,
+    description: 'Pinch distortion effect',
+    isPremium: true,
+    complexity: 0.3,
+    icon: require('../../assets/icons/filters/pinch_strong.png'),
+    parameters: [
+      {
+        name: 'strength',
+        label: 'Strength',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
+  {
+    id: 'spherize',
+    name: 'Spherize',
+    category: EffectCategory.DISTORTION,
+    description: 'Spherical distortion',
+    isPremium: true,
+    complexity: 0.4,
+    icon: require('../../assets/icons/filters/spherize_strong.png'),
+    parameters: [
+      {
+        name: 'strength',
+        label: 'Strength',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
+  {
+    id: 'shear',
+    name: 'Shear',
+    category: EffectCategory.DISTORTION,
+    description: 'Affine shear transform',
+    isPremium: false,
+    complexity: 0.2,
+    icon: require('../../assets/icons/filters/shear_affine_strong.png'),
+    parameters: [
+      {
+        name: 'angle',
+        label: 'Angle',
+        type: 'slider',
+        min: -45,
+        max: 45,
+        default: 15,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'noise-displace',
+    name: 'Noise Displace',
+    category: EffectCategory.DISTORTION,
+    description: 'Random noise displacement',
+    isPremium: true,
+    complexity: 0.6,
+    icon: require('../../assets/icons/filters/noise_displace_strong.png'),
+    parameters: [
+      {
+        name: 'amount',
+        label: 'Amount',
+        type: 'slider',
+        min: 0,
+        max: 100,
+        default: 20,
+        step: 1,
+      },
+    ],
+  },
 
   // GLITCH EFFECTS
   {
@@ -271,6 +408,7 @@ export const EFFECTS: Effect[] = [
     description: 'Chromatic aberration effect',
     isPremium: false,
     complexity: 0.2,
+    icon: require('../../assets/icons/filters/rgb_split_big.png'),
     parameters: [
       {
         name: 'offsetX',
@@ -300,6 +438,7 @@ export const EFFECTS: Effect[] = [
     description: 'CRT monitor effect',
     isPremium: false,
     complexity: 0.2,
+    icon: require('../../assets/icons/filters/scanlines_dark.png'),
     parameters: [
       {
         name: 'lineCount',
@@ -322,6 +461,26 @@ export const EFFECTS: Effect[] = [
     ],
     shaderPath: 'glitch/scanlines.sksl',
   },
+  {
+    id: 'glitch-rows',
+    name: 'Glitch Rows',
+    category: EffectCategory.GLITCH,
+    description: 'Horizontal glitch rows',
+    isPremium: true,
+    complexity: 0.4,
+    icon: require('../../assets/icons/filters/glitch_rows_heavy.png'),
+    parameters: [
+      {
+        name: 'amount',
+        label: 'Amount',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
 
   // RELIEF EFFECTS
   {
@@ -331,6 +490,7 @@ export const EFFECTS: Effect[] = [
     description: '3D raised surface effect',
     isPremium: true,
     complexity: 0.4,
+    icon: require('../../assets/icons/filters/emboss.png'),
     parameters: [
       {
         name: 'angle',
@@ -353,6 +513,46 @@ export const EFFECTS: Effect[] = [
     ],
     shaderPath: 'relief/emboss.sksl',
   },
+  {
+    id: 'bevel',
+    name: 'Bevel',
+    category: EffectCategory.RELIEF,
+    description: 'Bevel and relief effect',
+    isPremium: true,
+    complexity: 0.5,
+    icon: require('../../assets/icons/filters/bevel_relief_heavy.png'),
+    parameters: [
+      {
+        name: 'depth',
+        label: 'Depth',
+        type: 'slider',
+        min: 0,
+        max: 10,
+        default: 3,
+        step: 0.1,
+      },
+    ],
+  },
+  {
+    id: 'find-edges',
+    name: 'Find Edges',
+    category: EffectCategory.RELIEF,
+    description: 'Edge detection effect',
+    isPremium: false,
+    complexity: 0.3,
+    icon: require('../../assets/icons/filters/find_edges.png'),
+    parameters: [
+      {
+        name: 'threshold',
+        label: 'Threshold',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
 
   // STYLIZATION EFFECTS
   {
@@ -362,6 +562,7 @@ export const EFFECTS: Effect[] = [
     description: 'Painted appearance',
     isPremium: true,
     complexity: 0.8,
+    icon: require('../../assets/icons/filters/oil_paintish_bold.png'),
     parameters: [
       {
         name: 'brushSize',
@@ -383,6 +584,66 @@ export const EFFECTS: Effect[] = [
       },
     ],
     shaderPath: 'stylization/oil-paint.sksl',
+  },
+  {
+    id: 'watercolor',
+    name: 'Watercolor',
+    category: EffectCategory.STYLIZATION,
+    description: 'Watercolor painting effect',
+    isPremium: true,
+    complexity: 0.7,
+    icon: require('../../assets/icons/filters/watercolor_bold.png'),
+    parameters: [
+      {
+        name: 'intensity',
+        label: 'Intensity',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
+  },
+  {
+    id: 'posterize',
+    name: 'Posterize',
+    category: EffectCategory.STYLIZATION,
+    description: 'Color quantization effect',
+    isPremium: false,
+    complexity: 0.2,
+    icon: require('../../assets/icons/filters/posterize_3bit.png'),
+    parameters: [
+      {
+        name: 'levels',
+        label: 'Levels',
+        type: 'slider',
+        min: 2,
+        max: 16,
+        default: 4,
+        step: 1,
+      },
+    ],
+  },
+  {
+    id: 'poster-edges',
+    name: 'Poster Edges',
+    category: EffectCategory.STYLIZATION,
+    description: 'Posterized edges effect',
+    isPremium: true,
+    complexity: 0.5,
+    icon: require('../../assets/icons/filters/poster_edges_bold.png'),
+    parameters: [
+      {
+        name: 'edge',
+        label: 'Edge Intensity',
+        type: 'slider',
+        min: 0,
+        max: 1,
+        default: 0.5,
+        step: 0.01,
+      },
+    ],
   },
 ];
 
