@@ -1,8 +1,3 @@
-/**
- * Chromica - Professional Mobile Image Editor
- * Main application entry point
- */
-
 import 'react-native-reanimated';
 import React from 'react';
 import { StatusBar } from 'react-native';
