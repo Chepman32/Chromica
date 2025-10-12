@@ -382,6 +382,7 @@ export const EFFECTS: Effect[] = [
         step: 1,
       },
     ],
+    shaderPath: 'stylization/oil-paint.sksl',
   },
 ];
 
