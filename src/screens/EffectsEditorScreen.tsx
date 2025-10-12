@@ -155,22 +155,11 @@ export const EffectsEditorScreen: React.FC = () => {
       savedScale.value = scale.value;
     });
 
-  const panGesture = Gesture.Pan()
-    .onUpdate(e => {
-      translateX.value = savedTranslateX.value + e.translationX;
-      translateY.value = savedTranslateY.value + e.translationY;
-    })
-    .onEnd(() => {
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
-    });
-
-  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
+  // Removed pan gesture - image should not be movable
+  const composedGesture = pinchGesture;
 
   const canvasStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
       { scale: scale.value },
     ],
   }));

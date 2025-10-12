@@ -480,69 +480,47 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         }
 
         case 'oil-paint': {
-          const brushSize = Math.max(params.brushSize ?? 5, 1);
-          const detail = Math.max(params.detail ?? 5, 1);
+          const brushSize = params.brushSize || 5;
+          const detail = params.detail || 5;
 
           const source = Skia.RuntimeEffect.Make(`
             uniform shader image;
-            uniform float2 resolution;
             uniform float brushSize;
             uniform float detail;
 
-            const float3 LUMA_WEIGHTS = float3(0.299, 0.587, 0.114);
-            const int MAX_RADIUS = 7;
-            const int MAX_LEVELS = 16;
-
             half4 main(float2 coord) {
-              float2 size = max(resolution, float2(1.0));
-              float radius = clamp(brushSize, 1.0, float(MAX_RADIUS));
-              float levelCountF = clamp(detail, 1.0, float(MAX_LEVELS));
-              int levelCount = int(levelCountF);
+              half4 sum = half4(0.0);
+              float totalWeight = 0.0;
+              int samples = int(clamp(detail, 1.0, 5.0));
 
-              float bins[MAX_LEVELS];
-              float3 sums[MAX_LEVELS];
-
-              for (int i = 0; i < MAX_LEVELS; ++i) {
-                bins[i] = 0.0;
-                sums[i] = float3(0.0);
-              }
-
-              float2 clampedCoord = clamp(coord, float2(0.0), size - float2(1.0));
-
-              for (int ox = -MAX_RADIUS; ox <= MAX_RADIUS; ++ox) {
-                for (int oy = -MAX_RADIUS; oy <= MAX_RADIUS; ++oy) {
-                  float2 offset = float2(float(ox), float(oy));
-                  if (length(offset) > radius) {
+              // Use nested loops with constant bounds
+              for (int i = -5; i <= 5; i++) {
+                for (int j = -5; j <= 5; j++) {
+                  // Skip if outside detail range
+                  if (abs(i) > samples || abs(j) > samples) {
                     continue;
                   }
 
-                  float2 sampleCoord = clamp(clampedCoord + offset, float2(0.0), size - float2(1.0));
-                  half4 sample = image.eval(sampleCoord);
+                  float2 offset = float2(float(i), float(j)) * brushSize * 0.3;
+                  float dist = length(offset);
 
-                  float intensity = dot(sample.rgb, LUMA_WEIGHTS);
-                  float scaled = clamp(intensity * levelCountF, 0.0, levelCountF - 1.0);
-                  int idx = int(floor(scaled + 0.5));
-
-                  bins[idx] += 1.0;
-                  sums[idx] += sample.rgb;
+                  if (dist <= brushSize) {
+                    half4 sample = image.eval(coord + offset);
+                    float weight = 1.0 / (1.0 + dist * 0.1);
+                    sum += sample * weight;
+                    totalWeight += weight;
+                  }
                 }
               }
 
-              float maxWeight = bins[0];
-              int maxIndex = 0;
-              for (int i = 1; i < MAX_LEVELS; ++i) {
-                if (i < levelCount && bins[i] > maxWeight) {
-                  maxWeight = bins[i];
-                  maxIndex = i;
-                }
+              if (totalWeight > 0.0) {
+                half4 result = sum / totalWeight;
+                // Posterize slightly for oil paint effect
+                result.rgb = floor(result.rgb * detail + 0.5) / detail;
+                return result;
               }
 
-              float3 color = sums[maxIndex] / max(maxWeight, 0.001);
-              color = floor(color * levelCountF + float3(0.5)) / levelCountF;
-              color = clamp(color, float3(0.0), float3(1.0));
-
-              half4 base = image.eval(clampedCoord);
-              return half4(color, base.a);
+              return image.eval(coord);
             }
           `);
 
@@ -551,12 +529,12 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             return null;
           }
 
+          console.log('Oil Paint shader compiled successfully');
           return {
-            source,
+            source: source,
             uniforms: {
-              resolution: [width, height],
-              brushSize,
-              detail,
+              brushSize: brushSize,
+              detail: detail,
             },
           };
         }
