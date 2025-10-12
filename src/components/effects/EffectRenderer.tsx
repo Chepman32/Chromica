@@ -497,7 +497,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
               for (int i = -5; i <= 5; i++) {
                 for (int j = -5; j <= 5; j++) {
                   // Skip if outside detail range
-                  if (abs(i) > samples || abs(j) > samples) {
+                  if (i > samples || i < -samples || j > samples || j < -samples) {
                     continue;
                   }
 
