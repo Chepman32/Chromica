@@ -270,5 +270,6 @@ TODO: fix these effects (it just shows a small black rectangle with no effects w
 Render > Flame (not flame now)
 - Blur > Motion blur (remove blac rectangle)
 - Blur > Surface blur
+- Glass > Glass
 
 TODO: Implement Settings screen

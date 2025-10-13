@@ -1751,6 +1751,208 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
+        case 'glass': {
+          const distortion = params.distortion ?? 10;
+          const smoothness = Math.max(params.smoothness ?? 5, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float distortion;
+            uniform float smoothness;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float2 uv = coord / size;
+
+              float noiseX = fbm(uv * smoothness + float2(0.0, 0.0));
+              float noiseY = fbm(uv * smoothness + float2(5.2, 1.3));
+
+              float2 offset = float2(noiseX - 0.5, noiseY - 0.5) * distortion;
+              float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+
+              return image.eval(sampleCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            distortion,
+            smoothness,
+          });
+        }
+
+        case 'frosted-glass': {
+          const blur = Math.max(params.blur ?? 12, 1);
+          const grain = params.grain ?? 0.3;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float blur;
+            uniform float grain;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float r = max(blur, 1.0);
+
+              half4 sum = half4(0.0);
+              float total = 0.0;
+
+              for (int y = -8; y <= 8; ++y) {
+                for (int x = -8; x <= 8; ++x) {
+                  float2 offset = float2(float(x), float(y)) * (r / 8.0);
+                  float dist = length(offset);
+                  if (dist > r) continue;
+
+                  float weight = exp(-dist * dist / (2.0 * r * r));
+                  float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+                  sum += image.eval(sampleCoord) * weight;
+                  total += weight;
+                }
+              }
+
+              half4 blurred = sum / max(total, 0.001);
+
+              float noiseVal = noise(coord / size * 500.0) * grain;
+              float3 result = clamp(blurred.rgb + noiseVal, 0.0, 1.0);
+
+              return half4(result, blurred.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            blur,
+            grain,
+          });
+        }
+
+        case 'ocean-ripple': {
+          const rippleSize = Math.max(params.size ?? 10, 1);
+          const magnitude = params.magnitude ?? 15;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float rippleSize;
+            uniform float magnitude;
+            ${COMMON_NOISE_SNIPPET}
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float2 uv = coord / size;
+
+              float n1 = fbm(uv * rippleSize * 0.5);
+              float n2 = fbm((uv + float2(0.5, 0.5)) * rippleSize * 0.7);
+
+              float2 offset = float2(
+                sin(n1 * 6.28) * magnitude,
+                sin(n2 * 6.28) * magnitude
+              );
+
+              float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+              return image.eval(sampleCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            rippleSize,
+            magnitude,
+          });
+        }
+
+        case 'zigzag': {
+          const amount = params.amount ?? 10;
+          const ridges = Math.max(params.ridges ?? 5, 1);
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float amount;
+            uniform float ridges;
+
+            const float PI = 3.14159265359;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float2 center = size * 0.5;
+              float2 pos = coord - center;
+
+              float dist = length(pos);
+              float angle = atan(pos.y, pos.x);
+
+              float wave = sin(dist / max(size.x, size.y) * ridges * 2.0 * PI) * amount;
+
+              float2 displaced = pos + float2(cos(angle), sin(angle)) * wave;
+              float2 sampleCoord = clamp(displaced + center, float2(0.0), size - float2(1.0));
+
+              return image.eval(sampleCoord);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            amount,
+            ridges,
+          });
+        }
+
+        case 'glassmorphism': {
+          const blur = Math.max(params.blur ?? 20, 1);
+          const transparency = params.transparency ?? 0.3;
+          const shine = params.shine ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float blur;
+            uniform float transparency;
+            uniform float shine;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              float r = max(blur, 1.0);
+
+              half4 sum = half4(0.0);
+              float total = 0.0;
+
+              for (int y = -12; y <= 12; ++y) {
+                for (int x = -12; x <= 12; ++x) {
+                  float2 offset = float2(float(x), float(y)) * (r / 12.0);
+                  float dist = length(offset);
+                  if (dist > r) continue;
+
+                  float weight = exp(-dist * dist / (2.0 * r * r));
+                  float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
+                  sum += image.eval(sampleCoord) * weight;
+                  total += weight;
+                }
+              }
+
+              half4 blurred = sum / max(total, 0.001);
+
+              float2 uv = coord / size;
+              float gradient = smoothstep(0.0, 1.0, 1.0 - uv.y);
+              float highlight = pow(gradient, 3.0) * shine;
+
+              float3 glass = blurred.rgb * (1.0 - transparency) + highlight;
+
+              return half4(glass, blurred.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            blur,
+            transparency,
+            shine,
+          });
+        }
+
         default:
           return null;
       }

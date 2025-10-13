@@ -11,6 +11,7 @@ export enum EffectCategory {
   STYLIZATION = 'stylization',
   BLUR_SHARPEN = 'blur-sharpen',
   BRUSH = 'brush',
+  GLASS = 'glass',
   CORRECTION = 'correction',
   FREQUENCY = 'frequency',
   RENDER = 'render',

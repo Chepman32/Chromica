@@ -48,6 +48,7 @@ const CATEGORIES = [
   { id: EffectCategory.CELLULAR, label: 'Cellular', icon: '⬛' },
   { id: EffectCategory.TILING, label: 'Tiling', icon: '🔄' },
   { id: EffectCategory.DISTORTION, label: 'Wave', icon: '〰️' },
+  { id: EffectCategory.GLASS, label: 'Glass', icon: '◇' },
   { id: EffectCategory.CORRECTION, label: 'Correct', icon: 'FIX' },
   { id: EffectCategory.BLUR_SHARPEN, label: 'Blur', icon: 'BLR' },
   { id: EffectCategory.GLITCH, label: 'Glitch', icon: '⚡' },
