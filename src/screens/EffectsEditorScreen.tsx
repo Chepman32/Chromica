@@ -617,14 +617,17 @@ const styles = StyleSheet.create({
   },
   bottomPanel: {
     flex: 1,
+    backgroundColor: '#0F0F1E',
   },
   effectsPage: {
     height: SCREEN_HEIGHT * 0.3,
+    backgroundColor: '#0F0F1E',
   },
   parametersPage: {
     height: SCREEN_HEIGHT * 0.3,
     paddingHorizontal: 16,
     paddingTop: 16,
+    backgroundColor: '#0F0F1E',
   },
   parametersScrollContent: {
     paddingBottom: 16,

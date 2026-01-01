@@ -1794,35 +1794,52 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
-        case 'glass': {
-          const distortion = params.distortion ?? 10;
-          const smoothness = Math.max(params.smoothness ?? 5, 1);
+        case 'liquid-glass': {
+          const distortion = params.distortion ?? 35;
+          const scale = Math.max(params.scale ?? 8, 1);
+          const refraction = params.refraction ?? 0.3;
 
           const source = `
             uniform shader image;
             uniform float2 resolution;
             uniform float distortion;
-            uniform float smoothness;
+            uniform float scale;
+            uniform float refraction;
             ${COMMON_NOISE_SNIPPET}
 
             half4 main(float2 coord) {
               float2 size = max(resolution, float2(1.0));
               float2 uv = coord / size;
-
-              float noiseX = fbm(uv * smoothness + float2(0.0, 0.0));
-              float noiseY = fbm(uv * smoothness + float2(5.2, 1.3));
-
-              float2 offset = float2(noiseX - 0.5, noiseY - 0.5) * distortion;
+              
+              // Create flowing liquid-like noise pattern
+              float2 noiseCoord = uv * scale;
+              
+              // Multiple octaves for liquid flow effect
+              float n1 = fbm(noiseCoord);
+              float n2 = fbm(noiseCoord * 2.0 + float2(n1 * 2.0, 0.0));
+              float n3 = fbm(noiseCoord + float2(5.2, 1.3));
+              
+              // Combine for liquid distortion
+              float flowX = (n1 - 0.5) + (n2 - 0.5) * 0.5;
+              float flowY = (n3 - 0.5) + (n2 - 0.5) * 0.5;
+              
+              float2 offset = float2(flowX, flowY) * distortion;
               float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
-
-              return image.eval(sampleCoord);
+              
+              // Sample with slight chromatic aberration for glass refraction
+              half4 colorR = image.eval(sampleCoord + float2(refraction * 2.0, 0.0));
+              half4 colorG = image.eval(sampleCoord);
+              half4 colorB = image.eval(sampleCoord - float2(refraction * 2.0, 0.0));
+              
+              return half4(colorR.r, colorG.g, colorB.b, colorG.a);
             }
           `;
 
           return compile(source, {
             resolution: [width, height],
             distortion,
-            smoothness,
+            scale,
+            refraction,
           });
         }
 
