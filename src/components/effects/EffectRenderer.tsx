@@ -361,59 +361,45 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
               float g = gap;
               float2 size = resolution;
               
-              // Calculate tile dimensions on screen (with gaps)
-              float2 tileScreenSize = (size - float2(g * (n - 1.0))) / n;
+              // Total gaps and tile size on screen
+              float totalGaps = g * (n - 1.0);
+              float2 tileScreenSize = (size - float2(totalGaps)) / n;
               
-              // Calculate tile dimensions in source image (no gaps)
+              // Tile size in source image
               float2 tileSrcSize = size / n;
               
-              // For each axis, figure out which tile and position within it
-              float2 tileIdx = float2(0.0);
-              float2 localPos = coord;
-              bool inGap = false;
+              // Calculate which tile and local position
+              float cellSize_x = tileScreenSize.x + g;
+              float cellSize_y = tileScreenSize.y + g;
               
-              // X axis
-              float accumX = 0.0;
-              for (float i = 0.0; i < 6.0; i += 1.0) {
-                if (i >= n) break;
-                float tileEnd = accumX + tileScreenSize.x;
-                if (coord.x <= tileEnd) {
-                  tileIdx.x = i;
-                  localPos.x = coord.x - accumX;
-                  break;
-                }
-                float gapEnd = tileEnd + g;
-                if (coord.x < gapEnd && i < n - 1.0) {
-                  inGap = true;
-                  break;
-                }
-                accumX = gapEnd;
+              float col = floor(coord.x / cellSize_x);
+              float row = floor(coord.y / cellSize_y);
+              
+              // Clamp to valid range
+              col = clamp(col, 0.0, n - 1.0);
+              row = clamp(row, 0.0, n - 1.0);
+              
+              // Local position within cell
+              float localX = coord.x - col * cellSize_x;
+              float localY = coord.y - row * cellSize_y;
+              
+              // Check if in gap (only between tiles, not after last)
+              if (col < n - 1.0 && localX > tileScreenSize.x) {
+                return half4(0.0, 0.0, 0.0, 1.0);
               }
-              
-              // Y axis
-              float accumY = 0.0;
-              for (float i = 0.0; i < 6.0; i += 1.0) {
-                if (i >= n) break;
-                float tileEnd = accumY + tileScreenSize.y;
-                if (coord.y <= tileEnd) {
-                  tileIdx.y = i;
-                  localPos.y = coord.y - accumY;
-                  break;
-                }
-                float gapEnd = tileEnd + g;
-                if (coord.y < gapEnd && i < n - 1.0) {
-                  inGap = true;
-                  break;
-                }
-                accumY = gapEnd;
-              }
-              
-              if (inGap) {
+              if (row < n - 1.0 && localY > tileScreenSize.y) {
                 return half4(0.0, 0.0, 0.0, 1.0);
               }
               
-              // Map local position to source image
-              float2 srcCoord = tileIdx * tileSrcSize + (localPos / tileScreenSize) * tileSrcSize;
+              // Clamp local position to tile bounds
+              localX = clamp(localX, 0.0, tileScreenSize.x);
+              localY = clamp(localY, 0.0, tileScreenSize.y);
+              
+              // Map to source image
+              float2 srcCoord;
+              srcCoord.x = col * tileSrcSize.x + (localX / tileScreenSize.x) * tileSrcSize.x;
+              srcCoord.y = row * tileSrcSize.y + (localY / tileScreenSize.y) * tileSrcSize.y;
+              
               srcCoord = clamp(srcCoord, float2(0.0), size - float2(1.0));
               
               return image.eval(srcCoord);

@@ -176,9 +176,7 @@ export const EffectsEditorScreen: React.FC = () => {
   const composedGesture = pinchGesture;
 
   const canvasStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value },
-    ],
+    transform: [{ scale: scale.value }],
   }));
 
   const categoryEffects = useMemo(
@@ -238,7 +236,12 @@ export const EffectsEditorScreen: React.FC = () => {
   }, [effectStack]);
 
   const handleUndo = () => {
-    console.log('Undo - historyIndex:', historyIndex, 'history.length:', history.length);
+    console.log(
+      'Undo - historyIndex:',
+      historyIndex,
+      'history.length:',
+      history.length,
+    );
     if (canUndo()) {
       undo();
       ReactNativeHapticFeedback.trigger('impactLight');
@@ -249,7 +252,12 @@ export const EffectsEditorScreen: React.FC = () => {
   };
 
   const handleRedo = () => {
-    console.log('Redo - historyIndex:', historyIndex, 'history.length:', history.length);
+    console.log(
+      'Redo - historyIndex:',
+      historyIndex,
+      'history.length:',
+      history.length,
+    );
     if (canRedo()) {
       redo();
       ReactNativeHapticFeedback.trigger('impactLight');
@@ -285,16 +293,36 @@ export const EffectsEditorScreen: React.FC = () => {
         <View style={styles.topBarCenter}>
           <TouchableOpacity
             onPress={handleUndo}
-            style={[styles.topToolButton, !canUndo() && styles.topToolButtonDisabled]}
+            style={[
+              styles.topToolButton,
+              !canUndo() && styles.topToolButtonDisabled,
+            ]}
           >
-            <Text style={[styles.topToolIcon, !canUndo() && styles.topToolIconDisabled]}>↶</Text>
+            <Text
+              style={[
+                styles.topToolIcon,
+                !canUndo() && styles.topToolIconDisabled,
+              ]}
+            >
+              ↶
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleRedo}
-            style={[styles.topToolButton, !canRedo() && styles.topToolButtonDisabled]}
+            style={[
+              styles.topToolButton,
+              !canRedo() && styles.topToolButtonDisabled,
+            ]}
           >
-            <Text style={[styles.topToolIcon, !canRedo() && styles.topToolIconDisabled]}>↷</Text>
+            <Text
+              style={[
+                styles.topToolIcon,
+                !canRedo() && styles.topToolIconDisabled,
+              ]}
+            >
+              ↷
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={handleReset} style={styles.topToolButton}>
@@ -331,7 +359,7 @@ export const EffectsEditorScreen: React.FC = () => {
           <GestureDetector gesture={composedGesture}>
             <Animated.View style={[styles.canvas, canvasStyle]}>
               <Canvas
-                style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.5 }}
+                style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.65 }}
               >
                 <EffectRenderer
                   image={image}
@@ -340,29 +368,8 @@ export const EffectsEditorScreen: React.FC = () => {
                   x={0}
                   y={0}
                   width={SCREEN_WIDTH}
-                  height={SCREEN_HEIGHT * 0.5}
+                  height={SCREEN_HEIGHT * 0.65}
                 />
-
-                {/* Visual indicator when effect is selected */}
-                {selectedEffectId && currentEffect && (
-                  <Group>
-                    <Rect
-                      x={10}
-                      y={10}
-                      width={220}
-                      height={50}
-                      color="rgba(0,0,0,0.8)"
-                      rx={8}
-                    />
-                    <SkiaText
-                      x={20}
-                      y={35}
-                      text={`Effect: ${currentEffect.name}`}
-                      color="white"
-                      size={16}
-                    />
-                  </Group>
-                )}
               </Canvas>
             </Animated.View>
           </GestureDetector>
@@ -395,7 +402,8 @@ export const EffectsEditorScreen: React.FC = () => {
                   }}
                   style={[
                     styles.categoryTab,
-                    selectedCategory === category.id && styles.categoryTabSelected,
+                    selectedCategory === category.id &&
+                      styles.categoryTabSelected,
                   ]}
                 >
                   <Text style={styles.categoryIcon}>{category.icon}</Text>
@@ -457,14 +465,17 @@ export const EffectsEditorScreen: React.FC = () => {
         {/* Second Page: Effect Parameters */}
         {selectedEffect && currentParams && (
           <View style={styles.parametersPage}>
-            <Text style={styles.parametersPanelTitle}>{selectedEffect.name}</Text>
+            <Text style={styles.parametersPanelTitle}>
+              {selectedEffect.name}
+            </Text>
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.parametersScrollContent}
             >
               {selectedEffect.parameters.map(param => {
                 if (param.type === 'slider') {
-                  const currentValue = currentParams[param.name] ?? param.default;
+                  const currentValue =
+                    currentParams[param.name] ?? param.default;
                   return (
                     <EffectSlider
                       key={param.name}
@@ -473,8 +484,12 @@ export const EffectsEditorScreen: React.FC = () => {
                       min={param.min!}
                       max={param.max!}
                       step={param.step}
-                      onChange={value => handleParameterChange(param.name, value)}
-                      onChangeEnd={value => handleParameterChangeEnd(param.name, value)}
+                      onChange={value =>
+                        handleParameterChange(param.name, value)
+                      }
+                      onChangeEnd={value =>
+                        handleParameterChangeEnd(param.name, value)
+                      }
                     />
                   );
                 }
