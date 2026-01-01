@@ -273,3 +273,4 @@ Render > Flame (not flame now)
 - Glass > Glass
 
 TODO: Implement Settings screen
+TODO: Add categories icons
