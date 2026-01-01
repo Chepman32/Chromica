@@ -223,7 +223,7 @@ half4 main(float2 coord) {
   float2 baseCoord = clamp(coord, float2(0.0), size - float2(1.0));
   half4 center = image.eval(baseCoord);
 
-  int r = clamp(int(floor(radius + 0.5)), 1, MAX_RADIUS);
+  float r = clamp(floor(radius + 0.5), 1.0, float(MAX_RADIUS));
   float t = clamp(threshold, 0.0, 1.0);
 
   float3 accum = center.rgb;
@@ -231,13 +231,15 @@ half4 main(float2 coord) {
 
   for (int oy = -MAX_RADIUS; oy <= MAX_RADIUS; ++oy) {
     for (int ox = -MAX_RADIUS; ox <= MAX_RADIUS; ++ox) {
-      if (abs(ox) > r || abs(oy) > r) {
+      float foxAbs = abs(float(ox));
+      float foyAbs = abs(float(oy));
+      if (foxAbs > r || foyAbs > r) {
         continue;
       }
 
       float2 offset = float2(float(ox), float(oy));
       float dist2 = dot(offset, offset);
-      float spatial = exp(-dist2 / (float(r * r) + 0.0001));
+      float spatial = exp(-dist2 / (r * r + 0.0001));
 
       float2 sampleCoord = clamp(baseCoord + offset, float2(0.0), size - float2(1.0));
       half4 sample = image.eval(sampleCoord);
