@@ -357,39 +357,66 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float gap;
 
             half4 main(float2 coord) {
-              float2 size = resolution;
-              float n = max(tileCount, 1.0);
+              float n = tileCount;
               float g = gap;
+              float2 size = resolution;
               
-              // Total gap space and tile size
-              float totalGap = g * (n - 1.0);
-              float2 tileSize = (size - float2(totalGap)) / n;
+              // Calculate tile dimensions on screen (with gaps)
+              float2 tileScreenSize = (size - float2(g * (n - 1.0))) / n;
               
-              // Find which tile we're in
-              float cellWidth = tileSize.x + g;
-              float cellHeight = tileSize.y + g;
+              // Calculate tile dimensions in source image (no gaps)
+              float2 tileSrcSize = size / n;
               
-              float col = floor(coord.x / cellWidth);
-              float row = floor(coord.y / cellHeight);
+              // For each axis, figure out which tile and position within it
+              float2 tileIdx = float2(0.0);
+              float2 localPos = coord;
+              bool inGap = false;
               
-              // Position within the cell
-              float localX = coord.x - col * cellWidth;
-              float localY = coord.y - row * cellHeight;
+              // X axis
+              float accumX = 0.0;
+              for (float i = 0.0; i < 6.0; i += 1.0) {
+                if (i >= n) break;
+                float tileEnd = accumX + tileScreenSize.x;
+                if (coord.x <= tileEnd) {
+                  tileIdx.x = i;
+                  localPos.x = coord.x - accumX;
+                  break;
+                }
+                float gapEnd = tileEnd + g;
+                if (coord.x < gapEnd && i < n - 1.0) {
+                  inGap = true;
+                  break;
+                }
+                accumX = gapEnd;
+              }
               
-              // Check if we're in the gap
-              if (localX > tileSize.x || localY > tileSize.y) {
+              // Y axis
+              float accumY = 0.0;
+              for (float i = 0.0; i < 6.0; i += 1.0) {
+                if (i >= n) break;
+                float tileEnd = accumY + tileScreenSize.y;
+                if (coord.y <= tileEnd) {
+                  tileIdx.y = i;
+                  localPos.y = coord.y - accumY;
+                  break;
+                }
+                float gapEnd = tileEnd + g;
+                if (coord.y < gapEnd && i < n - 1.0) {
+                  inGap = true;
+                  break;
+                }
+                accumY = gapEnd;
+              }
+              
+              if (inGap) {
                 return half4(0.0, 0.0, 0.0, 1.0);
               }
               
-              // Handle edge case for last column/row (no gap after)
-              if (col >= n || row >= n) {
-                return half4(0.0, 0.0, 0.0, 1.0);
-              }
+              // Map local position to source image
+              float2 srcCoord = tileIdx * tileSrcSize + (localPos / tileScreenSize) * tileSrcSize;
+              srcCoord = clamp(srcCoord, float2(0.0), size - float2(1.0));
               
-              // Map local position to full image UV
-              float2 uv = float2(localX / tileSize.x, localY / tileSize.y);
-              
-              return image.eval(uv * size);
+              return image.eval(srcCoord);
             }
           `;
 
