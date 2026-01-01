@@ -83,6 +83,13 @@ export const FilterToolModal: React.FC<FilterToolModalProps> = ({
     }
 
     ReactNativeHapticFeedback.trigger('selection');
+    // Tapping the active filter again clears the selection (no filter applied)
+    if (selectedFilter === filter.id) {
+      setSelectedFilter('none');
+      setIntensity(1.0);
+      return;
+    }
+
     setSelectedFilter(filter.id);
   };
 

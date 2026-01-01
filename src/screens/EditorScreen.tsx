@@ -633,14 +633,15 @@ const EditorScreen: React.FC = () => {
     addElement(element);
   };
 
-  const handleFilterSelect = (filterId: string) => {
+  const handleFilterSelect = useCallback((filterId: string) => {
     console.log('Filter selected:', filterId);
 
     const isFilterAlreadyActive =
-      filterId === 'none' ? !appliedFilter : appliedFilter?.id === filterId;
+      appliedFilter?.id === filterId || (filterId === 'none' && !appliedFilter);
 
     if (isFilterAlreadyActive) {
-      closeFilterToolbar();
+      removeFilter();
+      console.log('Filter deselected');
       return;
     }
 
@@ -658,9 +659,9 @@ const EditorScreen: React.FC = () => {
     };
     applyFilter(filter);
     console.log('Filter applied:', filter);
-  };
+  }, [appliedFilter, applyFilter, removeFilter]);
 
-  const renderFilterItem = ({ item }: { item: FilterOption }) => {
+  const renderFilterItem = useCallback(({ item }: { item: FilterOption }) => {
     const isActive = appliedFilter?.id === item.id;
 
     return (
@@ -677,7 +678,7 @@ const EditorScreen: React.FC = () => {
         <Text style={styles.filterName}>{item.name}</Text>
       </TouchableOpacity>
     );
-  };
+  }, [appliedFilter?.id, handleFilterSelect]);
 
   const handleApplyWatermarkPreset = async (
     preset: WatermarkPreset,
@@ -1134,7 +1135,7 @@ const EditorScreen: React.FC = () => {
                 horizontal
                 keyExtractor={item => item.id}
                 renderItem={renderFilterItem}
-                extraData={appliedFilter?.id}
+                extraData={appliedFilter?.id || null}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.filtersScrollContainer}
