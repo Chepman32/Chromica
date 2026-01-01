@@ -2,7 +2,7 @@
  * Effects Editor Screen - Main editing interface
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -127,6 +127,9 @@ export const EffectsEditorScreen: React.FC = () => {
   );
   const [selectedEffectId, setSelectedEffectId] = useState<string | null>(null);
 
+  // Ref for category tabs ScrollView to enable programmatic scrolling
+  const categoryScrollRef = useRef<ScrollView>(null);
+
   const {
     effectStack,
     history,
@@ -225,11 +228,31 @@ export const EffectsEditorScreen: React.FC = () => {
     commitEffectParamsToHistory(currentLayer.id);
   };
 
-  // Sync selectedEffectId with effectStack changes (for undo/redo)
+  // Sync selectedEffectId and selectedCategory with effectStack changes (for undo/redo)
   useEffect(() => {
     if (effectStack.length > 0) {
-      const lastEffect = effectStack[effectStack.length - 1];
-      setSelectedEffectId(lastEffect.effectId);
+      const lastLayer = effectStack[effectStack.length - 1];
+      setSelectedEffectId(lastLayer.effectId);
+
+      // Also update the category to match the effect (for undo/redo navigation)
+      const effect = EFFECTS.find(e => e.id === lastLayer.effectId);
+      if (effect && effect.category !== selectedCategory) {
+        setSelectedCategory(effect.category);
+
+        // Scroll to the category tab with animation
+        const categoryIndex = CATEGORIES.findIndex(
+          c => c.id === effect.category,
+        );
+        if (categoryIndex >= 0 && categoryScrollRef.current) {
+          // Each tab is ~108px (minWidth 100 + marginRight 8)
+          const tabWidth = 108;
+          const scrollX = Math.max(
+            0,
+            categoryIndex * tabWidth - SCREEN_WIDTH / 4,
+          );
+          categoryScrollRef.current.scrollTo({ x: scrollX, animated: true });
+        }
+      }
     } else {
       setSelectedEffectId(null);
     }
@@ -389,6 +412,7 @@ export const EffectsEditorScreen: React.FC = () => {
           {/* Category Tabs */}
           <View style={styles.categoryTabsContainer}>
             <ScrollView
+              ref={categoryScrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.categoryTabsContent}
