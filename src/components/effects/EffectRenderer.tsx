@@ -203,6 +203,202 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
+        case 'blue-mosaic': {
+          const cellSize = Math.max(params.cellSize ?? 6, 3);
+          const tileColorOption = params.tileColor ?? 'Blue';
+
+          // Map color option to index
+          const colorMap: Record<string, number> = {
+            Blue: 0,
+            Green: 1,
+            Purple: 2,
+            Orange: 3,
+            Pink: 4,
+            Teal: 5,
+          };
+          const tileColorIndex = colorMap[tileColorOption] ?? 0;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float cellSize;
+            uniform int tileColorIndex;
+
+            const float randomSeed = 42.0;
+            const float edgeWidth = 2.5;
+
+            // Hash functions for randomness
+            float hash(float2 p) {
+              return fract(sin(dot(p + randomSeed, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            float hash2(float2 p) {
+              return fract(sin(dot(p + randomSeed * 1.7, float2(269.5, 183.3))) * 43758.5453);
+            }
+
+            // Smooth noise for organic shapes
+            float noise(float2 p) {
+              float2 i = floor(p);
+              float2 f = fract(p);
+              f = f * f * (3.0 - 2.0 * f);
+              
+              float a = hash(i);
+              float b = hash(i + float2(1.0, 0.0));
+              float c = hash(i + float2(0.0, 1.0));
+              float d = hash(i + float2(1.0, 1.0));
+              
+              return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+            }
+
+            // Get color shade based on luminance and selected color
+            float3 getColorShade(float luminance, int colorIdx) {
+              float3 dark, medium, light, pale;
+              
+              if (colorIdx == 0) { // Blue
+                dark = float3(0.1, 0.2, 0.4);
+                medium = float3(0.2, 0.4, 0.7);
+                light = float3(0.5, 0.7, 0.9);
+                pale = float3(0.7, 0.85, 0.95);
+              } else if (colorIdx == 1) { // Green
+                dark = float3(0.1, 0.3, 0.15);
+                medium = float3(0.2, 0.5, 0.25);
+                light = float3(0.4, 0.7, 0.45);
+                pale = float3(0.65, 0.85, 0.7);
+              } else if (colorIdx == 2) { // Purple
+                dark = float3(0.25, 0.1, 0.35);
+                medium = float3(0.45, 0.2, 0.55);
+                light = float3(0.65, 0.45, 0.75);
+                pale = float3(0.8, 0.7, 0.9);
+              } else if (colorIdx == 3) { // Orange
+                dark = float3(0.4, 0.2, 0.05);
+                medium = float3(0.7, 0.35, 0.1);
+                light = float3(0.9, 0.55, 0.25);
+                pale = float3(0.95, 0.75, 0.5);
+              } else if (colorIdx == 4) { // Pink
+                dark = float3(0.4, 0.15, 0.25);
+                medium = float3(0.7, 0.3, 0.45);
+                light = float3(0.9, 0.5, 0.65);
+                pale = float3(0.95, 0.75, 0.82);
+              } else { // Teal
+                dark = float3(0.05, 0.3, 0.35);
+                medium = float3(0.1, 0.5, 0.55);
+                light = float3(0.3, 0.7, 0.75);
+                pale = float3(0.6, 0.85, 0.88);
+              }
+              
+              if (luminance < 0.25) {
+                return mix(dark, medium, luminance * 4.0);
+              } else if (luminance < 0.5) {
+                return mix(medium, light, (luminance - 0.25) * 4.0);
+              } else if (luminance < 0.75) {
+                return mix(light, pale, (luminance - 0.5) * 4.0);
+              } else {
+                return mix(pale, pale + 0.08, (luminance - 0.75) * 4.0);
+              }
+            }
+
+            // Get grout color based on selected tile color
+            float3 getGroutColor(int colorIdx) {
+              if (colorIdx == 0) return float3(0.15, 0.2, 0.3);       // Blue
+              if (colorIdx == 1) return float3(0.12, 0.2, 0.15);      // Green
+              if (colorIdx == 2) return float3(0.2, 0.15, 0.25);      // Purple
+              if (colorIdx == 3) return float3(0.25, 0.15, 0.1);      // Orange
+              if (colorIdx == 4) return float3(0.25, 0.15, 0.18);     // Pink
+              return float3(0.1, 0.2, 0.22);                          // Teal
+            }
+
+            // Distance to irregular cell edge with random shape
+            float cellShape(float2 localPos, float2 cellCenter, float cellSz, float2 cellId) {
+              float2 toCenter = localPos - cellCenter;
+              float angle = atan(toCenter.y, toCenter.x);
+              
+              // Create irregular shape using noise
+              float shapeNoise = 0.0;
+              shapeNoise += 0.3 * sin(angle * 3.0 + hash(cellId) * 6.28);
+              shapeNoise += 0.2 * sin(angle * 5.0 + hash(cellId + 100.0) * 6.28);
+              shapeNoise += 0.15 * sin(angle * 7.0 + hash(cellId + 200.0) * 6.28);
+              shapeNoise += 0.1 * noise(cellId * 10.0 + float2(angle * 2.0, 0.0));
+              
+              float baseRadius = cellSz * 0.42;
+              float irregularRadius = baseRadius * (1.0 + shapeNoise * 0.25);
+              
+              return length(toCenter) - irregularRadius;
+            }
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              
+              // Add slight waviness to the grid
+              float2 waveOffset = float2(
+                sin(coord.y * 0.02 + randomSeed) * cellSize * 0.15,
+                sin(coord.x * 0.025 + randomSeed * 1.3) * cellSize * 0.12
+              );
+              float2 warpedCoord = coord + waveOffset;
+              
+              // Calculate cell position
+              float2 cellId = floor(warpedCoord / cellSize);
+              float2 cellOrigin = cellId * cellSize;
+              float2 localPos = warpedCoord - cellOrigin;
+              
+              // Randomize cell center slightly
+              float2 cellOffset = float2(
+                (hash(cellId) - 0.5) * cellSize * 0.3,
+                (hash2(cellId) - 0.5) * cellSize * 0.3
+              );
+              float2 cellCenter = float2(cellSize * 0.5) + cellOffset;
+              
+              // Sample original image at cell center for luminance
+              float2 samplePos = clamp(cellOrigin + cellCenter - waveOffset, float2(0.0), size - float2(1.0));
+              half4 originalColor = image.eval(samplePos);
+              float luminance = dot(originalColor.rgb, float3(0.299, 0.587, 0.114));
+              
+              // Get color shade based on luminance and selected color
+              float3 tileColor = getColorShade(luminance, tileColorIndex);
+              
+              // Add slight color variation per tile
+              float colorVar = hash(cellId + 500.0) * 0.1 - 0.05;
+              tileColor = clamp(tileColor + colorVar, 0.0, 1.0);
+              
+              // Calculate distance to cell edge
+              float dist = cellShape(localPos, cellCenter, cellSize, cellId);
+              
+              // Create grout/edge effect
+              float edgeStart = -edgeWidth * 0.5;
+              float edgeEnd = edgeWidth * 0.5;
+              
+              // Get grout color based on selected tile color
+              float3 groutColor = getGroutColor(tileColorIndex);
+              
+              // Smooth edge transition
+              float edgeFactor = smoothstep(edgeStart, edgeEnd, dist);
+              
+              // Add subtle inner shadow for depth
+              float innerShadow = smoothstep(-cellSize * 0.3, -cellSize * 0.05, dist);
+              float3 shadedTile = tileColor * (0.85 + 0.15 * innerShadow);
+              
+              // Add subtle highlight on one side
+              float highlight = smoothstep(0.0, -cellSize * 0.2, dist) * 
+                               (0.5 + 0.5 * sin(atan(localPos.y - cellCenter.y, localPos.x - cellCenter.x) + 0.785));
+              shadedTile += highlight * 0.08;
+              
+              // Mix tile and grout
+              float3 finalColor = mix(shadedTile, groutColor, edgeFactor);
+              
+              // Add subtle texture
+              float texture = noise(coord * 0.5) * 0.03;
+              finalColor += texture;
+              
+              return half4(clamp(finalColor, 0.0, 1.0), 1.0);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            cellSize,
+            tileColorIndex,
+          });
+        }
+
         case 'pointillize': {
           const dotSize = Math.max(params.dotSize ?? 8, 1);
 

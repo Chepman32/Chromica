@@ -1259,6 +1259,35 @@ export const EFFECTS: Effect[] = [
     ],
   },
 
+  // MOSAIC EFFECTS
+  {
+    id: 'blue-mosaic',
+    name: 'Blue Mosaic',
+    category: EffectCategory.CELLULAR,
+    description: 'Mosaic with color shades and random shapes',
+    isPremium: false,
+    complexity: 0.6,
+    icon: require('../../assets/icons/filters/stained_glass_strong.png'),
+    parameters: [
+      {
+        name: 'cellSize',
+        label: 'Cell Size',
+        type: 'slider',
+        min: 3,
+        max: 12,
+        default: 6,
+        step: 1,
+      },
+      {
+        name: 'tileColor',
+        label: 'Tile Color',
+        type: 'segmented',
+        options: ['Blue', 'Green', 'Purple', 'Orange', 'Pink', 'Teal'],
+        default: 'Blue',
+      },
+    ],
+  },
+
   // RENDER EFFECTS
   {
     id: 'flame-render',
