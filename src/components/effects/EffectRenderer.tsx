@@ -347,26 +347,56 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         }
 
         case 'tile': {
-          const offsetX = params.offsetX ?? 0.5;
-          const offsetY = params.offsetY ?? 0.5;
+          const tileCount = Math.floor(params.tileCount ?? 2);
+          const gap = params.gap ?? 4;
 
           const source = `
             uniform shader image;
             uniform float2 resolution;
-            uniform float2 offset;
+            uniform float tileCount;
+            uniform float gap;
 
             half4 main(float2 coord) {
-              float2 size = max(resolution, float2(1.0));
-              float2 uv = coord / size + offset;
-              uv = fract(uv);
-              float2 sampleCoord = clamp(uv * size, float2(0.0), size - float2(1.0));
-              return image.eval(sampleCoord);
+              float2 size = resolution;
+              float n = max(tileCount, 1.0);
+              float g = gap;
+              
+              // Total gap space and tile size
+              float totalGap = g * (n - 1.0);
+              float2 tileSize = (size - float2(totalGap)) / n;
+              
+              // Find which tile we're in
+              float cellWidth = tileSize.x + g;
+              float cellHeight = tileSize.y + g;
+              
+              float col = floor(coord.x / cellWidth);
+              float row = floor(coord.y / cellHeight);
+              
+              // Position within the cell
+              float localX = coord.x - col * cellWidth;
+              float localY = coord.y - row * cellHeight;
+              
+              // Check if we're in the gap
+              if (localX > tileSize.x || localY > tileSize.y) {
+                return half4(0.0, 0.0, 0.0, 1.0);
+              }
+              
+              // Handle edge case for last column/row (no gap after)
+              if (col >= n || row >= n) {
+                return half4(0.0, 0.0, 0.0, 1.0);
+              }
+              
+              // Map local position to full image UV
+              float2 uv = float2(localX / tileSize.x, localY / tileSize.y);
+              
+              return image.eval(uv * size);
             }
           `;
 
           return compile(source, {
             resolution: [width, height],
-            offset: [offsetX, offsetY],
+            tileCount: tileCount,
+            gap: gap,
           });
         }
 
