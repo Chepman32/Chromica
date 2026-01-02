@@ -1936,31 +1936,61 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
           const source = `
             uniform shader image;
+            uniform float2 resolution;
             uniform float angle;
             uniform float intensity;
 
             const float PI = 3.14159265359;
 
             half4 main(float2 coord) {
-              half4 base = image.eval(coord);
+              float2 size = max(resolution, float2(1.0));
               float rad = angle * PI / 180.0;
               float2 dir = float2(cos(rad), sin(rad));
-              float2 offset = dir * 2.0;
-
-              half4 ahead = image.eval(coord + offset);
-              half4 behind = image.eval(coord - offset);
-
-              float3 diff = ahead.rgb - behind.rgb;
-              float grad = dot(diff, float3(0.299, 0.587, 0.114));
-
-              float amt = clamp(intensity, 0.0, 1.0);
-              float3 result = clamp(base.rgb + grad * amt, 0.0, 1.0);
-
-              return half4(result, base.a);
+              
+              // Multi-scale directional gradient for stronger effect
+              float3 gradSum = float3(0.0);
+              float totalWeight = 0.0;
+              
+              // Sample at multiple distances for a stronger gradient response
+              for (int i = 1; i <= 8; i++) {
+                float dist = float(i) * 2.0;
+                float weight = 1.0 / float(i);
+                
+                float2 offsetPos = dir * dist;
+                float2 offsetNeg = -dir * dist;
+                
+                float2 posCoord = clamp(coord + offsetPos, float2(0.0), size - float2(1.0));
+                float2 negCoord = clamp(coord + offsetNeg, float2(0.0), size - float2(1.0));
+                
+                half4 ahead = image.eval(posCoord);
+                half4 behind = image.eval(negCoord);
+                
+                gradSum += (ahead.rgb - behind.rgb) * weight;
+                totalWeight += weight;
+              }
+              
+              float3 gradient = gradSum / totalWeight;
+              
+              // Convert to luminance-based gradient magnitude
+              float gradMag = length(gradient) * 2.0;
+              
+              // Apply intensity with stronger multiplier
+              float amt = clamp(intensity, 0.0, 1.0) * 3.0;
+              
+              half4 base = image.eval(coord);
+              
+              // Emphasize the directional gradient - show gradient direction with color
+              float3 result = base.rgb + gradient * amt;
+              
+              // Add edge emphasis based on gradient magnitude
+              result = mix(base.rgb, result, gradMag * amt);
+              
+              return half4(clamp(result, 0.0, 1.0), base.a);
             }
           `;
 
           return compile(source, {
+            resolution: [width, height],
             angle,
             intensity,
           });
