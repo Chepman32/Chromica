@@ -1304,7 +1304,7 @@ export const EFFECTS: Effect[] = [
         type: 'slider',
         min: 0,
         max: 1,
-        default: 0.7,
+        default: 0.3,
         step: 0.01,
       },
       {
