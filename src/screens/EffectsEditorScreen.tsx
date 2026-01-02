@@ -46,18 +46,66 @@ import { EffectSegmentedControl } from '../components/effects/EffectSegmentedCon
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CATEGORIES = [
-  { id: EffectCategory.CELLULAR, label: 'Mosaic', icon: '⬛' },
-  { id: EffectCategory.TILING, label: 'Tiling', icon: '🔄' },
-  { id: EffectCategory.DISTORTION, label: 'Wave', icon: '〰️' },
-  { id: EffectCategory.GLASS, label: 'Glass', icon: '◇' },
-  { id: EffectCategory.CORRECTION, label: 'Distortion', icon: 'FIX' },
-  { id: EffectCategory.BLUR_SHARPEN, label: 'Blur', icon: 'BLR' },
-  { id: EffectCategory.GLITCH, label: 'Glitch', icon: '⚡' },
-  { id: EffectCategory.RELIEF, label: 'Relief', icon: '🔲' },
-  { id: EffectCategory.STYLIZATION, label: 'Style', icon: '🎨' },
-  { id: EffectCategory.BRUSH, label: 'Brush', icon: 'INK' },
-  { id: EffectCategory.FREQUENCY, label: 'Frequency', icon: 'FQ' },
-  { id: EffectCategory.RENDER, label: 'Render', icon: 'RND' },
+  {
+    id: EffectCategory.CELLULAR,
+    label: 'Mosaic',
+    icon: require('../assets/icons/categories/mosaic.png'),
+  },
+  {
+    id: EffectCategory.TILING,
+    label: 'Tiling',
+    icon: require('../assets/icons/categories/tiles.png'),
+  },
+  {
+    id: EffectCategory.DISTORTION,
+    label: 'Wave',
+    icon: require('../assets/icons/categories/wave.png'),
+  },
+  {
+    id: EffectCategory.GLASS,
+    label: 'Glass',
+    icon: require('../assets/icons/categories/glass.png'),
+  },
+  {
+    id: EffectCategory.CORRECTION,
+    label: 'Distortion',
+    icon: require('../assets/icons/categories/distortion.jpeg'),
+  },
+  {
+    id: EffectCategory.BLUR_SHARPEN,
+    label: 'Blur',
+    icon: require('../assets/icons/categories/blur.png'),
+  },
+  {
+    id: EffectCategory.GLITCH,
+    label: 'Glitch',
+    icon: require('../assets/icons/categories/glitch.png'),
+  },
+  {
+    id: EffectCategory.RELIEF,
+    label: 'Relief',
+    icon: require('../assets/icons/categories/relief.jpg'),
+  },
+  {
+    id: EffectCategory.STYLIZATION,
+    label: 'Style',
+    icon: require('../assets/icons/categories/style.jpeg'),
+  },
+  {
+    id: EffectCategory.BRUSH,
+    label: 'Brush',
+    icon: require('../assets/icons/categories/brush.png'),
+  },
+  {
+    id: EffectCategory.FREQUENCY,
+    label: 'Frequency',
+    icon: require('../assets/icons/categories/frequency.png'),
+  },
+  {
+    id: EffectCategory.RENDER,
+    label: 'Render',
+    icon: require('../assets/icons/categories/render.png'),
+  },
 ];
 
 export const EffectsEditorScreen: React.FC = () => {
@@ -464,7 +512,11 @@ export const EffectsEditorScreen: React.FC = () => {
                       styles.categoryTabSelected,
                   ]}
                 >
-                  <Text style={styles.categoryIcon}>{category.icon}</Text>
+                  <Image
+                    source={category.icon}
+                    style={styles.categoryIconImage}
+                    resizeMode="cover"
+                  />
                   <Text
                     style={[
                       styles.categoryLabel,
@@ -565,7 +617,9 @@ export const EffectsEditorScreen: React.FC = () => {
                 if (param.type === 'segmented' && param.options) {
                   const currentValue =
                     currentParams[param.name] ?? param.default;
-                  const isColorParameter = param.name.toLowerCase().includes('color');
+                  const isColorParameter = param.name
+                    .toLowerCase()
+                    .includes('color');
                   return (
                     <EffectSegmentedControl
                       key={param.name}
@@ -766,9 +820,11 @@ const styles = StyleSheet.create({
   categoryTabSelected: {
     backgroundColor: '#6366F1',
   },
-  categoryIcon: {
-    fontSize: 20,
-    marginBottom: 2,
+  categoryIconImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    marginBottom: 4,
   },
   categoryLabel: {
     fontSize: 12,

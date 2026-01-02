@@ -2064,6 +2064,12 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
+              
+              // Skip transparent/empty areas (letterbox padding)
+              if (base.a < 0.01) {
+                return base;
+              }
+              
               float2 uv = coord / resolution;
               
               // Flip Y so flames rise from bottom
@@ -2167,6 +2173,12 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
+              
+              // Skip transparent/empty areas (letterbox padding)
+              if (base.a < 0.01) {
+                return base;
+              }
+              
               float2 uv = coord / resolution;
               float s = max(scale, 0.1);
 
