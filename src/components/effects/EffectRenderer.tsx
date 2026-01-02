@@ -2065,21 +2065,52 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
               float2 uv = coord / resolution;
-
+              
+              // Flip Y so flames rise from bottom
+              float y = 1.0 - uv.y;
+              
               float scale = max(detail, 0.5);
-              float noiseVal = fbm(float2(uv.x * scale * 1.5, (1.0 - uv.y) * scale * 3.0));
-              float flame = pow(clamp(noiseVal, 0.0, 1.0), 3.0);
-              float glow = pow(clamp(noiseVal, 0.0, 1.0), 1.5);
-
-              float amount = clamp(intensity, 0.0, 1.0);
-              float3 flameColor = float3(
-                flame * (2.0 * amount),
-                glow * (1.2 * amount),
-                glow * 0.3 * amount
-              );
-
-              float3 result = clamp(base.rgb + flameColor, 0.0, 1.0);
-              return half4(result, base.a);
+              
+              // Create turbulent flame shape
+              float turbulence = fbm(float2(uv.x * scale * 4.0, y * scale * 2.0)) * 0.5;
+              float distortedX = uv.x + turbulence * 0.3;
+              
+              // Main flame noise - rises upward with turbulence
+              float n = fbm(float2(distortedX * scale * 3.0, y * scale * 5.0 - turbulence * 2.0));
+              
+              // Flame shape - stronger at bottom, fading toward top
+              float flameShape = pow(y, 0.3) * (1.0 - y * 0.7);
+              flameShape *= smoothstep(0.0, 0.3, n);
+              
+              // Create flame intensity with noise
+              float flameIntensity = n * flameShape;
+              flameIntensity = pow(clamp(flameIntensity * 2.0, 0.0, 1.0), 1.5);
+              
+              // Apply user intensity - scale the effect strength
+              float amount = 0.3 + clamp(intensity, 0.0, 1.0) * 2.0;
+              flameIntensity *= amount;
+              
+              // Flame color gradient: white core -> yellow -> orange -> red
+              float3 flameColor;
+              if (flameIntensity > 0.8) {
+                // Hot white/yellow core
+                flameColor = mix(float3(1.0, 0.9, 0.3), float3(1.0, 1.0, 0.8), (flameIntensity - 0.8) * 5.0);
+              } else if (flameIntensity > 0.5) {
+                // Orange
+                flameColor = mix(float3(1.0, 0.4, 0.0), float3(1.0, 0.9, 0.3), (flameIntensity - 0.5) * 3.33);
+              } else if (flameIntensity > 0.2) {
+                // Red to orange
+                flameColor = mix(float3(0.8, 0.1, 0.0), float3(1.0, 0.4, 0.0), (flameIntensity - 0.2) * 3.33);
+              } else {
+                // Dark red / transparent
+                flameColor = float3(0.5, 0.0, 0.0) * flameIntensity * 5.0;
+              }
+              
+              // Blend flame over image using additive blending for glow effect
+              float flameMask = clamp(flameIntensity * 1.5, 0.0, 1.0);
+              float3 result = base.rgb + flameColor * flameMask;
+              
+              return half4(clamp(result, 0.0, 1.0), base.a);
             }
           `;
 
