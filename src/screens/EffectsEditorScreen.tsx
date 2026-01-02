@@ -41,6 +41,7 @@ import { EffectCategory } from '../domain/effects/types';
 import { ShaderManager } from '../domain/shader-manager/ShaderManager';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EffectSlider } from '../components/effects/EffectSlider';
+import { EffectSegmentedControl } from '../components/effects/EffectSegmentedControl';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -514,6 +515,23 @@ export const EffectsEditorScreen: React.FC = () => {
                       onChangeEnd={value =>
                         handleParameterChangeEnd(param.name, value)
                       }
+                    />
+                  );
+                }
+                if (param.type === 'segmented' && param.options) {
+                  const currentValue =
+                    currentParams[param.name] ?? param.default;
+                  const isColorParameter = param.name.toLowerCase().includes('color');
+                  return (
+                    <EffectSegmentedControl
+                      key={param.name}
+                      label={param.label}
+                      options={param.options}
+                      value={currentValue as string}
+                      onChange={value =>
+                        handleParameterChange(param.name, value)
+                      }
+                      mode={isColorParameter ? 'color' : 'text'}
                     />
                   );
                 }
