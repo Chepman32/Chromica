@@ -2130,18 +2130,71 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float2 resolution;
             uniform float scale;
             uniform float contrast;
-            ${COMMON_NOISE_SNIPPET}
+
+            // Smooth noise for cloud-like appearance
+            float hash(float2 p) {
+              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            float smoothNoise(float2 p) {
+              float2 i = floor(p);
+              float2 f = fract(p);
+              
+              // Smooth interpolation
+              float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+              
+              float a = hash(i);
+              float b = hash(i + float2(1.0, 0.0));
+              float c = hash(i + float2(0.0, 1.0));
+              float d = hash(i + float2(1.0, 1.0));
+              
+              return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+            }
+
+            float cloudFbm(float2 p) {
+              float value = 0.0;
+              float amplitude = 0.5;
+              float frequency = 1.0;
+              
+              // More octaves for softer, fluffier clouds
+              for (int i = 0; i < 6; i++) {
+                value += amplitude * smoothNoise(p * frequency);
+                frequency *= 2.0;
+                amplitude *= 0.5;
+              }
+              return value;
+            }
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
               float2 uv = coord / resolution;
               float s = max(scale, 0.1);
 
-              float n = fbm(uv * s * 4.0);
-              float clouds = pow(clamp(n, 0.0, 1.0), clamp(contrast + 0.5, 0.5, 2.5));
-              float3 cloudColor = float3(clouds);
-
-              return half4(mix(base.rgb, cloudColor, 0.5), base.a);
+              // Create soft, billowy cloud pattern
+              float2 cloudUV = uv * s * 2.0;
+              
+              // Layer multiple cloud formations
+              float cloud1 = cloudFbm(cloudUV);
+              float cloud2 = cloudFbm(cloudUV * 0.5 + float2(5.2, 1.3));
+              float cloud3 = cloudFbm(cloudUV * 0.25 + float2(9.7, 4.6));
+              
+              // Combine layers for depth
+              float clouds = cloud1 * 0.5 + cloud2 * 0.35 + cloud3 * 0.15;
+              
+              // Apply contrast to shape cloud density
+              float c = 0.3 + clamp(contrast, 0.0, 2.0) * 0.5;
+              clouds = smoothstep(0.5 - c * 0.4, 0.5 + c * 0.3, clouds);
+              
+              // Soft white/gray cloud color
+              float3 cloudColor = float3(0.95, 0.97, 1.0) * clouds;
+              float3 shadowColor = float3(0.7, 0.75, 0.8) * (1.0 - clouds) * 0.3;
+              float3 finalCloud = cloudColor + shadowColor;
+              
+              // Blend clouds over image - more visible blending
+              float blendAmount = 0.4 + contrast * 0.3;
+              float3 result = mix(base.rgb, base.rgb * (1.0 - clouds * 0.3) + finalCloud * clouds, blendAmount);
+              
+              return half4(clamp(result, 0.0, 1.0), base.a);
             }
           `;
 

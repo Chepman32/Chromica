@@ -46,11 +46,11 @@ import { EffectSegmentedControl } from '../components/effects/EffectSegmentedCon
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const CATEGORIES = [
-  { id: EffectCategory.CELLULAR, label: 'Cellular', icon: '⬛' },
+  { id: EffectCategory.CELLULAR, label: 'Mosaic', icon: '⬛' },
   { id: EffectCategory.TILING, label: 'Tiling', icon: '🔄' },
   { id: EffectCategory.DISTORTION, label: 'Wave', icon: '〰️' },
   { id: EffectCategory.GLASS, label: 'Glass', icon: '◇' },
-  { id: EffectCategory.CORRECTION, label: 'Correct', icon: 'FIX' },
+  { id: EffectCategory.CORRECTION, label: 'Distortion', icon: 'FIX' },
   { id: EffectCategory.BLUR_SHARPEN, label: 'Blur', icon: 'BLR' },
   { id: EffectCategory.GLITCH, label: 'Glitch', icon: '⚡' },
   { id: EffectCategory.RELIEF, label: 'Relief', icon: '🔲' },
