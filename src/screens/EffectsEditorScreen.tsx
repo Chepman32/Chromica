@@ -82,6 +82,9 @@ export const EffectsEditorScreen: React.FC = () => {
       try {
         setLoadingImage(true);
 
+        // Clear all effect caches when loading new image
+        clearAllCaches();
+
         // For ph:// URIs, try using them directly first
         // Skia might be able to handle them on iOS
         if (imageUri.startsWith('ph://')) {
@@ -145,6 +148,9 @@ export const EffectsEditorScreen: React.FC = () => {
     canUndo,
     canRedo,
     isPremium,
+    getCachedParams,
+    clearEffectCache,
+    clearAllCaches,
   } = useEffectsStore();
 
   // Get the current effect to apply
@@ -206,13 +212,39 @@ export const EffectsEditorScreen: React.FC = () => {
     ReactNativeHapticFeedback.trigger('impactMedium');
     setSelectedEffectId(effectId);
 
-    // Apply effect with default parameters
+    // Check cache first, fallback to defaults
+    let paramsToApply = getCachedParams(effectId);
+
+    if (!paramsToApply) {
+      const defaultParams: Record<string, any> = {};
+      effect.parameters.forEach(param => {
+        defaultParams[param.name] = param.default;
+      });
+      paramsToApply = defaultParams;
+    }
+
+    addEffect(effectId, paramsToApply);
+  };
+
+  const handleResetToDefaults = () => {
+    if (!selectedEffectId) return;
+
+    const effect = EFFECTS.find(e => e.id === selectedEffectId);
+    if (!effect) return;
+
+    // Clear from cache
+    clearEffectCache(selectedEffectId);
+
+    // Create default params
     const defaultParams: Record<string, any> = {};
     effect.parameters.forEach(param => {
       defaultParams[param.name] = param.default;
     });
 
-    addEffect(effectId, defaultParams);
+    // Re-apply effect with defaults
+    addEffect(selectedEffectId, defaultParams);
+
+    ReactNativeHapticFeedback.trigger('notificationWarning');
   };
 
   const handleParameterChange = (paramName: string, value: any) => {
@@ -295,6 +327,7 @@ export const EffectsEditorScreen: React.FC = () => {
     console.log('Reset clicked');
     console.log('Before reset - canUndo:', canUndo(), 'canRedo:', canRedo());
     clearEffects();
+    clearAllCaches();
     setSelectedEffectId(null);
     ReactNativeHapticFeedback.trigger('notificationWarning');
     // Check state after reset
@@ -490,9 +523,20 @@ export const EffectsEditorScreen: React.FC = () => {
         {/* Second Page: Effect Parameters */}
         {selectedEffect && currentParams && (
           <View style={styles.parametersPage}>
-            <Text style={styles.parametersPanelTitle}>
-              {selectedEffect.name}
-            </Text>
+            <View style={styles.parametersHeader}>
+              <Text style={styles.parametersPanelTitle}>
+                {selectedEffect.name}
+              </Text>
+
+              <TouchableOpacity
+                onPress={handleResetToDefaults}
+                style={styles.resetButton}
+              >
+                <Text style={styles.resetButtonIcon}>↻</Text>
+                <Text style={styles.resetButtonText}>Reset</Text>
+              </TouchableOpacity>
+            </View>
+
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.parametersScrollContent}
@@ -638,11 +682,36 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#9CA3AF',
   },
+  parametersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   parametersPanelTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
-    marginBottom: 16,
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#2A2A4E',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6366F1',
+  },
+  resetButtonIcon: {
+    fontSize: 16,
+    color: '#6366F1',
+    marginRight: 4,
+  },
+  resetButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6366F1',
   },
   parameterControl: {
     marginRight: 16,

@@ -61,6 +61,9 @@ interface EffectsState {
   // Premium status
   isPremium: boolean;
 
+  // Session parameter cache (not persisted)
+  parameterCache: Record<string, Record<string, any>>;
+
   // Actions
   addEffect: (effectId: string, params: Record<string, any>) => void;
   updateEffectParams: (layerId: string, params: Record<string, any>) => void;
@@ -93,6 +96,12 @@ interface EffectsState {
 
   // Premium
   setPremium: (isPremium: boolean) => void;
+
+  // Cache management
+  getCachedParams: (effectId: string) => Record<string, any> | null;
+  cacheEffectParams: (effectId: string, params: Record<string, any>) => void;
+  clearEffectCache: (effectId: string) => void;
+  clearAllCaches: () => void;
 }
 
 export const useEffectsStore = create<EffectsState>()(
@@ -105,6 +114,7 @@ export const useEffectsStore = create<EffectsState>()(
       historyIndex: 0,
       presets: [],
       isPremium: true, // Disabled paywall for development
+      parameterCache: {},
 
       addEffect: (effectId, params) => {
         set(state => {
@@ -155,14 +165,26 @@ export const useEffectsStore = create<EffectsState>()(
 
       updateEffectParamsNoHistory: (layerId, params) => {
         set(state => {
-          const newStack = state.effectStack.map(layer =>
-            layer.id === layerId
-              ? { ...layer, params: { ...layer.params, ...params } }
-              : layer,
-          );
+          let updatedCache = state.parameterCache;
+
+          const newStack = state.effectStack.map(layer => {
+            if (layer.id === layerId) {
+              const updatedParams = { ...layer.params, ...params };
+
+              // Auto-cache updated params for this effect
+              updatedCache = {
+                ...state.parameterCache,
+                [layer.effectId]: updatedParams
+              };
+
+              return { ...layer, params: updatedParams };
+            }
+            return layer;
+          });
 
           return {
             effectStack: newStack,
+            parameterCache: updatedCache,
           };
         });
       },
@@ -309,6 +331,32 @@ export const useEffectsStore = create<EffectsState>()(
 
       setPremium: isPremium => {
         set({ isPremium });
+      },
+
+      getCachedParams: (effectId) => {
+        const cache = get().parameterCache;
+        return cache[effectId] || null;
+      },
+
+      cacheEffectParams: (effectId, params) => {
+        set(state => ({
+          parameterCache: {
+            ...state.parameterCache,
+            [effectId]: { ...params }
+          }
+        }));
+      },
+
+      clearEffectCache: (effectId) => {
+        set(state => {
+          const newCache = { ...state.parameterCache };
+          delete newCache[effectId];
+          return { parameterCache: newCache };
+        });
+      },
+
+      clearAllCaches: () => {
+        set({ parameterCache: {} });
       },
     }),
     {
