@@ -883,6 +883,107 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
+        case 'bevel': {
+          const depth = params.depth || 3;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float depth;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              
+              // Sample neighboring pixels for bevel effect
+              half4 c00 = image.eval(clamp(coord + float2(-1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c01 = image.eval(clamp(coord + float2(0.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c02 = image.eval(clamp(coord + float2(1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c10 = image.eval(clamp(coord + float2(-1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c11 = image.eval(clamp(coord, float2(0.0), size - float2(1.0)));
+              half4 c12 = image.eval(clamp(coord + float2(1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c20 = image.eval(clamp(coord + float2(-1.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c21 = image.eval(clamp(coord + float2(0.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c22 = image.eval(clamp(coord + float2(1.0, 1.0), float2(0.0), size - float2(1.0)));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+              
+              // Sobel operators for gradient
+              float gx = dot(c02.rgb, w) + 2.0 * dot(c12.rgb, w) + dot(c22.rgb, w)
+                       - dot(c00.rgb, w) - 2.0 * dot(c10.rgb, w) - dot(c20.rgb, w);
+              float gy = dot(c00.rgb, w) + 2.0 * dot(c01.rgb, w) + dot(c02.rgb, w)
+                       - dot(c20.rgb, w) - 2.0 * dot(c21.rgb, w) - dot(c22.rgb, w);
+
+              // Light direction (top-left)
+              float2 lightDir = normalize(float2(-1.0, -1.0));
+              float2 gradient = float2(gx, gy);
+              
+              // Calculate highlight and shadow based on gradient and light
+              float highlight = max(dot(normalize(gradient + 0.001), lightDir), 0.0) * depth * 0.15;
+              float shadow = max(dot(normalize(-gradient - 0.001), lightDir), 0.0) * depth * 0.15;
+              
+              // Apply bevel effect
+              float3 result = c11.rgb + highlight - shadow;
+              result = clamp(result, 0.0, 1.0);
+
+              return half4(result, c11.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            depth,
+          });
+        }
+
+        case 'find-edges': {
+          const threshold = params.threshold || 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float threshold;
+
+            half4 main(float2 coord) {
+              float2 size = max(resolution, float2(1.0));
+              
+              // Sample 3x3 neighborhood
+              half4 c00 = image.eval(clamp(coord + float2(-1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c01 = image.eval(clamp(coord + float2(0.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c02 = image.eval(clamp(coord + float2(1.0, -1.0), float2(0.0), size - float2(1.0)));
+              half4 c10 = image.eval(clamp(coord + float2(-1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c12 = image.eval(clamp(coord + float2(1.0, 0.0), float2(0.0), size - float2(1.0)));
+              half4 c20 = image.eval(clamp(coord + float2(-1.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c21 = image.eval(clamp(coord + float2(0.0, 1.0), float2(0.0), size - float2(1.0)));
+              half4 c22 = image.eval(clamp(coord + float2(1.0, 1.0), float2(0.0), size - float2(1.0)));
+
+              float3 w = float3(0.299, 0.587, 0.114);
+              
+              // Sobel edge detection
+              float gx = dot(c02.rgb, w) + 2.0 * dot(c12.rgb, w) + dot(c22.rgb, w)
+                       - dot(c00.rgb, w) - 2.0 * dot(c10.rgb, w) - dot(c20.rgb, w);
+              float gy = dot(c00.rgb, w) + 2.0 * dot(c01.rgb, w) + dot(c02.rgb, w)
+                       - dot(c20.rgb, w) - 2.0 * dot(c21.rgb, w) - dot(c22.rgb, w);
+
+              // Edge magnitude
+              float edge = sqrt(gx * gx + gy * gy);
+              
+              // Apply threshold - invert so edges are dark on white background
+              float t = clamp(threshold, 0.0, 1.0);
+              float edgeIntensity = smoothstep(t * 0.3, t, edge);
+              
+              // White background with dark edges
+              float3 result = float3(1.0 - edgeIntensity);
+
+              return half4(result, 1.0);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            threshold,
+          });
+        }
+
         case 'oil-paint': {
           const brushSize = params.brushSize || 5;
           const detail = params.detail || 5;
