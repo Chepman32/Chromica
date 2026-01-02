@@ -10,6 +10,7 @@ import SplashScreen from '../screens/SplashScreen';
 import { ChromicaSplashScreen } from '../screens/ChromicaSplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import HomeScreen from '../screens/HomeScreen';
+import { LiquidRadialHomeScreen } from '../screens/LiquidRadialHomeScreen';
 import { GalleryScreen } from '../screens/GalleryScreen';
 import EditorScreen from '../screens/EditorScreen';
 import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
@@ -22,10 +23,15 @@ export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
   Home: undefined;
+  LiquidHome: undefined;
+  Gallery: undefined;
   Editor: {
     projectId?: string;
     imageUri?: string;
     imageDimensions?: { width: number; height: number };
+  };
+  EffectsEditor: {
+    imageUri: string;
   };
   Export: {
     imageUri: string;
@@ -72,7 +78,19 @@ export default function AppNavigator() {
           />
         )}
 
-        <Stack.Screen name="Home" component={GalleryScreen} />
+        <Stack.Screen name="Home" component={LiquidRadialHomeScreen} />
+
+        <Stack.Screen name="Gallery" component={GalleryScreen} />
+
+        <Stack.Screen
+          name="EffectsEditor"
+          component={EffectsEditorScreen}
+          options={{
+            animation: 'slide_from_right',
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
 
         <Stack.Screen
           name="Editor"
