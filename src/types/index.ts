@@ -1,5 +1,10 @@
 // Core type definitions for Chromica
 
+export interface ProjectEffect {
+  effectId: string;
+  params: Record<string, any>;
+}
+
 export interface Project {
   id: string;
   sourceImagePath: string;
@@ -7,6 +12,7 @@ export interface Project {
   canvasSize?: { width: number; height: number }; // Canvas size when elements were created
   thumbnailPath: string;
   elements: SerializedElement[];
+  effect?: ProjectEffect; // Applied effect
   createdAt: Date;
   updatedAt: Date;
 }

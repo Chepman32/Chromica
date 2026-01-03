@@ -12,6 +12,7 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 import HomeScreen from '../screens/HomeScreen';
 import { LiquidRadialHomeScreen } from '../screens/LiquidRadialHomeScreen';
 import { GalleryScreen } from '../screens/GalleryScreen';
+import { RecentProjectsScreen } from '../screens/RecentProjectsScreen';
 import EditorScreen from '../screens/EditorScreen';
 import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
 import { ExportScreen } from '../screens/ExportScreen';
@@ -25,6 +26,7 @@ export type RootStackParamList = {
   Home: undefined;
   LiquidHome: undefined;
   Gallery: undefined;
+  RecentProjects: undefined;
   Editor: {
     projectId?: string;
     imageUri?: string;
@@ -81,6 +83,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={LiquidRadialHomeScreen} />
 
         <Stack.Screen name="Gallery" component={GalleryScreen} />
+
+        <Stack.Screen name="RecentProjects" component={RecentProjectsScreen} />
 
         <Stack.Screen
           name="EffectsEditor"

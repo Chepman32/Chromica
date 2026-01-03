@@ -91,10 +91,10 @@ export const LiquidRadialHomeScreen: React.FC = () => {
     navigation.navigate('Settings' as never);
   }, [navigation]);
 
-  // Navigate to Recent Projects (Gallery)
+  // Navigate to Recent Projects
   const handleRecent = useCallback(() => {
     ReactNativeHapticFeedback.trigger('selection');
-    navigation.navigate('Gallery' as never);
+    navigation.navigate('RecentProjects' as never);
   }, [navigation]);
 
   // Show About (could be a modal or screen)

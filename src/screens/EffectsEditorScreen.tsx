@@ -24,6 +24,7 @@ import {
   Rect,
   Text as SkiaText,
   matchFont,
+  useCanvasRef,
 } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
@@ -36,6 +37,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import { useEffectsStore } from '../stores/effectsStore';
+import { ProjectDatabase } from '../database/ProjectDatabase';
+import { useProjectGalleryStore } from '../stores/projectGalleryStore';
 import { EFFECTS, getEffectsByCategory } from '../domain/effects/registry';
 import { EffectCategory } from '../domain/effects/types';
 import { ShaderManager } from '../domain/shader-manager/ShaderManager';
@@ -111,69 +114,18 @@ const CATEGORIES = [
 export const EffectsEditorScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { imageUri } = route.params as { imageUri: string };
+  const { imageUri, projectId } = route.params as {
+    imageUri?: string;
+    projectId?: string;
+  };
+  const { loadProjects } = useProjectGalleryStore();
+  const canvasRef = useCanvasRef();
 
-  const categoryIconMap = useMemo(() => {
-    const map = new Map<EffectCategory, string>();
-    CATEGORIES.forEach(category => {
-      map.set(category.id, category.icon);
-    });
-    return map;
-  }, []);
-
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(
+    projectId || null,
+  );
   const [fileUri, setFileUri] = useState<string | null>(null);
   const [loadingImage, setLoadingImage] = useState(true);
-
-  // Convert ph:// URI to file:// URI
-  useEffect(() => {
-    const loadImage = async () => {
-      try {
-        setLoadingImage(true);
-
-        // Clear all effect caches when loading new image
-        clearAllCaches();
-
-        // For ph:// URIs, try using them directly first
-        // Skia might be able to handle them on iOS
-        if (imageUri.startsWith('ph://')) {
-          console.log('Using ph:// URI directly');
-          setFileUri(imageUri);
-        } else if (imageUri.startsWith('file://')) {
-          setFileUri(imageUri);
-        } else if (imageUri.startsWith('/')) {
-          setFileUri(`file://${imageUri}`);
-        } else {
-          setFileUri(imageUri);
-        }
-      } catch (error) {
-        console.error('Error loading image:', error);
-        setFileUri(imageUri); // Fallback
-      } finally {
-        setLoadingImage(false);
-      }
-    };
-
-    loadImage();
-  }, [imageUri]);
-
-  // Load image with Skia
-  const image = useImage(fileUri || '');
-
-  useEffect(() => {
-    console.log('Original URI:', imageUri);
-    console.log('File URI:', fileUri);
-    if (!image) {
-      console.log('Image not loaded yet...');
-    } else {
-      console.log(
-        'Image loaded successfully:',
-        image.width(),
-        'x',
-        image.height(),
-      );
-    }
-  }, [image, imageUri, fileUri]);
-
   const [selectedCategory, setSelectedCategory] = useState<EffectCategory>(
     EffectCategory.CELLULAR,
   );
@@ -200,6 +152,107 @@ export const EffectsEditorScreen: React.FC = () => {
     clearEffectCache,
     clearAllCaches,
   } = useEffectsStore();
+
+  const categoryIconMap = useMemo(() => {
+    const map = new Map<EffectCategory, string>();
+    CATEGORIES.forEach(category => {
+      map.set(category.id, category.icon);
+    });
+    return map;
+  }, []);
+
+  // Load image - either from imageUri or from project
+  useEffect(() => {
+    const loadImage = async () => {
+      try {
+        setLoadingImage(true);
+
+        // Clear all effects and caches first
+        clearEffects();
+        clearAllCaches();
+        setSelectedEffectId(null);
+
+        let uriToLoad: string | null = null;
+        let savedEffect: {
+          effectId: string;
+          params: Record<string, any>;
+        } | null = null;
+
+        // If we have a projectId, load the project first
+        if (projectId) {
+          const project = await ProjectDatabase.getById(projectId);
+          if (project) {
+            uriToLoad = project.sourceImagePath;
+            setCurrentProjectId(project.id);
+
+            // Restore saved effect if exists
+            if (project.effect) {
+              savedEffect = project.effect;
+            }
+          }
+        } else if (imageUri) {
+          uriToLoad = imageUri;
+          setCurrentProjectId(null); // Reset for new images
+        }
+
+        if (!uriToLoad) {
+          console.error('No image URI available');
+          setLoadingImage(false);
+          return;
+        }
+
+        // For ph:// URIs, try using them directly first
+        // Skia might be able to handle them on iOS
+        if (uriToLoad.startsWith('ph://')) {
+          console.log('Using ph:// URI directly');
+          setFileUri(uriToLoad);
+        } else if (uriToLoad.startsWith('file://')) {
+          setFileUri(uriToLoad);
+        } else if (uriToLoad.startsWith('/')) {
+          setFileUri(`file://${uriToLoad}`);
+        } else {
+          setFileUri(uriToLoad);
+        }
+
+        // Restore effect after setting file URI
+        if (savedEffect) {
+          // Small delay to ensure state is ready
+          setTimeout(() => {
+            addEffect(savedEffect!.effectId, savedEffect!.params);
+            setSelectedEffectId(savedEffect!.effectId);
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error loading image:', error);
+        if (imageUri) {
+          setFileUri(imageUri); // Fallback
+        }
+      } finally {
+        setLoadingImage(false);
+      }
+    };
+
+    loadImage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageUri, projectId]);
+
+  // Load image with Skia
+  const image = useImage(fileUri || '');
+
+  useEffect(() => {
+    console.log('Original URI:', imageUri);
+    console.log('File URI:', fileUri);
+    if (!image) {
+      console.log('Image not loaded yet...');
+    } else {
+      console.log(
+        'Image loaded successfully:',
+        image.width(),
+        'x',
+        image.height(),
+      );
+    }
+  }, [image, imageUri, fileUri]);
 
   // Get the current effect to apply
   const currentEffect = useMemo(() => {
@@ -384,14 +437,111 @@ export const EffectsEditorScreen: React.FC = () => {
     }, 100);
   };
 
+  // Capture canvas as thumbnail
+  const captureCanvasThumbnail = async (): Promise<string | null> => {
+    try {
+      const snapshot = canvasRef.current?.makeImageSnapshot();
+      if (!snapshot) {
+        console.log('No snapshot available');
+        return null;
+      }
+
+      // Encode as base64 JPEG
+      const base64 = snapshot.encodeToBase64();
+
+      // Save to file
+      const thumbnailDir = `${RNFS.DocumentDirectoryPath}/thumbnails`;
+      await RNFS.mkdir(thumbnailDir).catch(() => {}); // Ignore if exists
+
+      const thumbnailPath = `${thumbnailDir}/thumb_${Date.now()}.jpg`;
+      await RNFS.writeFile(thumbnailPath, base64, 'base64');
+
+      console.log('Thumbnail saved to:', thumbnailPath);
+      return `file://${thumbnailPath}`;
+    } catch (error) {
+      console.error('Failed to capture thumbnail:', error);
+      return null;
+    }
+  };
+
+  // Save project to database
+  const saveProject = async (): Promise<void> => {
+    console.log('saveProject called, fileUri:', fileUri);
+    if (!fileUri) {
+      console.log('No fileUri, skipping save');
+      return;
+    }
+
+    try {
+      // Capture canvas with effects as thumbnail
+      const thumbnailPath = (await captureCanvasThumbnail()) || fileUri;
+
+      // Get current effect data to save
+      const effectToSave =
+        selectedEffectId && currentParams
+          ? { effectId: selectedEffectId, params: currentParams }
+          : undefined;
+
+      if (currentProjectId) {
+        // Update existing project
+        const existingProject = await ProjectDatabase.getById(currentProjectId);
+        if (existingProject) {
+          existingProject.thumbnailPath = thumbnailPath;
+          existingProject.effect = effectToSave;
+          existingProject.updatedAt = new Date();
+          await ProjectDatabase.save(existingProject);
+          console.log('Project updated:', currentProjectId);
+        }
+      } else {
+        // Create new project
+        console.log('Creating project with thumbnail:', thumbnailPath);
+        const project = await ProjectDatabase.create(
+          fileUri,
+          { width: image?.width() || 0, height: image?.height() || 0 },
+          thumbnailPath,
+        );
+        // Save effect to the new project
+        if (effectToSave) {
+          project.effect = effectToSave;
+          await ProjectDatabase.save(project);
+        }
+        setCurrentProjectId(project.id);
+        console.log('Project created successfully:', project);
+      }
+
+      // Refresh projects list
+      await loadProjects();
+      console.log('Projects reloaded');
+    } catch (error) {
+      console.error('Failed to save project:', error);
+    }
+  };
+
+  const handleExport = async () => {
+    // Save project before navigating to export
+    await saveProject();
+
+    navigation.navigate(
+      'Export' as never,
+      {
+        imageUri: fileUri,
+        effectId: selectedEffectId,
+        params: currentParams,
+      } as never,
+    );
+  };
+
+  const handleBack = async () => {
+    // Always save project when leaving editor
+    await saveProject();
+    navigation.goBack();
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Top Bar */}
       <View style={styles.topBar}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
+        <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
 
@@ -435,19 +585,7 @@ export const EffectsEditorScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          onPress={() => {
-            navigation.navigate(
-              'Export' as never,
-              {
-                imageUri: fileUri,
-                effectId: selectedEffectId,
-                params: currentParams,
-              } as never,
-            );
-          }}
-          style={styles.shareButton}
-        >
+        <TouchableOpacity onPress={handleExport} style={styles.shareButton}>
           <Text style={styles.shareIcon}>↗️</Text>
         </TouchableOpacity>
       </View>
@@ -464,6 +602,7 @@ export const EffectsEditorScreen: React.FC = () => {
           <GestureDetector gesture={composedGesture}>
             <Animated.View style={[styles.canvas, canvasStyle]}>
               <Canvas
+                ref={canvasRef}
                 style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.65 }}
               >
                 <EffectRenderer
