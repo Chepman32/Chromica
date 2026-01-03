@@ -10,11 +10,18 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
+
+const InstagramIcon = require('../assets/icons/export/Instagram.png');
+const XIcon = require('../assets/icons/export/X.png');
+const GalleryIcon = require('../assets/icons/export/Gallery.png');
+const FilesIcon = require('../assets/icons/export/Files.png');
+const ShareIcon = require('../assets/icons/export/Share.png');
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import Share from 'react-native-share';
+import Share, { Social } from 'react-native-share';
 import {
   Canvas,
   Image as SkiaImage,
@@ -23,9 +30,6 @@ import {
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EFFECTS } from '../domain/effects/registry';
-
-type ExportFormat = 'jpeg' | 'png';
-type ExportQuality = 50 | 80 | 95 | 100;
 
 export const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -39,8 +43,6 @@ export const ExportScreen: React.FC = () => {
   const image = useImage(imageUri);
   const effect = effectId ? EFFECTS.find(e => e.id === effectId) : null;
 
-  const [format, setFormat] = useState<ExportFormat>('jpeg');
-  const [quality, setQuality] = useState<ExportQuality>(80);
   const [exporting, setExporting] = useState(false);
 
   const handleSave = async () => {
@@ -85,17 +87,71 @@ export const ExportScreen: React.FC = () => {
     }
   };
 
-  const formatButtons: { format: ExportFormat; label: string }[] = [
-    { format: 'jpeg', label: 'JPG' },
-    { format: 'png', label: 'PNG' },
-  ];
+  const handleShareInstagram = async () => {
+    try {
+      setExporting(true);
+      ReactNativeHapticFeedback.trigger('impactMedium');
 
-  const qualityButtons: { quality: ExportQuality; label: string }[] = [
-    { quality: 50, label: 'Low' },
-    { quality: 80, label: 'Medium' },
-    { quality: 95, label: 'High' },
-    { quality: 100, label: 'Max' },
-  ];
+      await Share.shareSingle({
+        url: imageUri,
+        type: 'image/jpeg',
+        social: Social.Instagram,
+      });
+
+      ReactNativeHapticFeedback.trigger('notificationSuccess');
+    } catch (error: any) {
+      if (error?.message !== 'User did not share') {
+        console.error('Share error:', error);
+        ReactNativeHapticFeedback.trigger('notificationError');
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleShareX = async () => {
+    try {
+      setExporting(true);
+      ReactNativeHapticFeedback.trigger('impactMedium');
+
+      await Share.shareSingle({
+        url: imageUri,
+        type: 'image/jpeg',
+        social: Social.Twitter,
+      });
+
+      ReactNativeHapticFeedback.trigger('notificationSuccess');
+    } catch (error: any) {
+      if (error?.message !== 'User did not share') {
+        console.error('Share error:', error);
+        ReactNativeHapticFeedback.trigger('notificationError');
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleSaveToFiles = async () => {
+    try {
+      setExporting(true);
+      ReactNativeHapticFeedback.trigger('impactMedium');
+
+      await Share.open({
+        url: imageUri,
+        type: 'image/jpeg',
+        saveToFiles: true,
+      });
+
+      ReactNativeHapticFeedback.trigger('notificationSuccess');
+    } catch (error: any) {
+      if (error?.message !== 'User did not share') {
+        console.error('Save to files error:', error);
+        ReactNativeHapticFeedback.trigger('notificationError');
+      }
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -128,78 +184,83 @@ export const ExportScreen: React.FC = () => {
         )}
       </View>
 
-      {/* Format Selection */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Format</Text>
-        <View style={styles.buttonRow}>
-          {formatButtons.map(btn => (
-            <TouchableOpacity
-              key={btn.format}
-              onPress={() => setFormat(btn.format)}
-              style={[
-                styles.optionButton,
-                format === btn.format && styles.optionButtonSelected,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.optionButtonText,
-                  format === btn.format && styles.optionButtonTextSelected,
-                ]}
-              >
-                {btn.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+      {/* Export Options Grid */}
+      <View style={styles.exportGrid}>
+        {/* Row 1 */}
+        <TouchableOpacity
+          onPress={handleShareInstagram}
+          disabled={exporting}
+          style={styles.gridItem}
+        >
+          <View style={styles.iconContainer}>
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Image source={InstagramIcon} style={styles.icon} resizeMode="contain" />
+            )}
+          </View>
+          <Text style={styles.gridItemLabel}>Instagram</Text>
+        </TouchableOpacity>
 
-      {/* Quality Selection */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Quality</Text>
-        <View style={styles.buttonRow}>
-          {qualityButtons.map(btn => (
-            <TouchableOpacity
-              key={btn.quality}
-              onPress={() => setQuality(btn.quality)}
-              style={[
-                styles.optionButton,
-                quality === btn.quality && styles.optionButtonSelected,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.optionButtonText,
-                  quality === btn.quality && styles.optionButtonTextSelected,
-                ]}
-              >
-                {btn.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+        <TouchableOpacity
+          onPress={handleShareX}
+          disabled={exporting}
+          style={styles.gridItem}
+        >
+          <View style={styles.iconContainer}>
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Image source={XIcon} style={styles.icon} resizeMode="contain" />
+            )}
+          </View>
+          <Text style={styles.gridItemLabel}>X</Text>
+        </TouchableOpacity>
 
-      {/* Action Buttons */}
-      <View style={styles.actions}>
         <TouchableOpacity
           onPress={handleSave}
           disabled={exporting}
-          style={[styles.actionButton, styles.saveButton]}
+          style={styles.gridItem}
         >
-          {exporting ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.actionButtonText}>Save to Photos</Text>
-          )}
+          <View style={styles.iconContainer}>
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Image source={GalleryIcon} style={styles.icon} resizeMode="contain" />
+            )}
+          </View>
+          <Text style={styles.gridItemLabel}>Gallery</Text>
+        </TouchableOpacity>
+
+        {/* Row 2 */}
+        <TouchableOpacity
+          onPress={handleSaveToFiles}
+          disabled={exporting}
+          style={styles.gridItem}
+        >
+          <View style={styles.iconContainer}>
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Image source={FilesIcon} style={styles.icon} resizeMode="contain" />
+            )}
+          </View>
+          <Text style={styles.gridItemLabel}>Files</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleShare}
           disabled={exporting}
-          style={[styles.actionButton, styles.shareButton]}
+          style={styles.gridItem}
         >
-          <Text style={styles.actionButtonText}>Share</Text>
+          <View style={styles.iconContainer}>
+            {exporting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Image source={ShareIcon} style={styles.icon} resizeMode="contain" />
+            )}
+          </View>
+          <Text style={styles.gridItemLabel}>Share</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -242,58 +303,38 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
   },
-  section: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-    marginBottom: 12,
-  },
-  buttonRow: {
+  exportGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
     gap: 12,
-  },
-  optionButton: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: '#1F1F2E',
-    alignItems: 'center',
-  },
-  optionButtonSelected: {
-    backgroundColor: '#6366F1',
-  },
-  optionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
-  optionButtonTextSelected: {
-    color: '#FFFFFF',
-  },
-  actions: {
     padding: 20,
-    gap: 12,
     marginTop: 'auto',
   },
-  actionButton: {
-    paddingVertical: 16,
-    borderRadius: 12,
+  gridItem: {
+    width: '30%',
     alignItems: 'center',
-  },
-  saveButton: {
-    backgroundColor: '#6366F1',
-  },
-  shareButton: {
     backgroundColor: '#1F1F2E',
+    borderRadius: 16,
+    padding: 16,
+    paddingVertical: 20,
   },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+  iconContainer: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0F0F1E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  icon: {
+    width: 32,
+    height: 32,
+  },
+  gridItemLabel: {
+    fontSize: 12,
     color: '#FFFFFF',
+    textAlign: 'center',
   },
 });
