@@ -31,6 +31,8 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EFFECTS } from '../domain/effects/registry';
 
+type ExportAction = 'instagram' | 'x' | 'gallery' | 'files' | 'share' | null;
+
 export const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -43,11 +45,11 @@ export const ExportScreen: React.FC = () => {
   const image = useImage(imageUri);
   const effect = effectId ? EFFECTS.find(e => e.id === effectId) : null;
 
-  const [exporting, setExporting] = useState(false);
+  const [exportingAction, setExportingAction] = useState<ExportAction>(null);
 
   const handleSave = async () => {
     try {
-      setExporting(true);
+      setExportingAction('gallery');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
       // Save to camera roll
@@ -62,13 +64,13 @@ export const ExportScreen: React.FC = () => {
       ReactNativeHapticFeedback.trigger('notificationError');
       Alert.alert('Error', 'Failed to save image');
     } finally {
-      setExporting(false);
+      setExportingAction(null);
     }
   };
 
   const handleShare = async () => {
     try {
-      setExporting(true);
+      setExportingAction('share');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
       await Share.open({
@@ -83,13 +85,13 @@ export const ExportScreen: React.FC = () => {
         ReactNativeHapticFeedback.trigger('notificationError');
       }
     } finally {
-      setExporting(false);
+      setExportingAction(null);
     }
   };
 
   const handleShareInstagram = async () => {
     try {
-      setExporting(true);
+      setExportingAction('instagram');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
       await Share.shareSingle({
@@ -105,13 +107,13 @@ export const ExportScreen: React.FC = () => {
         ReactNativeHapticFeedback.trigger('notificationError');
       }
     } finally {
-      setExporting(false);
+      setExportingAction(null);
     }
   };
 
   const handleShareX = async () => {
     try {
-      setExporting(true);
+      setExportingAction('x');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
       await Share.shareSingle({
@@ -127,13 +129,13 @@ export const ExportScreen: React.FC = () => {
         ReactNativeHapticFeedback.trigger('notificationError');
       }
     } finally {
-      setExporting(false);
+      setExportingAction(null);
     }
   };
 
   const handleSaveToFiles = async () => {
     try {
-      setExporting(true);
+      setExportingAction('files');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
       await Share.open({
@@ -149,7 +151,7 @@ export const ExportScreen: React.FC = () => {
         ReactNativeHapticFeedback.trigger('notificationError');
       }
     } finally {
-      setExporting(false);
+      setExportingAction(null);
     }
   };
 
@@ -189,11 +191,11 @@ export const ExportScreen: React.FC = () => {
         {/* Row 1 */}
         <TouchableOpacity
           onPress={handleShareInstagram}
-          disabled={exporting}
+          disabled={exportingAction !== null}
           style={styles.gridItem}
         >
           <View style={styles.iconContainer}>
-            {exporting ? (
+            {exportingAction === 'instagram' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Image source={InstagramIcon} style={styles.icon} resizeMode="contain" />
@@ -204,11 +206,11 @@ export const ExportScreen: React.FC = () => {
 
         <TouchableOpacity
           onPress={handleShareX}
-          disabled={exporting}
+          disabled={exportingAction !== null}
           style={styles.gridItem}
         >
           <View style={styles.iconContainer}>
-            {exporting ? (
+            {exportingAction === 'x' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Image source={XIcon} style={styles.icon} resizeMode="contain" />
@@ -219,11 +221,11 @@ export const ExportScreen: React.FC = () => {
 
         <TouchableOpacity
           onPress={handleSave}
-          disabled={exporting}
+          disabled={exportingAction !== null}
           style={styles.gridItem}
         >
           <View style={styles.iconContainer}>
-            {exporting ? (
+            {exportingAction === 'gallery' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Image source={GalleryIcon} style={styles.icon} resizeMode="contain" />
@@ -235,11 +237,11 @@ export const ExportScreen: React.FC = () => {
         {/* Row 2 */}
         <TouchableOpacity
           onPress={handleSaveToFiles}
-          disabled={exporting}
+          disabled={exportingAction !== null}
           style={styles.gridItem}
         >
           <View style={styles.iconContainer}>
-            {exporting ? (
+            {exportingAction === 'files' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Image source={FilesIcon} style={styles.icon} resizeMode="contain" />
@@ -250,11 +252,11 @@ export const ExportScreen: React.FC = () => {
 
         <TouchableOpacity
           onPress={handleShare}
-          disabled={exporting}
+          disabled={exportingAction !== null}
           style={styles.gridItem}
         >
           <View style={styles.iconContainer}>
-            {exporting ? (
+            {exportingAction === 'share' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
               <Image source={ShareIcon} style={styles.icon} resizeMode="contain" />
