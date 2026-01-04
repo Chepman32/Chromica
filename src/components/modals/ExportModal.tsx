@@ -12,6 +12,7 @@ import {
   Platform,
   Image,
 } from 'react-native';
+import Share, { Social } from 'react-native-share';
 import { BottomSheet } from './BottomSheet';
 import { Colors } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
@@ -20,7 +21,6 @@ import { useAppStore } from '../../stores/appStore';
 import { useEditorStore } from '../../stores/editorStore';
 import { exportCanvasToImage } from '../../utils/imageExporter';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { Share } from 'react-native';
 
 const instagramIcon = require('../../assets/icons/instagram.png');
 const xIcon = require('../../assets/icons/x-logo.png');
@@ -145,19 +145,32 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     try {
       setIsExporting(true);
 
-      const options = {
-        url: `file://${exportResult.filepath}`,
-        type: exportResult.mime,
-      };
+      const url = exportResult.filepath.startsWith('file://')
+        ? exportResult.filepath
+        : `file://${exportResult.filepath}`;
 
-      const result = await Share.share(options, {
-        dialogTitle: 'Share on Instagram',
-        subject: 'Instagram',
-      });
+      if (Platform.OS === 'ios') {
+        const savedAsset = await CameraRoll.saveAsset(url, { type: 'photo' });
+        const localIdentifier =
+          savedAsset?.node?.id?.replace('ph://', '') || savedAsset?.node?.id;
+        const instagramUrl = `instagram://library?LocalIdentifier=${localIdentifier}`;
 
-      if (result.action === Share.sharedAction) {
-        onClose();
+        const canOpen = await Linking.canOpenURL(instagramUrl);
+        if (!canOpen || !localIdentifier) {
+          throw new Error('instagram_not_installed');
+        }
+
+        await Linking.openURL(instagramUrl);
+      } else {
+        await Share.shareSingle({
+          url,
+          type: exportResult.mime,
+          social: Social.Instagram,
+          failOnCancel: false,
+        });
       }
+
+      onClose();
     } catch (error) {
       console.error('Share error (Instagram):', error);
       Alert.alert('Error', 'Could not share on Instagram.');
@@ -177,19 +190,18 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     try {
       setIsExporting(true);
 
-      const options = {
-        url: `file://${exportResult.filepath}`,
-        type: exportResult.mime,
-      };
+      const url = exportResult.filepath.startsWith('file://')
+        ? exportResult.filepath
+        : `file://${exportResult.filepath}`;
 
-      const result = await Share.share(options, {
-        dialogTitle: 'Share on X',
-        subject: 'X',
+      await Share.shareSingle({
+        url,
+        type: exportResult.mime,
+        social: Social.Twitter,
+        failOnCancel: false,
       });
 
-      if (result.action === Share.sharedAction) {
-        onClose();
-      }
+      onClose();
     } catch (error) {
       console.error('Share error (X):', error);
       Alert.alert('Error', 'Could not share on X.');

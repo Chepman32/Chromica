@@ -586,7 +586,10 @@ export const EffectsEditorScreen: React.FC = () => {
         </View>
 
         <TouchableOpacity onPress={handleExport} style={styles.shareButton}>
-          <Text style={styles.shareIcon}>↗️</Text>
+          <Image
+            source={require('../assets/icons/share-light.png')}
+            style={styles.shareIconImage}
+          />
         </TouchableOpacity>
       </View>
 
@@ -834,8 +837,10 @@ const styles = StyleSheet.create({
   shareButton: {
     padding: 8,
   },
-  shareIcon: {
-    fontSize: 20,
+  shareIconImage: {
+    width: 24,
+    height: 24,
+    tintColor: '#FFFFFF',
   },
   canvasContainer: {
     height: SCREEN_HEIGHT * 0.5,

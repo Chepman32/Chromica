@@ -2,7 +2,7 @@
  * Export Screen - Save and share edited images
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,9 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
+  Linking,
+  Dimensions,
 } from 'react-native';
 
 const InstagramIcon = require('../assets/icons/export/Instagram.png');
@@ -22,16 +25,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Share, { Social } from 'react-native-share';
-import {
-  Canvas,
-  Image as SkiaImage,
-  useImage,
-} from '@shopify/react-native-skia';
+import { Canvas, useImage, useCanvasRef } from '@shopify/react-native-skia';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EFFECTS } from '../domain/effects/registry';
 
 type ExportAction = 'instagram' | 'x' | 'gallery' | 'files' | 'share' | null;
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const EXPORT_SIZE = 1080; // Export at high resolution
 
 export const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -44,16 +47,65 @@ export const ExportScreen: React.FC = () => {
 
   const image = useImage(imageUri);
   const effect = effectId ? EFFECTS.find(e => e.id === effectId) : null;
+  const canvasRef = useCanvasRef();
 
   const [exportingAction, setExportingAction] = useState<ExportAction>(null);
+
+  // Capture the canvas with effect applied and return file path
+  const captureProcessedImage = useCallback(async (): Promise<string> => {
+    const snapshot = canvasRef.current?.makeImageSnapshot();
+    if (!snapshot) {
+      throw new Error('Failed to capture canvas snapshot');
+    }
+
+    // Encode as base64 PNG for better quality
+    const base64 = snapshot.encodeToBase64();
+
+    // Save to temp file
+    const exportDir = `${RNFS.CachesDirectoryPath}/exports`;
+    await RNFS.mkdir(exportDir).catch(() => {}); // Ignore if exists
+
+    const exportPath = `${exportDir}/export_${Date.now()}.png`;
+    await RNFS.writeFile(exportPath, base64, 'base64');
+
+    return `file://${exportPath}`;
+  }, []);
+
+  // Calculate canvas dimensions to maintain aspect ratio
+  const canvasDimensions = React.useMemo(() => {
+    if (!image) return { width: EXPORT_SIZE, height: EXPORT_SIZE };
+    const imgWidth = image.width();
+    const imgHeight = image.height();
+    const aspectRatio = imgWidth / imgHeight;
+
+    if (aspectRatio > 1) {
+      return {
+        width: EXPORT_SIZE,
+        height: Math.round(EXPORT_SIZE / aspectRatio),
+      };
+    } else {
+      return {
+        width: Math.round(EXPORT_SIZE * aspectRatio),
+        height: EXPORT_SIZE,
+      };
+    }
+  }, [image]);
 
   const handleSave = async () => {
     try {
       setExportingAction('gallery');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
+      // Capture canvas with effect applied
+      const processedImageUri = await captureProcessedImage();
+
       // Save to camera roll
-      await CameraRoll.save(imageUri, { type: 'photo' });
+      await CameraRoll.save(processedImageUri, { type: 'photo' });
+
+      // Clean up temp file
+      await RNFS.unlink(processedImageUri.replace('file://', '')).catch(
+        () => {},
+      );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
       Alert.alert('Success', 'Image saved to Photos!', [
@@ -73,10 +125,18 @@ export const ExportScreen: React.FC = () => {
       setExportingAction('share');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
+      // Capture canvas with effect applied
+      const processedImageUri = await captureProcessedImage();
+
       await Share.open({
-        url: imageUri,
-        type: 'image/jpeg',
+        url: processedImageUri,
+        type: 'image/png',
       });
+
+      // Clean up temp file
+      await RNFS.unlink(processedImageUri.replace('file://', '')).catch(
+        () => {},
+      );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
     } catch (error: any) {
@@ -94,17 +154,56 @@ export const ExportScreen: React.FC = () => {
       setExportingAction('instagram');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
-      await Share.shareSingle({
-        url: imageUri,
-        type: 'image/jpeg',
-        social: Social.Instagram,
-      });
+      // Capture canvas with effect applied
+      const processedImageUri = await captureProcessedImage();
+
+      if (Platform.OS === 'ios') {
+        // Save to camera roll first to get local identifier
+        const savedAsset = await CameraRoll.saveAsset(processedImageUri, {
+          type: 'photo',
+        });
+
+        let localIdentifier = '';
+        if (savedAsset?.node?.id) {
+          localIdentifier = savedAsset.node.id;
+        } else {
+          const savedUri = await CameraRoll.save(processedImageUri, {
+            type: 'photo',
+          });
+          localIdentifier = savedUri.replace('ph://', '');
+        }
+
+        const instagramUrl = `instagram://library?LocalIdentifier=${localIdentifier}`;
+
+        const canOpen = await Linking.canOpenURL(instagramUrl);
+        if (!canOpen) {
+          throw new Error('instagram_not_installed');
+        }
+
+        await Linking.openURL(instagramUrl);
+      } else {
+        await Share.shareSingle({
+          url: processedImageUri,
+          type: 'image/png',
+          social: Social.Instagram,
+          failOnCancel: false,
+        });
+      }
+
+      // Clean up temp file
+      await RNFS.unlink(processedImageUri.replace('file://', '')).catch(
+        () => {},
+      );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
     } catch (error: any) {
       if (error?.message !== 'User did not share') {
         console.error('Share error:', error);
         ReactNativeHapticFeedback.trigger('notificationError');
+        Alert.alert(
+          'Instagram not available',
+          'Install Instagram to share or try again later.',
+        );
       }
     } finally {
       setExportingAction(null);
@@ -116,11 +215,19 @@ export const ExportScreen: React.FC = () => {
       setExportingAction('x');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
+      // Capture canvas with effect applied
+      const processedImageUri = await captureProcessedImage();
+
       await Share.shareSingle({
-        url: imageUri,
-        type: 'image/jpeg',
+        url: processedImageUri,
+        type: 'image/png',
         social: Social.Twitter,
       });
+
+      // Clean up temp file
+      await RNFS.unlink(processedImageUri.replace('file://', '')).catch(
+        () => {},
+      );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
     } catch (error: any) {
@@ -138,11 +245,19 @@ export const ExportScreen: React.FC = () => {
       setExportingAction('files');
       ReactNativeHapticFeedback.trigger('impactMedium');
 
+      // Capture canvas with effect applied
+      const processedImageUri = await captureProcessedImage();
+
       await Share.open({
-        url: imageUri,
-        type: 'image/jpeg',
+        url: processedImageUri,
+        type: 'image/png',
         saveToFiles: true,
       });
+
+      // Clean up temp file
+      await RNFS.unlink(processedImageUri.replace('file://', '')).catch(
+        () => {},
+      );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
     } catch (error: any) {
@@ -172,15 +287,24 @@ export const ExportScreen: React.FC = () => {
       {/* Preview */}
       <View style={styles.previewContainer}>
         {image && (
-          <Canvas style={styles.preview}>
+          <Canvas
+            ref={canvasRef}
+            style={[
+              styles.preview,
+              {
+                width: canvasDimensions.width,
+                height: canvasDimensions.height,
+              },
+            ]}
+          >
             <EffectRenderer
               image={image}
               effect={effect}
               params={params || null}
               x={0}
               y={0}
-              width={300}
-              height={300}
+              width={canvasDimensions.width}
+              height={canvasDimensions.height}
             />
           </Canvas>
         )}
@@ -198,7 +322,11 @@ export const ExportScreen: React.FC = () => {
             {exportingAction === 'instagram' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Image source={InstagramIcon} style={styles.icon} resizeMode="contain" />
+              <Image
+                source={InstagramIcon}
+                style={styles.icon}
+                resizeMode="contain"
+              />
             )}
           </View>
           <Text style={styles.gridItemLabel}>Instagram</Text>
@@ -228,7 +356,11 @@ export const ExportScreen: React.FC = () => {
             {exportingAction === 'gallery' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Image source={GalleryIcon} style={styles.icon} resizeMode="contain" />
+              <Image
+                source={GalleryIcon}
+                style={styles.icon}
+                resizeMode="contain"
+              />
             )}
           </View>
           <Text style={styles.gridItemLabel}>Gallery</Text>
@@ -244,7 +376,11 @@ export const ExportScreen: React.FC = () => {
             {exportingAction === 'files' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Image source={FilesIcon} style={styles.icon} resizeMode="contain" />
+              <Image
+                source={FilesIcon}
+                style={styles.icon}
+                resizeMode="contain"
+              />
             )}
           </View>
           <Text style={styles.gridItemLabel}>Files</Text>
@@ -259,7 +395,11 @@ export const ExportScreen: React.FC = () => {
             {exportingAction === 'share' ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Image source={ShareIcon} style={styles.icon} resizeMode="contain" />
+              <Image
+                source={ShareIcon}
+                style={styles.icon}
+                resizeMode="contain"
+              />
             )}
           </View>
           <Text style={styles.gridItemLabel}>Share</Text>
@@ -297,13 +437,15 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 32,
+    height: 340,
+    overflow: 'hidden',
   },
   preview: {
-    width: 300,
-    height: 300,
     borderRadius: 12,
     overflow: 'hidden',
+    transform: [{ scale: 300 / EXPORT_SIZE }],
   },
   exportGrid: {
     flexDirection: 'row',
