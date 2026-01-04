@@ -2,7 +2,7 @@
  * Export Screen - Save and share edited images
  */
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,9 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Platform,
-  Linking,
   Dimensions,
+  Linking,
+  Platform,
 } from 'react-native';
 
 const InstagramIcon = require('../assets/icons/export/Instagram.png');
@@ -158,35 +158,35 @@ export const ExportScreen: React.FC = () => {
       const processedImageUri = await captureProcessedImage();
 
       if (Platform.OS === 'ios') {
-        // Save to camera roll first to get local identifier
-        const savedAsset = await CameraRoll.saveAsset(processedImageUri, {
+        // Save to camera roll first
+        const savedResult = await CameraRoll.saveAsset(processedImageUri, {
           type: 'photo',
         });
 
-        let localIdentifier = '';
-        if (savedAsset?.node?.id) {
-          localIdentifier = savedAsset.node.id;
-        } else {
-          const savedUri = await CameraRoll.save(processedImageUri, {
-            type: 'photo',
-          });
-          localIdentifier = savedUri.replace('ph://', '');
+        // Get the local identifier from saved asset
+        const localIdentifier = savedResult?.node?.id || '';
+
+        if (!localIdentifier) {
+          throw new Error('Failed to get photo identifier');
         }
 
-        const instagramUrl = `instagram://library?LocalIdentifier=${localIdentifier}`;
+        // Open Instagram with the photo - this shows the native share modal
+        const instagramUrl = `instagram://library?LocalIdentifier=${encodeURIComponent(
+          localIdentifier,
+        )}`;
 
-        const canOpen = await Linking.canOpenURL(instagramUrl);
+        const canOpen = await Linking.canOpenURL('instagram://');
         if (!canOpen) {
           throw new Error('instagram_not_installed');
         }
 
         await Linking.openURL(instagramUrl);
       } else {
+        // Android - use share single
         await Share.shareSingle({
           url: processedImageUri,
           type: 'image/png',
           social: Social.Instagram,
-          failOnCancel: false,
         });
       }
 
@@ -197,13 +197,16 @@ export const ExportScreen: React.FC = () => {
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
     } catch (error: any) {
-      if (error?.message !== 'User did not share') {
-        console.error('Share error:', error);
-        ReactNativeHapticFeedback.trigger('notificationError');
+      console.error('Instagram share error:', error);
+      ReactNativeHapticFeedback.trigger('notificationError');
+
+      if (error?.message === 'instagram_not_installed') {
         Alert.alert(
-          'Instagram not available',
-          'Install Instagram to share or try again later.',
+          'Instagram not installed',
+          'Please install Instagram to share.',
         );
+      } else if (error?.message !== 'User did not share') {
+        Alert.alert('Error', 'Failed to share to Instagram');
       }
     } finally {
       setExportingAction(null);
