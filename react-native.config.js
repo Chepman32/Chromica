@@ -6,12 +6,5 @@ module.exports = {
       sourceDir: './ios',
     },
   },
-  assets: [
-    './src/assets/fonts/',
-    './assets/fonts/',
-    './src/assets/stickers/',
-    './assets/stickers/',
-    './assets/watermarks/',
-    './assets/stamps/',
-  ],
+  assets: [],
 };

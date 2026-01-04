@@ -1,7 +1,7 @@
 // Project database using AsyncStorage for compatibility
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Project, SerializedElement } from '../types';
+import { Project } from '../types';
 
 const PROJECT_PREFIX = 'chromica_project_';
 const METADATA_KEY = 'chromica_project_ids';
@@ -142,30 +142,12 @@ export class ProjectDatabase {
       sourceImagePath,
       sourceImageDimensions,
       thumbnailPath: thumbnailPath || '',
-      elements: [],
       createdAt: new Date(),
       updatedAt: new Date(),
     };
 
     await this.save(project);
     return project;
-  }
-
-  // Update project elements
-  static async updateElements(
-    id: string,
-    elements: SerializedElement[],
-  ): Promise<void> {
-    try {
-      const project = await this.getById(id);
-      if (!project) throw new Error('Project not found');
-
-      project.elements = elements;
-      await this.save(project);
-    } catch (error) {
-      console.error('Failed to update project elements:', error);
-      throw new Error('Failed to update project elements');
-    }
   }
 
   // Get project count

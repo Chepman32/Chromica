@@ -66,14 +66,22 @@ const OnboardingScreen: React.FC = () => {
     const dotStyle = useAnimatedStyle(() => {
       const scale = interpolate(
         scrollX.value,
-        [(index - 1) * screenWidth, index * screenWidth, (index + 1) * screenWidth],
+        [
+          (index - 1) * screenWidth,
+          index * screenWidth,
+          (index + 1) * screenWidth,
+        ],
         [0.8, 1.33, 0.8],
         Extrapolation.CLAMP,
       );
 
       const opacity = interpolate(
         scrollX.value,
-        [(index - 1) * screenWidth, index * screenWidth, (index + 1) * screenWidth],
+        [
+          (index - 1) * screenWidth,
+          index * screenWidth,
+          (index + 1) * screenWidth,
+        ],
         [0.4, 1, 0.4],
         Extrapolation.CLAMP,
       );
@@ -96,7 +104,7 @@ const OnboardingScreen: React.FC = () => {
     );
   };
 
-  // Parallax panels
+  // Panel 1: Effects
   const Panel1 = () => {
     const heroStyle = useAnimatedStyle(() => {
       const translateX = interpolate(
@@ -127,22 +135,37 @@ const OnboardingScreen: React.FC = () => {
     return (
       <View style={styles.panel}>
         <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.heroImagePlaceholder}>
-            <Text style={styles.heroImageText}>☕️ Coffee Shop Photo</Text>
-            <Text style={styles.watermarkDemo}>Roasted & Posted ☕</Text>
+          <View style={styles.effectsGrid}>
+            <View style={[styles.effectTile, { backgroundColor: '#6366F1' }]}>
+              <Text style={styles.effectIcon}>🎨</Text>
+              <Text style={styles.effectLabel}>Mosaic</Text>
+            </View>
+            <View style={[styles.effectTile, { backgroundColor: '#EC4899' }]}>
+              <Text style={styles.effectIcon}>🌊</Text>
+              <Text style={styles.effectLabel}>Wave</Text>
+            </View>
+            <View style={[styles.effectTile, { backgroundColor: '#10B981' }]}>
+              <Text style={styles.effectIcon}>💎</Text>
+              <Text style={styles.effectLabel}>Glass</Text>
+            </View>
+            <View style={[styles.effectTile, { backgroundColor: '#F59E0B' }]}>
+              <Text style={styles.effectIcon}>⚡</Text>
+              <Text style={styles.effectLabel}>Glitch</Text>
+            </View>
           </View>
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Add Your Mark</Text>
+          <Text style={styles.headline}>50+ Pro Effects</Text>
           <Text style={styles.body}>
-            Protect your work and build your brand with elegant watermarks,
-            stamps, and signatures.
+            Transform your photos with stunning GPU-powered effects. Mosaic,
+            Glass, Glitch, Artistic styles and more.
           </Text>
         </Animated.View>
       </View>
     );
   };
 
+  // Panel 2: Real-time Preview
   const Panel2 = () => {
     const heroStyle = useAnimatedStyle(() => {
       const translateX = interpolate(
@@ -173,24 +196,29 @@ const OnboardingScreen: React.FC = () => {
     return (
       <View style={styles.panel}>
         <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.gestureDemo}>
-            <Text style={styles.gestureDemoText}>👆 Pinch • Rotate • Drag</Text>
-            <View style={styles.gestureElement}>
-              <Text style={styles.gestureElementText}>Your Text</Text>
+          <View style={styles.sliderDemo}>
+            <View style={styles.sliderTrack}>
+              <View style={styles.sliderFill} />
+              <View style={styles.sliderThumb} />
+            </View>
+            <Text style={styles.sliderLabel}>Intensity: 75%</Text>
+            <View style={styles.previewBox}>
+              <Text style={styles.previewText}>Live Preview</Text>
             </View>
           </View>
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Gesture-Powered Editing</Text>
+          <Text style={styles.headline}>Real-Time Control</Text>
           <Text style={styles.body}>
-            Pinch, rotate, and drag to perfect your composition. No clunky
-            menus—just natural, fluid control.
+            Fine-tune every effect with intuitive sliders. See changes instantly
+            as you adjust parameters.
           </Text>
         </Animated.View>
       </View>
     );
   };
 
+  // Panel 3: Export
   const Panel3 = () => {
     const heroStyle = useAnimatedStyle(() => {
       const translateX = interpolate(
@@ -215,36 +243,27 @@ const OnboardingScreen: React.FC = () => {
     return (
       <View style={styles.panel}>
         <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.beforeAfter}>
-            <View style={styles.beforeAfterSide}>
-              <Text style={styles.beforeAfterLabel}>Free</Text>
-              <View style={styles.beforeAfterImage}>
-                <Text style={styles.beforeAfterWatermark}>Made with Chromica</Text>
-              </View>
+          <View style={styles.exportDemo}>
+            <View style={styles.exportOption}>
+              <Text style={styles.exportIcon}>📸</Text>
+              <Text style={styles.exportLabel}>Instagram</Text>
             </View>
-            <View style={styles.beforeAfterSide}>
-              <Text style={styles.beforeAfterLabel}>Pro</Text>
-              <View style={styles.beforeAfterImage} />
+            <View style={styles.exportOption}>
+              <Text style={styles.exportIcon}>🐦</Text>
+              <Text style={styles.exportLabel}>X</Text>
+            </View>
+            <View style={styles.exportOption}>
+              <Text style={styles.exportIcon}>🖼️</Text>
+              <Text style={styles.exportLabel}>Gallery</Text>
             </View>
           </View>
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Unlock Pro</Text>
+          <Text style={styles.headline}>Share Everywhere</Text>
           <Text style={styles.body}>
-            One-time purchase. Premium fonts, exclusive assets, and your photos,
-            completely unmarked.
+            Export in high resolution. Share directly to Instagram, X, or save
+            to your gallery.
           </Text>
-          <View style={styles.featurePills}>
-            <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>100+ Premium Assets</Text>
-            </View>
-            <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Advanced Tools</Text>
-            </View>
-            <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>No Watermarks</Text>
-            </View>
-          </View>
         </Animated.View>
         <TouchableOpacity style={styles.ctaButton} onPress={handleSkip}>
           <Text style={styles.ctaButtonText}>Get Started</Text>
@@ -308,81 +327,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
   },
-  heroImagePlaceholder: {
-    width: screenWidth - Spacing.m * 2,
-    height: 200,
-    backgroundColor: Colors.backgrounds.tertiary,
-    borderRadius: AppDimensions.cornerRadius.medium,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  heroImageText: {
-    ...Typography.body.regular,
-    color: Colors.text.secondary,
-  },
-  watermarkDemo: {
-    position: 'absolute',
-    bottom: Spacing.m,
-    right: Spacing.m,
-    ...Typography.body.small,
-    color: Colors.accent.primary,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: Spacing.xs,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  gestureDemo: {
-    width: 200,
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  gestureDemoText: {
-    ...Typography.body.small,
-    color: Colors.text.secondary,
-    marginBottom: Spacing.m,
-  },
-  gestureElement: {
-    backgroundColor: Colors.accent.primary,
-    paddingHorizontal: Spacing.m,
-    paddingVertical: Spacing.s,
-    borderRadius: AppDimensions.cornerRadius.small,
-    transform: [{ rotate: '15deg' }],
-  },
-  gestureElementText: {
-    ...Typography.body.regular,
-    color: Colors.backgrounds.primary,
-    fontWeight: '600',
-  },
-  beforeAfter: {
-    flexDirection: 'row',
-    width: screenWidth - Spacing.m * 2,
-    height: 160,
-  },
-  beforeAfterSide: {
-    flex: 1,
-    marginHorizontal: Spacing.xs,
-  },
-  beforeAfterLabel: {
-    ...Typography.body.small,
-    color: Colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: Spacing.xs,
-  },
-  beforeAfterImage: {
-    flex: 1,
-    backgroundColor: Colors.backgrounds.tertiary,
-    borderRadius: AppDimensions.cornerRadius.small,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end',
-    padding: Spacing.xs,
-  },
-  beforeAfterWatermark: {
-    ...Typography.body.caption,
-    color: Colors.text.tertiary,
-    fontSize: 10,
-  },
   contentSection: {
     flex: 0.4,
     paddingHorizontal: Spacing.l,
@@ -400,23 +344,100 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
   },
-  featurePills: {
+  // Effects Grid
+  effectsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    width: 220,
+    gap: 12,
     justifyContent: 'center',
-    marginTop: Spacing.m,
-    gap: Spacing.xs,
   },
-  featurePill: {
-    backgroundColor: Colors.backgrounds.tertiary,
-    paddingHorizontal: Spacing.s,
-    paddingVertical: 6,
+  effectTile: {
+    width: 100,
+    height: 100,
     borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  featurePillText: {
-    ...Typography.body.caption,
+  effectIcon: {
+    fontSize: 32,
+    marginBottom: 8,
+  },
+  effectLabel: {
+    ...Typography.body.small,
+    color: '#FFFFFF',
+    fontWeight: '600',
+  },
+  // Slider Demo
+  sliderDemo: {
+    width: 260,
+    alignItems: 'center',
+  },
+  sliderTrack: {
+    width: '100%',
+    height: 8,
+    backgroundColor: Colors.backgrounds.tertiary,
+    borderRadius: 4,
+    marginBottom: 12,
+    position: 'relative',
+  },
+  sliderFill: {
+    width: '75%',
+    height: '100%',
+    backgroundColor: Colors.accent.primary,
+    borderRadius: 4,
+  },
+  sliderThumb: {
+    position: 'absolute',
+    left: '72%',
+    top: -6,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: Colors.accent.primary,
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  sliderLabel: {
+    ...Typography.body.small,
+    color: Colors.text.secondary,
+    marginBottom: 20,
+  },
+  previewBox: {
+    width: 200,
+    height: 120,
+    backgroundColor: Colors.backgrounds.tertiary,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: Colors.accent.primary,
+  },
+  previewText: {
+    ...Typography.body.regular,
     color: Colors.accent.primary,
-    fontWeight: '500',
+    fontWeight: '600',
+  },
+  // Export Demo
+  exportDemo: {
+    flexDirection: 'row',
+    gap: 20,
+  },
+  exportOption: {
+    width: 80,
+    height: 80,
+    backgroundColor: Colors.backgrounds.tertiary,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  exportIcon: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  exportLabel: {
+    ...Typography.body.caption,
+    color: Colors.text.secondary,
   },
   ctaButton: {
     marginHorizontal: Spacing.l,

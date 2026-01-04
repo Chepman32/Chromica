@@ -13,24 +13,10 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  Canvas,
-  Image as SkiaImage,
-  useImage,
-  Skia,
-  RuntimeShader,
-  Shader,
-  Group,
-  Rect,
-  Text as SkiaText,
-  matchFont,
-  useCanvasRef,
-} from '@shopify/react-native-skia';
+import { Canvas, useImage, useCanvasRef } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
-  withTiming,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -41,7 +27,6 @@ import { ProjectDatabase } from '../database/ProjectDatabase';
 import { useProjectGalleryStore } from '../stores/projectGalleryStore';
 import { EFFECTS, getEffectsByCategory } from '../domain/effects/registry';
 import { EffectCategory } from '../domain/effects/types';
-import { ShaderManager } from '../domain/shader-manager/ShaderManager';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EffectSlider } from '../components/effects/EffectSlider';
 import { EffectSegmentedControl } from '../components/effects/EffectSegmentedControl';
@@ -139,7 +124,6 @@ export const EffectsEditorScreen: React.FC = () => {
     history,
     historyIndex,
     addEffect,
-    updateEffectParams,
     updateEffectParamsNoHistory,
     commitEffectParamsToHistory,
     clearEffects,
@@ -257,7 +241,7 @@ export const EffectsEditorScreen: React.FC = () => {
   // Get the current effect to apply
   const currentEffect = useMemo(() => {
     if (!selectedEffectId || effectStack.length === 0) return null;
-    return EFFECTS.find(e => e.id === selectedEffectId);
+    return EFFECTS.find(e => e.id === selectedEffectId) ?? null;
   }, [selectedEffectId, effectStack]);
 
   // Get current effect parameters
@@ -268,11 +252,7 @@ export const EffectsEditorScreen: React.FC = () => {
 
   // Canvas transform
   const scale = useSharedValue(1);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
   const savedScale = useSharedValue(1);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
 
   // Gestures
   const pinchGesture = Gesture.Pinch()
@@ -283,7 +263,6 @@ export const EffectsEditorScreen: React.FC = () => {
       savedScale.value = scale.value;
     });
 
-  // Removed pan gesture - image should not be movable
   const composedGesture = pinchGesture;
 
   const canvasStyle = useAnimatedStyle(() => ({
@@ -355,7 +334,7 @@ export const EffectsEditorScreen: React.FC = () => {
     updateEffectParamsNoHistory(currentLayer.id, { [paramName]: value });
   };
 
-  const handleParameterChangeEnd = (paramName: string, value: any) => {
+  const handleParameterChangeEnd = (_paramName: string, _value: any) => {
     if (!selectedEffectId || effectStack.length === 0) return;
 
     const currentLayer = effectStack[effectStack.length - 1];
@@ -390,6 +369,7 @@ export const EffectsEditorScreen: React.FC = () => {
     } else {
       setSelectedEffectId(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectStack]);
 
   const handleUndo = () => {
@@ -521,14 +501,11 @@ export const EffectsEditorScreen: React.FC = () => {
     // Save project before navigating to export
     await saveProject();
 
-    navigation.navigate(
-      'Export' as never,
-      {
-        imageUri: fileUri,
-        effectId: selectedEffectId,
-        params: currentParams,
-      } as never,
-    );
+    (navigation as any).navigate('Export', {
+      imageUri: fileUri,
+      effectId: selectedEffectId,
+      params: currentParams,
+    });
   };
 
   const handleBack = async () => {
