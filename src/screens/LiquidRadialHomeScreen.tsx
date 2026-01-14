@@ -34,6 +34,14 @@ import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing } from '../constants/spacing';
 
+const menuIcons = {
+  settings: require('../assets/icons/homescreenMenu/setting.png'),
+  recent: require('../assets/icons/homescreenMenu/recents.png'),
+  mixes: require('../assets/icons/homescreenMenu/mixes.png'),
+  about: require('../assets/icons/homescreenMenu/about.png'),
+  main: require('../assets/icons/homescreenMenu/main.png'),
+};
+
 export const LiquidRadialHomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -116,25 +124,25 @@ export const LiquidRadialHomeScreen: React.FC = () => {
     {
       id: 'settings',
       label: 'Settings',
-      icon: '⚙️',
+      icon: menuIcons.settings,
       onPress: handleSettings,
     },
     {
       id: 'recent',
       label: 'Recent',
-      icon: '🕐',
+      icon: menuIcons.recent,
       onPress: handleRecent,
     },
     {
       id: 'mixes',
       label: 'Mixes',
-      icon: '🎚️',
+      icon: menuIcons.mixes,
       onPress: handleMixes,
     },
     {
       id: 'about',
       label: 'About',
-      icon: 'ℹ️',
+      icon: menuIcons.about,
       onPress: handleAbout,
     },
   ];
@@ -157,7 +165,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
           <LiquidMenu
             onCenterPress={handleOpenImagePicker}
             satellites={satellites}
-            centerIcon="📷"
+            centerIcon={menuIcons.main}
             centerLabel="Start Editing"
           />
         </View>

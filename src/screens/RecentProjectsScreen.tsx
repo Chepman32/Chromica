@@ -62,6 +62,10 @@ export const RecentProjectsScreen: React.FC = () => {
 
   const handleProjectPress = (project: Project) => {
     ReactNativeHapticFeedback.trigger('impactLight');
+    if (Array.isArray(project.mixStack)) {
+      navigation.navigate('Mixes' as never, { projectId: project.id } as never);
+      return;
+    }
     navigation.navigate('Editor' as never, { projectId: project.id } as never);
   };
 
@@ -77,11 +81,13 @@ export const RecentProjectsScreen: React.FC = () => {
     item: Project;
     index: number;
   }) => {
-    const elementCount = Array.isArray(item.elements)
-      ? item.elements.length
-      : item.effect
-        ? 1
-        : 0;
+    const elementCount = Array.isArray(item.mixStack)
+      ? item.mixStack.length
+      : Array.isArray(item.elements)
+        ? item.elements.length
+        : item.effect
+          ? 1
+          : 0;
 
     return (
       <Animated.View
@@ -108,9 +114,16 @@ export const RecentProjectsScreen: React.FC = () => {
           </View>
 
           <View style={styles.projectInfo}>
-            <Text style={styles.projectTitle} numberOfLines={1}>
-              Project
-            </Text>
+            <View style={styles.projectTitleRow}>
+              <Text style={styles.projectTitle} numberOfLines={1}>
+                Project
+              </Text>
+              {Array.isArray(item.mixStack) && (
+                <View style={styles.mixBadge}>
+                  <Text style={styles.mixBadgeText}>Mixed</Text>
+                </View>
+              )}
+            </View>
             <Text style={styles.projectDate}>
               {formatTimestamp(item.updatedAt)}
             </Text>
@@ -237,6 +250,25 @@ const styles = StyleSheet.create({
     color: Colors.text.primary,
     fontWeight: '600',
     marginBottom: 2,
+  },
+  projectTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  mixBadge: {
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: 2,
+    borderRadius: AppDimensions.cornerRadius.small,
+    backgroundColor: Colors.backgrounds.tertiary,
+    borderWidth: 1,
+    borderColor: Colors.overlays.light,
+  },
+  mixBadgeText: {
+    ...Typography.body.finePrint,
+    color: Colors.text.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   projectDate: {
     ...Typography.body.caption,

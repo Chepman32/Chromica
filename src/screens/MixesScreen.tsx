@@ -2,7 +2,7 @@
  * Mixes Screen - Build multi-filter stacks with a distinct UI.
  */
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -24,14 +24,18 @@ import {
   ImageShader,
   Shader,
   useImage,
+  useCanvasRef,
 } from '@shopify/react-native-skia';
 import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import RNFS from 'react-native-fs';
 
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 import { EFFECTS } from '../domain/effects/registry';
 import { ShaderManager } from '../domain/shader-manager/ShaderManager';
+import { ProjectDatabase } from '../database/ProjectDatabase';
+import { useProjectGalleryStore } from '../stores/projectGalleryStore';
 import {
   BlendMode,
   Effect,
@@ -183,11 +187,18 @@ const buildUniformMap = (
 export const MixesScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const params = route.params as { imageUri?: string } | undefined;
+  const params = route.params as
+    | { imageUri?: string; projectId?: string }
+    | undefined;
   const insets = useSafeAreaInsets();
+  const { loadProjects } = useProjectGalleryStore();
+  const canvasRef = useCanvasRef();
 
   const [imageUri, setImageUri] = useState<string | null>(
     params?.imageUri ? normalizeImageUri(params.imageUri) : null,
+  );
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(
+    params?.projectId ?? null,
   );
   const [selectedCategory, setSelectedCategory] = useState<EffectCategory>(
     MIX_CATEGORIES[0] ?? EffectCategory.CELLULAR,
@@ -195,6 +206,23 @@ export const MixesScreen: React.FC = () => {
   const [mixStack, setMixStack] = useState<EffectLayer[]>([]);
 
   const image = useImage(imageUri ?? '');
+
+  useEffect(() => {
+    const loadProject = async () => {
+      if (!params?.projectId) return;
+      try {
+        const project = await ProjectDatabase.getById(params.projectId);
+        if (!project) return;
+        setImageUri(normalizeImageUri(project.sourceImagePath));
+        setMixStack(Array.isArray(project.mixStack) ? project.mixStack : []);
+        setCurrentProjectId(project.id);
+      } catch (error) {
+        console.error('Failed to load mix project:', error);
+      }
+    };
+
+    loadProject();
+  }, [params?.projectId]);
 
   const previewSize = useMemo(() => {
     const width = SCREEN_WIDTH - Spacing.screen * 2;
@@ -337,6 +365,77 @@ export const MixesScreen: React.FC = () => {
     ReactNativeHapticFeedback.trigger('notificationWarning');
   }, []);
 
+  const captureCanvasThumbnail = useCallback(async (): Promise<string | null> => {
+    try {
+      const snapshot = canvasRef.current?.makeImageSnapshot();
+      if (!snapshot) {
+        console.log('No snapshot available');
+        return null;
+      }
+
+      const base64 = snapshot.encodeToBase64();
+      const thumbnailDir = `${RNFS.DocumentDirectoryPath}/thumbnails`;
+      await RNFS.mkdir(thumbnailDir).catch(() => {});
+
+      const thumbnailPath = `${thumbnailDir}/mix_${Date.now()}.jpg`;
+      await RNFS.writeFile(thumbnailPath, base64, 'base64');
+      return `file://${thumbnailPath}`;
+    } catch (error) {
+      console.error('Failed to capture mix thumbnail:', error);
+      return null;
+    }
+  }, [canvasRef]);
+
+  const saveProject = useCallback(async () => {
+    if (!imageUri) return;
+
+    try {
+      const thumbnailPath = (await captureCanvasThumbnail()) || imageUri;
+      const dimensions = {
+        width: image?.width() || 0,
+        height: image?.height() || 0,
+      };
+
+      if (currentProjectId) {
+        const existingProject =
+          await ProjectDatabase.getById(currentProjectId);
+        if (existingProject) {
+          existingProject.sourceImagePath = imageUri;
+          existingProject.sourceImageDimensions = dimensions;
+          existingProject.thumbnailPath = thumbnailPath;
+          existingProject.mixStack = mixStack;
+          existingProject.updatedAt = new Date();
+          await ProjectDatabase.save(existingProject);
+        }
+      } else {
+        const project = await ProjectDatabase.create(
+          imageUri,
+          dimensions,
+          thumbnailPath,
+        );
+        project.mixStack = mixStack;
+        await ProjectDatabase.save(project);
+        setCurrentProjectId(project.id);
+      }
+
+      await loadProjects();
+    } catch (error) {
+      console.error('Failed to save mix project:', error);
+    }
+  }, [
+    captureCanvasThumbnail,
+    currentProjectId,
+    image,
+    imageUri,
+    loadProjects,
+    mixStack,
+  ]);
+
+  const handleBack = useCallback(async () => {
+    await saveProject();
+    navigation.goBack();
+  }, [navigation, saveProject]);
+
   const isLoadingImage = Boolean(imageUri) && !image;
 
   return (
@@ -354,7 +453,7 @@ export const MixesScreen: React.FC = () => {
           <View style={styles.headerSide}>
             <TouchableOpacity
               style={styles.headerButton}
-              onPress={() => navigation.goBack()}
+              onPress={handleBack}
             >
               <Text style={styles.headerButtonText}>Back</Text>
             </TouchableOpacity>
@@ -402,6 +501,7 @@ export const MixesScreen: React.FC = () => {
             >
               {image ? (
                 <Canvas
+                  ref={canvasRef}
                   style={{
                     width: previewSize.width,
                     height: previewSize.height,

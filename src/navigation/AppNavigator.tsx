@@ -23,6 +23,7 @@ export type RootStackParamList = {
   RecentProjects: undefined;
   Mixes: {
     imageUri?: string;
+    projectId?: string;
   } | undefined;
   Editor: {
     projectId?: string;

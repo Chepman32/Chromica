@@ -17,6 +17,8 @@ import {
   Pressable,
   Dimensions,
   AccessibilityInfo,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 import {
   Canvas,
@@ -41,8 +43,10 @@ import Animated, {
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Configuration
-const PARENT_RADIUS = 45;
-const CHILD_RADIUS = 30;
+const PARENT_RADIUS = 48;
+const CHILD_RADIUS = 44;
+const PARENT_ICON_SIZE = Math.round(PARENT_RADIUS * 0.75);
+const CHILD_ICON_SIZE = Math.round(CHILD_RADIUS * 0.68);
 const ORBITAL_DISTANCE = 120;
 const ENTRANCE_DELAY = 500; // 0.5s after mount
 const STAGGER_DELAY = 80;
@@ -64,14 +68,14 @@ const SPRING_CONFIG_BOUNCY = {
 export interface SatelliteItem {
   id: string;
   label: string;
-  icon: string;
+  icon: ImageSourcePropType;
   onPress: () => void;
 }
 
 interface LiquidMenuProps {
   onCenterPress: () => void;
   satellites: SatelliteItem[];
-  centerIcon?: string;
+  centerIcon?: ImageSourcePropType;
   centerLabel?: string;
 }
 
@@ -122,7 +126,7 @@ const AnimatedBubble: React.FC<AnimatedBubbleProps> = ({
 export const LiquidMenu: React.FC<LiquidMenuProps> = ({
   onCenterPress,
   satellites,
-  centerIcon = '📷',
+  centerIcon,
   centerLabel = 'Start',
 }) => {
   // Center position
@@ -299,7 +303,13 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
               accessibilityLabel={`${centerLabel}. Open image picker`}
               accessibilityHint="Double tap to select an image to edit"
             >
-              <Text style={styles.parentIcon}>{centerIcon}</Text>
+              {centerIcon && (
+                <Image
+                  source={centerIcon}
+                  style={styles.parentIcon}
+                  resizeMode="contain"
+                />
+              )}
             </Pressable>
           </Animated.View>
         </Animated.View>
@@ -320,7 +330,11 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
               accessibilityRole="button"
               accessibilityLabel={satellite.label}
             >
-              <Text style={styles.satelliteIcon}>{satellite.icon}</Text>
+              <Image
+                source={satellite.icon}
+                style={styles.satelliteIcon}
+                resizeMode="contain"
+              />
             </Pressable>
             <Text style={styles.satelliteLabel}>{satellite.label}</Text>
           </Animated.View>
@@ -362,7 +376,8 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   parentIcon: {
-    fontSize: 32,
+    width: PARENT_ICON_SIZE,
+    height: PARENT_ICON_SIZE,
   },
   satelliteContainer: {
     position: 'absolute',
@@ -381,7 +396,8 @@ const styles = StyleSheet.create({
     borderColor: '#3A3A3E',
   },
   satelliteIcon: {
-    fontSize: 20,
+    width: CHILD_ICON_SIZE,
+    height: CHILD_ICON_SIZE,
   },
   satelliteLabel: {
     marginTop: 8,

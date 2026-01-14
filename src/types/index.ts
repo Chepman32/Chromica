@@ -1,5 +1,7 @@
 // Core type definitions for Chromica
 
+import { EffectLayer } from '../domain/effects/types';
+
 export interface ProjectEffect {
   effectId: string;
   params: Record<string, any>;
@@ -11,6 +13,7 @@ export interface Project {
   sourceImageDimensions: { width: number; height: number };
   thumbnailPath: string;
   effect?: ProjectEffect; // Applied effect
+  mixStack?: EffectLayer[]; // Mixes stack for multi-effect projects.
   elements?: unknown[]; // Optional/legacy list for UI counts.
   createdAt: Date;
   updatedAt: Date;
