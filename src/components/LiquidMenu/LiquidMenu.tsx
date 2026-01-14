@@ -45,8 +45,8 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 // Configuration
 const PARENT_RADIUS = 48;
 const CHILD_RADIUS = 44;
-const PARENT_ICON_SIZE = Math.round(PARENT_RADIUS * 0.75);
-const CHILD_ICON_SIZE = Math.round(CHILD_RADIUS * 0.68);
+const PARENT_ICON_SIZE = Math.round(PARENT_RADIUS);
+const CHILD_ICON_SIZE = Math.round(CHILD_RADIUS * 0.9);
 const ORBITAL_DISTANCE = 120;
 const ENTRANCE_DELAY = 500; // 0.5s after mount
 const STAGGER_DELAY = 80;
