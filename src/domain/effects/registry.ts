@@ -39,7 +39,7 @@ export const EFFECTS: Effect[] = [
     name: 'Crystallize',
     category: EffectCategory.CELLULAR,
     description: 'Voronoi cell-based effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/stained_glass_strong.png'),
     parameters: [
@@ -68,7 +68,7 @@ export const EFFECTS: Effect[] = [
     name: 'Halftone',
     category: EffectCategory.CELLULAR,
     description: 'Classic print halftone dots',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.4,
     icon: require('../../assets/icons/filters/halftone_dots_strong.png'),
     parameters: [
@@ -98,7 +98,7 @@ export const EFFECTS: Effect[] = [
     name: 'Pointillize',
     category: EffectCategory.CELLULAR,
     description: 'Pointillist painting effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/pointillize_strong.png'),
     parameters: [
@@ -264,7 +264,7 @@ export const EFFECTS: Effect[] = [
     name: 'Twirl',
     category: EffectCategory.DISTORTION,
     description: 'Spiral rotation effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.4,
     icon: require('../../assets/icons/filters/swirl_strong.png'),
     parameters: [
@@ -294,7 +294,7 @@ export const EFFECTS: Effect[] = [
     name: 'Bulge/Pinch',
     category: EffectCategory.DISTORTION,
     description: 'Radial scale distortion',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.3,
     icon: require('../../assets/icons/filters/bulge_strong.png'),
     parameters: [
@@ -345,7 +345,7 @@ export const EFFECTS: Effect[] = [
     name: 'Noise Displace',
     category: EffectCategory.DISTORTION,
     description: 'Random noise displacement',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/noise_displace_strong.png'),
     parameters: [
@@ -428,7 +428,7 @@ export const EFFECTS: Effect[] = [
     name: 'Glitch Rows',
     category: EffectCategory.GLITCH,
     description: 'Horizontal glitch rows',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.4,
     icon: require('../../assets/icons/filters/glitch_rows_heavy.png'),
     parameters: [
@@ -450,7 +450,7 @@ export const EFFECTS: Effect[] = [
     name: 'Emboss',
     category: EffectCategory.RELIEF,
     description: '3D raised surface effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.4,
     icon: require('../../assets/icons/filters/emboss.png'),
     parameters: [
@@ -480,7 +480,7 @@ export const EFFECTS: Effect[] = [
     name: 'Bevel',
     category: EffectCategory.RELIEF,
     description: 'Bevel and relief effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/bevel_relief_heavy.png'),
     parameters: [
@@ -522,7 +522,7 @@ export const EFFECTS: Effect[] = [
     name: 'Oil Paint',
     category: EffectCategory.STYLIZATION,
     description: 'Painted appearance',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.8,
     icon: require('../../assets/icons/filters/oil_paintish_bold.png'),
     parameters: [
@@ -552,7 +552,7 @@ export const EFFECTS: Effect[] = [
     name: 'Watercolor',
     category: EffectCategory.STYLIZATION,
     description: 'Watercolor painting effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/watercolor_bold.png'),
     parameters: [
@@ -592,7 +592,7 @@ export const EFFECTS: Effect[] = [
     name: 'Poster Edges',
     category: EffectCategory.STYLIZATION,
     description: 'Posterized edges effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/poster_edges_bold.png'),
     parameters: [
@@ -643,7 +643,7 @@ export const EFFECTS: Effect[] = [
     name: 'Motion Blur',
     category: EffectCategory.BLUR_SHARPEN,
     description: 'Directional motion blur',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/icon_effects_A/Motion_Blur.png'),
     parameters: [
@@ -672,7 +672,7 @@ export const EFFECTS: Effect[] = [
     name: 'Surface Blur',
     category: EffectCategory.BLUR_SHARPEN,
     description: 'Edge-preserving blur for surfaces',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/icon_effects_A/Surface_Blur.png'),
     parameters: [
@@ -763,7 +763,7 @@ export const EFFECTS: Effect[] = [
     name: 'Cross Hatch',
     category: EffectCategory.BRUSH,
     description: 'Layered hatch strokes based on luminance',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/icon_effects_A/Cross_Hatch.png'),
     parameters: [
@@ -792,7 +792,7 @@ export const EFFECTS: Effect[] = [
     name: 'Ink Outlines',
     category: EffectCategory.BRUSH,
     description: 'Bold ink outlines with smooth fill',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/icon_effects_A/Ink_Outlines.png'),
     parameters: [
@@ -821,7 +821,7 @@ export const EFFECTS: Effect[] = [
     name: 'Spatter',
     category: EffectCategory.BRUSH,
     description: 'Randomized sprayed strokes',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/icon_effects_A/Spatter_Sprayed.png'),
     parameters: [
@@ -850,7 +850,7 @@ export const EFFECTS: Effect[] = [
     name: 'Sumi-e',
     category: EffectCategory.BRUSH,
     description: 'Monochrome japanese ink wash look',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/icon_effects_A/Sumi_e.png'),
     parameters: [
@@ -879,7 +879,7 @@ export const EFFECTS: Effect[] = [
     name: 'Plastic Wrap',
     category: EffectCategory.BRUSH,
     description: 'Glossy highlights like plastic wrap',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/icon_effects_A/Plastic_Wrap.png'),
     parameters: [
@@ -939,7 +939,7 @@ export const EFFECTS: Effect[] = [
     name: 'Liquid Glass',
     category: EffectCategory.GLASS,
     description: 'Flowing liquid glass distortion effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.6,
     icon: require('../../assets/icons/filters/stained_glass_strong.png'),
     parameters: [
@@ -977,7 +977,7 @@ export const EFFECTS: Effect[] = [
     name: 'Frosted Glass',
     category: EffectCategory.GLASS,
     description: 'Matte frosted glass with subtle grain',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/icon_effects_A/Surface_Blur.png'),
     parameters: [
@@ -1006,7 +1006,7 @@ export const EFFECTS: Effect[] = [
     name: 'Ocean Ripple',
     category: EffectCategory.GLASS,
     description: 'Chaotic water-like ripples through glass',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/ripple_sine_strong.png'),
     parameters: [
@@ -1035,7 +1035,7 @@ export const EFFECTS: Effect[] = [
     name: 'ZigZag',
     category: EffectCategory.GLASS,
     description: 'Concentric ripples for refracting glass edges',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/ripple_sine_strong.png'),
     parameters: [
@@ -1064,7 +1064,7 @@ export const EFFECTS: Effect[] = [
     name: 'Glassmorphism',
     category: EffectCategory.GLASS,
     description: 'Modern liquid glass Apple-style effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/icon_effects_A/Gaussian_Blur.png'),
     parameters: [
@@ -1104,7 +1104,7 @@ export const EFFECTS: Effect[] = [
     name: 'Liquify',
     category: EffectCategory.CORRECTION,
     description: 'Organic liquify distortion',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/icon_effects_A/Liquify_Swirl.png'),
     parameters: [
@@ -1133,7 +1133,7 @@ export const EFFECTS: Effect[] = [
     name: 'Pinch',
     category: EffectCategory.CORRECTION,
     description: 'Pinch distortion effect',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.3,
     icon: require('../../assets/icons/filters/pinch_strong.png'),
     parameters: [
@@ -1205,7 +1205,7 @@ export const EFFECTS: Effect[] = [
     name: 'Gradient Filter',
     category: EffectCategory.FREQUENCY,
     description: 'Directional gradient emphasis',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.5,
     icon: require('../../assets/icons/filters/icon_effects_A/Gradient_Filter_Map.png'),
     parameters: [
@@ -1234,7 +1234,7 @@ export const EFFECTS: Effect[] = [
     name: 'Fourier Mask',
     category: EffectCategory.FREQUENCY,
     description: 'Frequency domain style mask',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/icon_effects_A/Fourier_Lowpass.png'),
     parameters: [
@@ -1294,7 +1294,7 @@ export const EFFECTS: Effect[] = [
     name: 'Flame',
     category: EffectCategory.RENDER,
     description: 'Procedural flame-like energy overlay',
-    isPremium: true,
+    isPremium: false,
     complexity: 0.7,
     icon: require('../../assets/icons/filters/icon_effects_A/Flame_Render.png'),
     parameters: [

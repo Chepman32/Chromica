@@ -58,9 +58,6 @@ interface EffectsState {
   // User presets
   presets: EffectPreset[];
 
-  // Premium status
-  isPremium: boolean;
-
   // Session parameter cache (not persisted)
   parameterCache: Record<string, Record<string, any>>;
 
@@ -94,9 +91,6 @@ interface EffectsState {
   deletePreset: (presetId: string) => void;
   applyPreset: (presetId: string) => void;
 
-  // Premium
-  setPremium: (isPremium: boolean) => void;
-
   // Cache management
   getCachedParams: (effectId: string) => Record<string, any> | null;
   cacheEffectParams: (effectId: string, params: Record<string, any>) => void;
@@ -113,7 +107,6 @@ export const useEffectsStore = create<EffectsState>()(
       history: [[]],
       historyIndex: 0,
       presets: [],
-      isPremium: true, // Disabled paywall for development
       parameterCache: {},
 
       addEffect: (effectId, params) => {
@@ -329,10 +322,6 @@ export const useEffectsStore = create<EffectsState>()(
         }
       },
 
-      setPremium: isPremium => {
-        set({ isPremium });
-      },
-
       getCachedParams: (effectId) => {
         const cache = get().parameterCache;
         return cache[effectId] || null;
@@ -364,7 +353,6 @@ export const useEffectsStore = create<EffectsState>()(
       storage: createJSONStorage(() => mmkvStorage),
       partialize: state => ({
         presets: state.presets,
-        isPremium: state.isPremium,
       }),
     },
   ),

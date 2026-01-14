@@ -1,9 +1,15 @@
 # Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+require Pod::Executable.execute_command(
+  'node',
+  [
+    '-p',
+    'require.resolve(
+      "react-native/scripts/react_native_pods.rb",
+      { paths: [process.argv[1]] },
+    )',
+    __dir__
+  ]
+).strip
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
@@ -15,40 +21,44 @@ if linkage != nil
 end
 
 target 'Chromica' do
-  config = use_native_modules!
+  use_native_modules!
 
   use_react_native!(
-    :path => config[:reactNativePath],
-    # An absolute path to your application root.
+    :path => "../node_modules/react-native",
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+end
 
-  post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
-    react_native_post_install(
-      installer,
-      config[:reactNativePath],
-      :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
-    )
+post_install do |installer|
+  react_native_post_install(
+    installer,
+    :mac_catalyst_enabled => false
+  )
 
-    installer.pods_project.targets.each do |target|
-      next unless target.name == 'RNShare'
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |build_config|
+      build_config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      build_config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
+    end
+  end
 
-      target.build_configurations.each do |config|
-        raw_paths = config.build_settings['HEADER_SEARCH_PATHS']
-        paths = if raw_paths.is_a?(String)
+  installer.pods_project.targets.each do |target|
+    next unless target.name == 'RNShare'
+
+    target.build_configurations.each do |build_config|
+      raw_paths = build_config.build_settings['HEADER_SEARCH_PATHS']
+      paths =
+        if raw_paths.is_a?(String)
           raw_paths.split(/\s+/)
         else
           Array(raw_paths)
         end
 
-        paths << '$(inherited)' unless paths.any? { |path| path.include?('$(inherited)') }
-        paths << '$(PODS_ROOT)/Headers/Public/ReactCodegen'
-        paths << '$(PODS_CONFIGURATION_BUILD_DIR)/React-Codegen'
+      paths << '$(inherited)'
+      paths << '$(PODS_ROOT)/Headers/Public/ReactCodegen'
+      paths << '$(PODS_CONFIGURATION_BUILD_DIR)/React-Codegen'
 
-        config.build_settings['HEADER_SEARCH_PATHS'] = paths.uniq
-      end
+      build_config.build_settings['HEADER_SEARCH_PATHS'] = paths.uniq
     end
   end
 end

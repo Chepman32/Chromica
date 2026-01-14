@@ -77,7 +77,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
       if (result.assets && result.assets.length > 0) {
         const imageUri = result.assets[0].uri;
         if (imageUri) {
-          navigation.navigate('EffectsEditor' as never, { imageUri } as never);
+          navigation.navigate('Editor' as never, { imageUri } as never);
         }
       }
     } catch (error) {

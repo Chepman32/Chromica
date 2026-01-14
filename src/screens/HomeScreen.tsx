@@ -37,7 +37,6 @@ const GRID_ITEM_SIZE =
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
-  const isProUser = useAppStore(state => state.isProUser);
   const {
     projects,
     selectionMode,
@@ -108,10 +107,6 @@ const HomeScreen: React.FC = () => {
 
   const handleSettingsPress = () => {
     navigation.navigate('Settings' as never);
-  };
-
-  const handleProPress = () => {
-    navigation.navigate('Paywall' as never);
   };
 
   // Animated project item component
@@ -221,15 +216,6 @@ const HomeScreen: React.FC = () => {
         </TouchableOpacity>
 
         <Text style={styles.title}>Chromica</Text>
-
-        {!isProUser && (
-          <TouchableOpacity
-            style={styles.topBarButton}
-            onPress={handleProPress}
-          >
-            <Text style={styles.crownIcon}>👑</Text>
-          </TouchableOpacity>
-        )}
       </View>
 
       {/* Selection Mode Top Bar */}

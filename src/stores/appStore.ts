@@ -6,12 +6,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserPreferences } from '../types';
 
 interface AppState {
-  isProUser: boolean;
   hasSeenOnboarding: boolean;
   preferences: UserPreferences;
 
   // Actions
-  setProUser: (isPro: boolean) => void;
   setOnboardingSeen: () => void;
   updatePreferences: (prefs: Partial<UserPreferences>) => void;
 }
@@ -19,7 +17,6 @@ interface AppState {
 export const useAppStore = create<AppState>()(
   persist(
     set => ({
-      isProUser: true, // Disabled paywall for development
       hasSeenOnboarding: false,
       preferences: {
         defaultExportFormat: 'png',
@@ -32,7 +29,6 @@ export const useAppStore = create<AppState>()(
         language: 'en',
       },
 
-      setProUser: isPro => set({ isProUser: isPro }),
       setOnboardingSeen: () => set({ hasSeenOnboarding: true }),
       updatePreferences: prefs =>
         set(state => ({

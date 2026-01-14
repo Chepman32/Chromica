@@ -131,7 +131,6 @@ export const EffectsEditorScreen: React.FC = () => {
     redo,
     canUndo,
     canRedo,
-    isPremium,
     getCachedParams,
     clearEffectCache,
     clearAllCaches,
@@ -282,12 +281,6 @@ export const EffectsEditorScreen: React.FC = () => {
   const handleEffectSelect = (effectId: string) => {
     const effect = EFFECTS.find(e => e.id === effectId);
     if (!effect) return;
-
-    if (effect.isPremium && !isPremium) {
-      // Show paywall
-      navigation.navigate('Paywall' as never);
-      return;
-    }
 
     ReactNativeHapticFeedback.trigger('impactMedium');
     setSelectedEffectId(effectId);
@@ -680,11 +673,6 @@ export const EffectsEditorScreen: React.FC = () => {
                     )}
                   </View>
                   <Text style={styles.effectName}>{effect.name}</Text>
-                  {effect.isPremium && !isPremium && (
-                    <View style={styles.premiumBadge}>
-                      <Text style={styles.premiumBadgeText}>PRO</Text>
-                    </View>
-                  )}
                 </TouchableOpacity>
               ))}
             </ScrollView>

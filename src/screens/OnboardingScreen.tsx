@@ -1,4 +1,4 @@
-// Onboarding carousel with parallax effects and rubber-band scrolling
+// Onboarding carousel with parallax effects
 
 import React, { useState, useRef } from 'react';
 import {
@@ -8,10 +8,19 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
+import Svg, {
+  Path,
+  Circle,
+  Rect,
+  Defs,
+  LinearGradient,
+  Stop,
+  G,
+  Line,
+} from 'react-native-svg';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   interpolate,
   useAnimatedScrollHandler,
   Extrapolation,
@@ -25,6 +34,417 @@ import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+// SVG Illustration: Effects Grid with visual effects
+const EffectsIllustration = () => (
+  <Svg width={280} height={200} viewBox="0 0 280 200">
+    <Defs>
+      <LinearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#6366F1" />
+        <Stop offset="100%" stopColor="#8B5CF6" />
+      </LinearGradient>
+      <LinearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#EC4899" />
+        <Stop offset="100%" stopColor="#F472B6" />
+      </LinearGradient>
+      <LinearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#10B981" />
+        <Stop offset="100%" stopColor="#34D399" />
+      </LinearGradient>
+      <LinearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#F59E0B" />
+        <Stop offset="100%" stopColor="#FBBF24" />
+      </LinearGradient>
+    </Defs>
+
+    {/* Main canvas frame */}
+    <Rect
+      x="40"
+      y="20"
+      width="200"
+      height="140"
+      rx="12"
+      fill="#1F1F2E"
+      stroke="#3F3F5E"
+      strokeWidth="2"
+    />
+
+    {/* Mosaic effect pattern */}
+    <G>
+      <Rect
+        x="50"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad1)"
+        opacity="0.9"
+      />
+      <Rect
+        x="80"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad2)"
+        opacity="0.8"
+      />
+      <Rect
+        x="110"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad1)"
+        opacity="0.7"
+      />
+      <Rect
+        x="140"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad3)"
+        opacity="0.9"
+      />
+      <Rect
+        x="170"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad4)"
+        opacity="0.8"
+      />
+      <Rect
+        x="200"
+        y="30"
+        width="25"
+        height="25"
+        rx="4"
+        fill="url(#grad2)"
+        opacity="0.6"
+      />
+    </G>
+
+    {/* Wave distortion lines */}
+    <Path
+      d="M50 75 Q80 65 110 75 T170 75 T230 75"
+      stroke="url(#grad2)"
+      strokeWidth="3"
+      fill="none"
+      opacity="0.8"
+    />
+    <Path
+      d="M50 90 Q80 100 110 90 T170 90 T230 90"
+      stroke="url(#grad3)"
+      strokeWidth="3"
+      fill="none"
+      opacity="0.7"
+    />
+    <Path
+      d="M50 105 Q80 95 110 105 T170 105 T230 105"
+      stroke="url(#grad1)"
+      strokeWidth="3"
+      fill="none"
+      opacity="0.9"
+    />
+
+    {/* Glitch effect bars */}
+    <Rect
+      x="55"
+      y="120"
+      width="60"
+      height="8"
+      rx="2"
+      fill="url(#grad4)"
+      opacity="0.9"
+    />
+    <Rect
+      x="125"
+      y="120"
+      width="40"
+      height="8"
+      rx="2"
+      fill="url(#grad1)"
+      opacity="0.7"
+    />
+    <Rect
+      x="175"
+      y="120"
+      width="50"
+      height="8"
+      rx="2"
+      fill="url(#grad2)"
+      opacity="0.8"
+    />
+
+    {/* Glass/blur circles */}
+    <Circle cx="70" cy="145" r="12" fill="url(#grad3)" opacity="0.5" />
+    <Circle cx="100" cy="145" r="8" fill="url(#grad1)" opacity="0.6" />
+    <Circle cx="130" cy="145" r="15" fill="url(#grad4)" opacity="0.4" />
+    <Circle cx="170" cy="145" r="10" fill="url(#grad2)" opacity="0.5" />
+    <Circle cx="200" cy="145" r="12" fill="url(#grad3)" opacity="0.6" />
+
+    {/* Slider control */}
+    <Rect x="40" y="175" width="200" height="6" rx="3" fill="#3F3F5E" />
+    <Rect x="40" y="175" width="140" height="6" rx="3" fill="url(#grad1)" />
+    <Circle cx="180" cy="178" r="10" fill="#FFFFFF" />
+    <Circle cx="180" cy="178" r="6" fill="url(#grad1)" />
+
+    {/* Category indicators */}
+    <Circle cx="20" cy="50" r="6" fill="url(#grad1)" />
+    <Circle cx="20" cy="75" r="6" fill="url(#grad2)" />
+    <Circle cx="20" cy="100" r="6" fill="url(#grad3)" />
+    <Circle cx="20" cy="125" r="6" fill="url(#grad4)" />
+
+    <Circle cx="260" cy="50" r="6" fill="url(#grad4)" />
+    <Circle cx="260" cy="75" r="6" fill="url(#grad3)" />
+    <Circle cx="260" cy="100" r="6" fill="url(#grad2)" />
+    <Circle cx="260" cy="125" r="6" fill="url(#grad1)" />
+  </Svg>
+);
+
+// SVG Illustration: Project Management & Export
+const ProjectsIllustration = () => (
+  <Svg width={280} height={200} viewBox="0 0 280 200">
+    <Defs>
+      <LinearGradient id="projGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#6366F1" />
+        <Stop offset="100%" stopColor="#8B5CF6" />
+      </LinearGradient>
+      <LinearGradient id="projGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#10B981" />
+        <Stop offset="100%" stopColor="#34D399" />
+      </LinearGradient>
+      <LinearGradient id="projGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#EC4899" />
+        <Stop offset="100%" stopColor="#F472B6" />
+      </LinearGradient>
+    </Defs>
+
+    {/* Project thumbnails grid */}
+    <G>
+      {/* Thumbnail 1 */}
+      <Rect
+        x="20"
+        y="20"
+        width="70"
+        height="70"
+        rx="10"
+        fill="#1F1F2E"
+        stroke="#3F3F5E"
+        strokeWidth="2"
+      />
+      <Rect
+        x="28"
+        y="28"
+        width="54"
+        height="40"
+        rx="4"
+        fill="url(#projGrad1)"
+        opacity="0.8"
+      />
+      <Rect x="28" y="72" width="30" height="10" rx="2" fill="#3F3F5E" />
+
+      {/* Thumbnail 2 */}
+      <Rect
+        x="105"
+        y="20"
+        width="70"
+        height="70"
+        rx="10"
+        fill="#1F1F2E"
+        stroke="url(#projGrad1)"
+        strokeWidth="2"
+      />
+      <Rect
+        x="113"
+        y="28"
+        width="54"
+        height="40"
+        rx="4"
+        fill="url(#projGrad2)"
+        opacity="0.8"
+      />
+      <Rect x="113" y="72" width="30" height="10" rx="2" fill="#3F3F5E" />
+      {/* Selected indicator */}
+      <Circle cx="163" cy="32" r="8" fill="url(#projGrad1)" />
+      <Path
+        d="M159 32 L162 35 L168 29"
+        stroke="#FFFFFF"
+        strokeWidth="2"
+        fill="none"
+      />
+
+      {/* Thumbnail 3 */}
+      <Rect
+        x="190"
+        y="20"
+        width="70"
+        height="70"
+        rx="10"
+        fill="#1F1F2E"
+        stroke="#3F3F5E"
+        strokeWidth="2"
+      />
+      <Rect
+        x="198"
+        y="28"
+        width="54"
+        height="40"
+        rx="4"
+        fill="url(#projGrad3)"
+        opacity="0.8"
+      />
+      <Rect x="198" y="72" width="30" height="10" rx="2" fill="#3F3F5E" />
+    </G>
+
+    {/* Export/Share section */}
+    <G>
+      {/* Export panel */}
+      <Rect
+        x="40"
+        y="105"
+        width="200"
+        height="80"
+        rx="12"
+        fill="#1F1F2E"
+        stroke="#3F3F5E"
+        strokeWidth="2"
+      />
+
+      {/* Share icons */}
+      {/* Instagram-style icon */}
+      <G transform="translate(60, 120)">
+        <Rect
+          x="0"
+          y="0"
+          width="36"
+          height="36"
+          rx="8"
+          fill="url(#projGrad3)"
+        />
+        <Rect
+          x="6"
+          y="6"
+          width="24"
+          height="24"
+          rx="6"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+        <Circle
+          cx="18"
+          cy="18"
+          r="6"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+        <Circle cx="26" cy="10" r="2" fill="#FFFFFF" />
+      </G>
+
+      {/* Gallery icon */}
+      <G transform="translate(110, 120)">
+        <Rect
+          x="0"
+          y="0"
+          width="36"
+          height="36"
+          rx="8"
+          fill="url(#projGrad2)"
+        />
+        <Rect
+          x="8"
+          y="10"
+          width="20"
+          height="16"
+          rx="2"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+        />
+        <Circle cx="14" cy="16" r="3" fill="#FFFFFF" />
+        <Path
+          d="M10 22 L16 18 L22 22 L26 19"
+          stroke="#FFFFFF"
+          strokeWidth="1.5"
+          fill="none"
+        />
+      </G>
+
+      {/* Share icon */}
+      <G transform="translate(160, 120)">
+        <Rect
+          x="0"
+          y="0"
+          width="36"
+          height="36"
+          rx="8"
+          fill="url(#projGrad1)"
+        />
+        <Path d="M18 8 L18 24" stroke="#FFFFFF" strokeWidth="2" />
+        <Path
+          d="M12 14 L18 8 L24 14"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          fill="none"
+        />
+        <Path
+          d="M10 20 L10 26 L26 26 L26 20"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          fill="none"
+        />
+      </G>
+
+      {/* High-res badge */}
+      <Rect
+        x="60"
+        y="165"
+        width="60"
+        height="16"
+        rx="8"
+        fill="url(#projGrad1)"
+      />
+      <Text
+        x="90"
+        y="176"
+        fontSize="8"
+        fill="#FFFFFF"
+        textAnchor="middle"
+        fontWeight="bold"
+      >
+        1080p
+      </Text>
+    </G>
+
+    {/* Auto-save indicator */}
+    <G transform="translate(220, 105)">
+      <Circle cx="15" cy="15" r="12" fill="url(#projGrad2)" opacity="0.2" />
+      <Circle cx="15" cy="15" r="8" fill="url(#projGrad2)" />
+      <Path
+        d="M12 15 L14 17 L19 12"
+        stroke="#FFFFFF"
+        strokeWidth="2"
+        fill="none"
+      />
+    </G>
+
+    {/* Connection lines */}
+    <Line
+      x1="140"
+      y1="90"
+      x2="140"
+      y2="105"
+      stroke="#3F3F5E"
+      strokeWidth="2"
+      strokeDasharray="4,4"
+    />
+  </Svg>
+);
 
 const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -51,7 +471,7 @@ const OnboardingScreen: React.FC = () => {
   };
 
   const handleNext = () => {
-    if (currentIndex < 2) {
+    if (currentIndex < 1) {
       const nextIndex = currentIndex + 1;
       scrollViewRef.current?.scrollTo({
         x: nextIndex * screenWidth,
@@ -104,7 +524,7 @@ const OnboardingScreen: React.FC = () => {
     );
   };
 
-  // Panel 1: Effects
+  // Panel 1: Professional Photo Effects Editor
   const Panel1 = () => {
     const heroStyle = useAnimatedStyle(() => {
       const translateX = interpolate(
@@ -135,95 +555,40 @@ const OnboardingScreen: React.FC = () => {
     return (
       <View style={styles.panel}>
         <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.effectsGrid}>
-            <View style={[styles.effectTile, { backgroundColor: '#6366F1' }]}>
-              <Text style={styles.effectIcon}>🎨</Text>
-              <Text style={styles.effectLabel}>Mosaic</Text>
-            </View>
-            <View style={[styles.effectTile, { backgroundColor: '#EC4899' }]}>
-              <Text style={styles.effectIcon}>🌊</Text>
-              <Text style={styles.effectLabel}>Wave</Text>
-            </View>
-            <View style={[styles.effectTile, { backgroundColor: '#10B981' }]}>
-              <Text style={styles.effectIcon}>💎</Text>
-              <Text style={styles.effectLabel}>Glass</Text>
-            </View>
-            <View style={[styles.effectTile, { backgroundColor: '#F59E0B' }]}>
-              <Text style={styles.effectIcon}>⚡</Text>
-              <Text style={styles.effectLabel}>Glitch</Text>
-            </View>
-          </View>
+          <EffectsIllustration />
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>50+ Pro Effects</Text>
+          <Text style={styles.headline}>Professional Effects</Text>
           <Text style={styles.body}>
-            Transform your photos with stunning GPU-powered effects. Mosaic,
-            Glass, Glitch, Artistic styles and more.
+            50+ GPU-powered effects across 12 categories. Mosaic, Glass, Glitch,
+            Wave, Blur, Stylization and more. Real-time preview with adjustable
+            parameters.
           </Text>
+          <View style={styles.featurePills}>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>Pixelate</Text>
+            </View>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>Kaleidoscope</Text>
+            </View>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>Oil Paint</Text>
+            </View>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>RGB Split</Text>
+            </View>
+          </View>
         </Animated.View>
       </View>
     );
   };
 
-  // Panel 2: Real-time Preview
+  // Panel 2: Project Management & Export
   const Panel2 = () => {
     const heroStyle = useAnimatedStyle(() => {
       const translateX = interpolate(
         scrollX.value,
-        [screenWidth, screenWidth * 2],
-        [50, -50],
-        Extrapolation.CLAMP,
-      );
-      const scale = interpolate(
-        scrollX.value,
-        [0, screenWidth, screenWidth * 2],
-        [0.8, 1, 0.8],
-        Extrapolation.CLAMP,
-      );
-      return { transform: [{ translateX }, { scale }] };
-    });
-
-    const contentStyle = useAnimatedStyle(() => {
-      const opacity = interpolate(
-        scrollX.value,
-        [0, screenWidth, screenWidth * 2],
-        [0, 1, 0],
-        Extrapolation.CLAMP,
-      );
-      return { opacity };
-    });
-
-    return (
-      <View style={styles.panel}>
-        <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.sliderDemo}>
-            <View style={styles.sliderTrack}>
-              <View style={styles.sliderFill} />
-              <View style={styles.sliderThumb} />
-            </View>
-            <Text style={styles.sliderLabel}>Intensity: 75%</Text>
-            <View style={styles.previewBox}>
-              <Text style={styles.previewText}>Live Preview</Text>
-            </View>
-          </View>
-        </Animated.View>
-        <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Real-Time Control</Text>
-          <Text style={styles.body}>
-            Fine-tune every effect with intuitive sliders. See changes instantly
-            as you adjust parameters.
-          </Text>
-        </Animated.View>
-      </View>
-    );
-  };
-
-  // Panel 3: Export
-  const Panel3 = () => {
-    const heroStyle = useAnimatedStyle(() => {
-      const translateX = interpolate(
-        scrollX.value,
-        [screenWidth, screenWidth * 2],
+        [0, screenWidth],
         [100, 0],
         Extrapolation.CLAMP,
       );
@@ -233,7 +598,7 @@ const OnboardingScreen: React.FC = () => {
     const contentStyle = useAnimatedStyle(() => {
       const opacity = interpolate(
         scrollX.value,
-        [screenWidth, screenWidth * 2],
+        [0, screenWidth],
         [0, 1],
         Extrapolation.CLAMP,
       );
@@ -243,27 +608,25 @@ const OnboardingScreen: React.FC = () => {
     return (
       <View style={styles.panel}>
         <Animated.View style={[styles.heroSection, heroStyle]}>
-          <View style={styles.exportDemo}>
-            <View style={styles.exportOption}>
-              <Text style={styles.exportIcon}>📸</Text>
-              <Text style={styles.exportLabel}>Instagram</Text>
-            </View>
-            <View style={styles.exportOption}>
-              <Text style={styles.exportIcon}>🐦</Text>
-              <Text style={styles.exportLabel}>X</Text>
-            </View>
-            <View style={styles.exportOption}>
-              <Text style={styles.exportIcon}>🖼️</Text>
-              <Text style={styles.exportLabel}>Gallery</Text>
-            </View>
-          </View>
+          <ProjectsIllustration />
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Share Everywhere</Text>
+          <Text style={styles.headline}>Save & Share</Text>
           <Text style={styles.body}>
-            Export in high resolution. Share directly to Instagram, X, or save
-            to your gallery.
+            Auto-save projects with thumbnails. Resume editing anytime. Export
+            in high resolution directly to Instagram, X, gallery, or files.
           </Text>
+          <View style={styles.featurePills}>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>Auto-Save</Text>
+            </View>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>1080p Export</Text>
+            </View>
+            <View style={styles.featurePill}>
+              <Text style={styles.featurePillText}>Quick Share</Text>
+            </View>
+          </View>
         </Animated.View>
         <TouchableOpacity style={styles.ctaButton} onPress={handleSkip}>
           <Text style={styles.ctaButtonText}>Get Started</Text>
@@ -292,11 +655,10 @@ const OnboardingScreen: React.FC = () => {
       >
         <Panel1 />
         <Panel2 />
-        <Panel3 />
       </Animated.ScrollView>
 
       {/* Progress Indicators */}
-      <View style={styles.pagination}>{[0, 1, 2].map(renderDot)}</View>
+      <View style={styles.pagination}>{[0, 1].map(renderDot)}</View>
     </SafeAreaView>
   );
 };
@@ -322,15 +684,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroSection: {
-    flex: 0.6,
+    flex: 0.5,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
   },
   contentSection: {
-    flex: 0.4,
+    flex: 0.5,
     paddingHorizontal: Spacing.l,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: Spacing.l,
   },
   headline: {
     ...Typography.display.h1,
@@ -344,100 +707,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 24,
   },
-  // Effects Grid
-  effectsGrid: {
+  featurePills: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: 220,
-    gap: 12,
     justifyContent: 'center',
+    marginTop: Spacing.m,
+    gap: Spacing.xs,
   },
-  effectTile: {
-    width: 100,
-    height: 100,
+  featurePill: {
+    backgroundColor: Colors.backgrounds.tertiary,
+    paddingHorizontal: Spacing.s,
+    paddingVertical: 6,
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  effectIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  effectLabel: {
-    ...Typography.body.small,
-    color: '#FFFFFF',
-    fontWeight: '600',
-  },
-  // Slider Demo
-  sliderDemo: {
-    width: 260,
-    alignItems: 'center',
-  },
-  sliderTrack: {
-    width: '100%',
-    height: 8,
-    backgroundColor: Colors.backgrounds.tertiary,
-    borderRadius: 4,
-    marginBottom: 12,
-    position: 'relative',
-  },
-  sliderFill: {
-    width: '75%',
-    height: '100%',
-    backgroundColor: Colors.accent.primary,
-    borderRadius: 4,
-  },
-  sliderThumb: {
-    position: 'absolute',
-    left: '72%',
-    top: -6,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: Colors.accent.primary,
-    borderWidth: 3,
-    borderColor: '#FFFFFF',
-  },
-  sliderLabel: {
-    ...Typography.body.small,
-    color: Colors.text.secondary,
-    marginBottom: 20,
-  },
-  previewBox: {
-    width: 200,
-    height: 120,
-    backgroundColor: Colors.backgrounds.tertiary,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.accent.primary,
-  },
-  previewText: {
-    ...Typography.body.regular,
-    color: Colors.accent.primary,
-    fontWeight: '600',
-  },
-  // Export Demo
-  exportDemo: {
-    flexDirection: 'row',
-    gap: 20,
-  },
-  exportOption: {
-    width: 80,
-    height: 80,
-    backgroundColor: Colors.backgrounds.tertiary,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  exportIcon: {
-    fontSize: 28,
-    marginBottom: 4,
-  },
-  exportLabel: {
+  featurePillText: {
     ...Typography.body.caption,
-    color: Colors.text.secondary,
+    color: Colors.accent.primary,
+    fontWeight: '500',
   },
   ctaButton: {
     marginHorizontal: Spacing.l,

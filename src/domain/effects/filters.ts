@@ -117,7 +117,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'cinematic',
     name: 'Cinematic',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Cinematic: Teal shadows, orange highlights
       const cinematic = [
@@ -129,7 +129,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'film',
     name: 'Film Grain',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Film: Slightly desaturated with lifted blacks
       const film = [
@@ -160,7 +160,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'hdr',
     name: 'HDR',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // HDR: Enhanced contrast and saturation
       const hdr = [
@@ -191,7 +191,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'portrait',
     name: 'Portrait',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Portrait: Warm skin tones, soft contrast
       const portrait = [
@@ -222,7 +222,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'landscape',
     name: 'Landscape',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Landscape: Vibrant greens and blues
       const landscape = [
@@ -234,7 +234,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'neon',
     name: 'Neon',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Neon: High saturation, vibrant colors
       const neon = [
@@ -246,7 +246,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'cyberpunk',
     name: 'Cyberpunk',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Cyberpunk: Cyan and magenta tones
       const cyberpunk = [
@@ -258,7 +258,7 @@ export const COLOR_FILTERS: ColorFilter[] = [
   {
     id: 'retro',
     name: 'Retro Wave',
-    isPro: true,
+    isPro: false,
     getColorMatrix: (intensity: number) => {
       // Retro: Pink and purple tones
       const retro = [
