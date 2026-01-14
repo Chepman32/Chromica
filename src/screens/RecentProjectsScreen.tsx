@@ -76,49 +76,56 @@ export const RecentProjectsScreen: React.FC = () => {
   }: {
     item: Project;
     index: number;
-  }) => (
-    <Animated.View
-      entering={FadeInDown.delay(index * 50).duration(300)}
-      layout={Layout.springify()}
-    >
-      <TouchableOpacity
-        style={styles.projectItem}
-        onPress={() => handleProjectPress(item)}
-        activeOpacity={0.7}
+  }) => {
+    const elementCount = Array.isArray(item.elements)
+      ? item.elements.length
+      : item.effect
+        ? 1
+        : 0;
+
+    return (
+      <Animated.View
+        entering={FadeInDown.delay(index * 50).duration(300)}
+        layout={Layout.springify()}
       >
-        <View style={styles.thumbnailContainer}>
-          {item.thumbnailPath ? (
-            <Image
-              source={{ uri: item.thumbnailPath }}
-              style={styles.thumbnail}
-              resizeMode="cover"
-            />
-          ) : (
-            <View style={styles.thumbnailPlaceholder}>
-              <Text style={styles.placeholderIcon}>🖼️</Text>
-            </View>
-          )}
-        </View>
+        <TouchableOpacity
+          style={styles.projectItem}
+          onPress={() => handleProjectPress(item)}
+          activeOpacity={0.7}
+        >
+          <View style={styles.thumbnailContainer}>
+            {item.thumbnailPath ? (
+              <Image
+                source={{ uri: item.thumbnailPath }}
+                style={styles.thumbnail}
+                resizeMode="cover"
+              />
+            ) : (
+              <View style={styles.thumbnailPlaceholder}>
+                <Text style={styles.placeholderIcon}>🖼️</Text>
+              </View>
+            )}
+          </View>
 
-        <View style={styles.projectInfo}>
-          <Text style={styles.projectTitle} numberOfLines={1}>
-            Project
-          </Text>
-          <Text style={styles.projectDate}>
-            {formatTimestamp(item.updatedAt)}
-          </Text>
-          <Text style={styles.projectElements}>
-            {item.elements.length} element
-            {item.elements.length !== 1 ? 's' : ''}
-          </Text>
-        </View>
+          <View style={styles.projectInfo}>
+            <Text style={styles.projectTitle} numberOfLines={1}>
+              Project
+            </Text>
+            <Text style={styles.projectDate}>
+              {formatTimestamp(item.updatedAt)}
+            </Text>
+            <Text style={styles.projectElements}>
+              {elementCount} element{elementCount !== 1 ? 's' : ''}
+            </Text>
+          </View>
 
-        <View style={styles.chevron}>
-          <Text style={styles.chevronIcon}>›</Text>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  );
+          <View style={styles.chevron}>
+            <Text style={styles.chevronIcon}>›</Text>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>

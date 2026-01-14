@@ -11,6 +11,7 @@ export interface Project {
   sourceImageDimensions: { width: number; height: number };
   thumbnailPath: string;
   effect?: ProjectEffect; // Applied effect
+  elements?: unknown[]; // Optional/legacy list for UI counts.
   createdAt: Date;
   updatedAt: Date;
 }
