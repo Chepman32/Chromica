@@ -28,6 +28,35 @@ half4 main(float2 coord) {
   half4 color = image.eval(cellCenter);
   return color;
 }`,
+  'cellular/halftone.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float dotSize;
+uniform float angle;
+
+const float PI = 3.14159265359;
+
+float2 rotate(float2 v, float a) {
+  float s = sin(a);
+  float c = cos(a);
+  return float2(v.x * c - v.y * s, v.x * s + v.y * c);
+}
+
+half4 main(float2 coord) {
+  float angleRad = angle * PI / 180.0;
+  float2 rotated = rotate(coord, angleRad);
+
+  float2 cellCoord = mod(rotated, dotSize);
+  float2 cellCenter = float2(dotSize * 0.5);
+
+  half4 color = image.eval(coord);
+  float lum = dot(color.rgb, half3(0.299, 0.587, 0.114));
+
+  float radius = lum * dotSize * 0.5;
+  float dist = distance(cellCoord, cellCenter);
+
+  return dist < radius ? half4(0, 0, 0, 1) : half4(1, 1, 1, 1);
+}`,
   'tiling/kaleidoscope.sksl': `
 uniform shader image;
 uniform float2 resolution;
@@ -49,6 +78,25 @@ half4 main(float2 coord) {
   float2 newPos = float2(cos(theta), sin(theta)) * r;
   float2 sampleCoord = newPos + center * resolution;
   return image.eval(sampleCoord);
+}`,
+  'tiling/mirror.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform int axis;
+
+half4 main(float2 coord) {
+  float2 uv = coord / resolution;
+
+  if (axis == 0) {
+    uv.x = uv.x < 0.5 ? uv.x * 2.0 : (1.0 - uv.x) * 2.0;
+  } else if (axis == 1) {
+    uv.y = uv.y < 0.5 ? uv.y * 2.0 : (1.0 - uv.y) * 2.0;
+  } else if (axis == 2) {
+    uv.x = uv.x < 0.5 ? uv.x * 2.0 : (1.0 - uv.x) * 2.0;
+    uv.y = uv.y < 0.5 ? uv.y * 2.0 : (1.0 - uv.y) * 2.0;
+  }
+
+  return image.eval(uv * resolution);
 }`,
   'glitch/rgb-split.sksl': `
 uniform shader image;
@@ -79,6 +127,80 @@ half4 main(float2 coord) {
   float mask = mix(1.0, stripe, clampedOpacity);
 
   return half4(color.rgb * mask, color.a);
+}`,
+  'distortion/wave.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float amplitude;
+uniform float frequency;
+uniform float phase;
+uniform int direction;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float2 uv = coord / resolution;
+  float2 displaced = coord;
+
+  if (direction == 0) {
+    float wave = sin(uv.y * frequency * 2.0 * PI + phase * PI / 180.0) * amplitude;
+    displaced = coord + float2(wave, 0.0);
+  } else if (direction == 1) {
+    float wave = sin(uv.x * frequency * 2.0 * PI + phase * PI / 180.0) * amplitude;
+    displaced = coord + float2(0.0, wave);
+  } else if (direction == 2) {
+    float2 center = resolution * 0.5;
+    float dist = distance(coord, center);
+    float wave = sin(dist * frequency * 0.1 + phase * PI / 180.0) * amplitude;
+    float2 dir = normalize(coord - center);
+    displaced = coord + dir * wave;
+  }
+
+  return image.eval(displaced);
+}`,
+  'distortion/twirl.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform float angle;
+uniform float radius;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float2 pos = coord - center * resolution;
+  float dist = length(pos) / (radius * max(resolution.x, resolution.y));
+
+  float rotAmount = angle * PI / 180.0 * (1.0 - smoothstep(0.0, 1.0, dist));
+
+  float cosA = cos(rotAmount);
+  float sinA = sin(rotAmount);
+  float2 rotated = float2(
+    pos.x * cosA - pos.y * sinA,
+    pos.x * sinA + pos.y * cosA
+  );
+
+  float2 newCoord = rotated + center * resolution;
+  return image.eval(newCoord);
+}`,
+  'distortion/bulge.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float2 center;
+uniform float strength;
+uniform float radius;
+
+half4 main(float2 coord) {
+  float2 pos = coord - center * resolution;
+  float dist = length(pos) / (radius * max(resolution.x, resolution.y));
+
+  float scale = 1.0;
+  if (dist < 1.0) {
+    scale = 1.0 + strength * (1.0 - dist);
+  }
+
+  float2 displaced = pos / scale + center * resolution;
+  return image.eval(displaced);
 }`,
   'distortion/shear.sksl': `
 uniform shader image;
@@ -209,6 +331,25 @@ half4 main(float2 coord) {
   float2 offset = float2(cos(angle), sin(angle)) * magnitude * disp;
   float2 sampleCoord = clamp(coord + offset, float2(0.0), size - float2(1.0));
   return image.eval(sampleCoord);
+}`,
+  'relief/emboss.sksl': `
+uniform shader image;
+uniform float2 resolution;
+uniform float angle;
+uniform float height;
+
+const float PI = 3.14159265359;
+
+half4 main(float2 coord) {
+  float angleRad = angle * PI / 180.0;
+  float2 offset = float2(cos(angleRad), sin(angleRad)) * height;
+
+  half4 c1 = image.eval(coord - offset);
+  half4 c2 = image.eval(coord + offset);
+
+  float diff = dot(c1.rgb - c2.rgb, half3(0.333));
+
+  return half4(half3(0.5 + diff), 1.0);
 }`,
   'blur/surface-blur.sksl': `
 uniform shader image;

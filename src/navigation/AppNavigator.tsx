@@ -12,6 +12,7 @@ import HomeScreen from '../screens/HomeScreen';
 import { LiquidRadialHomeScreen } from '../screens/LiquidRadialHomeScreen';
 import { RecentProjectsScreen } from '../screens/RecentProjectsScreen';
 import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
+import { MixesScreen } from '../screens/MixesScreen';
 import { ExportScreen } from '../screens/ExportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ImagePickerScreen from '../screens/ImagePickerScreen';
@@ -20,6 +21,9 @@ export type RootStackParamList = {
   Onboarding: undefined;
   Home: undefined;
   RecentProjects: undefined;
+  Mixes: {
+    imageUri?: string;
+  } | undefined;
   Editor: {
     projectId?: string;
     imageUri?: string;
@@ -71,6 +75,16 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={LiquidRadialHomeScreen} />
 
         <Stack.Screen name="RecentProjects" component={RecentProjectsScreen} />
+
+        <Stack.Screen
+          name="Mixes"
+          component={MixesScreen}
+          options={{
+            animation: 'slide_from_right',
+            gestureEnabled: true,
+            gestureDirection: 'horizontal',
+          }}
+        />
 
         <Stack.Screen
           name="Editor"

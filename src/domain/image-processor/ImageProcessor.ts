@@ -8,7 +8,11 @@ import {
   SkSurface,
   SkPaint,
   ImageFormat,
+  FilterMode,
+  MipmapMode,
+  TileMode,
 } from '@shopify/react-native-skia';
+import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import RNFS from 'react-native-fs';
 import { Effect, EffectLayer } from '../effects/types';
 import { ShaderManager } from '../shader-manager/ShaderManager';
@@ -44,11 +48,15 @@ export class ImageProcessor {
     quality: PreviewQuality = PreviewQuality.HIGH,
   ): SkImage | null {
     try {
-      const width = Math.floor(image.width() * quality);
-      const height = Math.floor(image.height() * quality);
+      const width = Math.max(1, Math.floor(image.width() * quality));
+      const height = Math.max(1, Math.floor(image.height() * quality));
 
-      const surface = Skia.Surface.Make(width, height);
+      const offscreenSurface = Skia.Surface.MakeOffscreen(width, height);
+      const surface = offscreenSurface || Skia.Surface.Make(width, height);
       if (!surface) return null;
+      const sourceImage = offscreenSurface
+        ? image
+        : image.makeNonTextureImage();
 
       const canvas = surface.getCanvas();
       const paint = Skia.Paint();
@@ -57,14 +65,35 @@ export class ImageProcessor {
       if (effect.shaderPath) {
         const shader = ShaderManager.loadShader(effect.shaderPath);
         if (shader) {
-          const uniforms = this.buildUniforms(effect, params, width, height);
-          const runtimeShader = shader.makeShader(uniforms);
+          const uniforms = this.buildUniforms(
+            effect,
+            params,
+            width,
+            height,
+            shader,
+          );
+          const scaleMatrix = Skia.Matrix().scale(
+            sourceImage.width() / width,
+            sourceImage.height() / height,
+          );
+          const imageShader = sourceImage.makeShaderOptions(
+            TileMode.Clamp,
+            TileMode.Clamp,
+            FilterMode.Linear,
+            MipmapMode.None,
+            scaleMatrix,
+          );
+          const runtimeShader = shader.makeShaderWithChildren(uniforms, [
+            imageShader,
+          ]);
           paint.setShader(runtimeShader);
+          canvas.drawRect(Skia.XYWHRect(0, 0, width, height), paint);
+          return surface.makeImageSnapshot();
         }
       }
 
       // Draw image with effect
-      canvas.drawImage(image, 0, 0, paint);
+      canvas.drawImage(sourceImage, 0, 0, paint);
 
       return surface.makeImageSnapshot();
     } catch (error) {
@@ -83,6 +112,7 @@ export class ImageProcessor {
     quality: PreviewQuality = PreviewQuality.HIGH,
   ): SkImage | null {
     let result = image;
+    let appliedOnce = false;
 
     for (const layer of layers) {
       if (!layer.visible) continue;
@@ -90,9 +120,15 @@ export class ImageProcessor {
       const effect = effects.find(e => e.id === layer.effectId);
       if (!effect) continue;
 
-      const processed = this.applyEffect(result, effect, layer.params, quality);
+      const processed = this.applyEffect(
+        result,
+        effect,
+        layer.params,
+        appliedOnce ? PreviewQuality.HIGH : quality,
+      );
       if (processed) {
         result = processed;
+        appliedOnce = true;
       }
     }
 
@@ -138,28 +174,83 @@ export class ImageProcessor {
     params: Record<string, any>,
     width: number,
     height: number,
+    runtimeEffect: SkRuntimeEffect,
   ): number[] {
-    const uniforms: number[] = [];
+    const normalizedParams = this.normalizeParams(effect, params);
+    const uniformCount = runtimeEffect.getUniformCount();
+    const floatCount = runtimeEffect.getUniformFloatCount();
+    const uniforms = new Array(floatCount).fill(0);
 
-    // Add resolution (common for most shaders)
-    uniforms.push(width, height);
+    for (let i = 0; i < uniformCount; i++) {
+      const name = runtimeEffect.getUniformName(i);
+      const info = runtimeEffect.getUniform(i);
+      const size = info.columns * info.rows;
+      const values = this.resolveUniformValue(
+        name,
+        size,
+        normalizedParams,
+        width,
+        height,
+      );
 
-    // Add effect-specific parameters
+      for (let j = 0; j < size; j++) {
+        const raw = values[j] ?? 0;
+        uniforms[info.slot + j] = info.isInteger ? Math.round(raw) : raw;
+      }
+    }
+
+    return uniforms;
+  }
+
+  private static normalizeParams(
+    effect: Effect,
+    params: Record<string, any>,
+  ): Record<string, number> {
+    const normalized: Record<string, number> = {};
+
     effect.parameters.forEach(param => {
       const value = params[param.name] ?? param.default;
 
       if (typeof value === 'number') {
-        uniforms.push(value);
-      } else if (typeof value === 'string') {
-        // Convert string options to indices
-        if (param.options) {
-          const index = param.options.indexOf(value);
-          uniforms.push(index >= 0 ? index : 0);
-        }
+        normalized[param.name] = value;
+      } else if (typeof value === 'boolean') {
+        normalized[param.name] = value ? 1 : 0;
+      } else if (typeof value === 'string' && param.options) {
+        const index = param.options.indexOf(value);
+        normalized[param.name] = index >= 0 ? index : 0;
       }
     });
 
-    return uniforms;
+    return normalized;
+  }
+
+  private static resolveUniformValue(
+    name: string,
+    size: number,
+    params: Record<string, number>,
+    width: number,
+    height: number,
+  ): number[] {
+    if (name === 'resolution') {
+      return [width, height].slice(0, size);
+    }
+
+    if (name === 'center') {
+      return [0.5, 0.5].slice(0, size);
+    }
+
+    if (name === 'offset') {
+      const offsetX = params.offsetX ?? 0;
+      const offsetY = params.offsetY ?? 0;
+      return [offsetX, offsetY].slice(0, size);
+    }
+
+    const value = params[name];
+    if (typeof value === 'number') {
+      return [value].slice(0, size);
+    }
+
+    return new Array(size).fill(0);
   }
 
   /**

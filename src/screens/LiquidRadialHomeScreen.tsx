@@ -6,7 +6,7 @@
  *
  * UX Flow:
  * - Central button: Primary CTA to open image picker
- * - Satellites: Settings, Recent Projects, About (pop out 0.5s after mount)
+ * - Satellites: Settings, Recent Projects, Mixes, About (pop out 0.5s after mount)
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
@@ -97,6 +97,12 @@ export const LiquidRadialHomeScreen: React.FC = () => {
     navigation.navigate('RecentProjects' as never);
   }, [navigation]);
 
+  // Navigate to Mixes
+  const handleMixes = useCallback(() => {
+    ReactNativeHapticFeedback.trigger('selection');
+    navigation.navigate('Mixes' as never);
+  }, [navigation]);
+
   // Show About (could be a modal or screen)
   const handleAbout = useCallback(() => {
     ReactNativeHapticFeedback.trigger('selection');
@@ -118,6 +124,12 @@ export const LiquidRadialHomeScreen: React.FC = () => {
       label: 'Recent',
       icon: '🕐',
       onPress: handleRecent,
+    },
+    {
+      id: 'mixes',
+      label: 'Mixes',
+      icon: '🎚️',
+      onPress: handleMixes,
     },
     {
       id: 'about',
