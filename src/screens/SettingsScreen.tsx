@@ -379,20 +379,22 @@ const SettingsScreen: React.FC = () => {
                   {preferences.hapticFeedback ? t.settings.hapticsOn : t.settings.hapticsOff}
                 </Text>
               </View>
-              <Switch
-                value={preferences.hapticFeedback}
-                onValueChange={value => {
-                  if (value) {
-                    triggerHaptic('selection');
-                  }
-                  updatePreferences({ hapticFeedback: value });
-                }}
-                trackColor={{
-                  false: theme.backgrounds.tertiary,
-                  true: theme.accent.primary,
-                }}
-                thumbColor={theme.text.primary}
-              />
+              <View style={styles.settingRight}>
+                <Switch
+                  value={preferences.hapticFeedback}
+                  onValueChange={value => {
+                    if (value) {
+                      triggerHaptic('selection');
+                    }
+                    updatePreferences({ hapticFeedback: value });
+                  }}
+                  trackColor={{
+                    false: theme.backgrounds.tertiary,
+                    true: theme.accent.primary,
+                  }}
+                  thumbColor={theme.text.primary}
+                />
+              </View>
             </View>
             {renderSettingRow(
               t.settings.language,
@@ -566,6 +568,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
+    paddingRight: Spacing.xl,
     paddingVertical: Spacing.s,
     minHeight: 44,
     borderBottomWidth: 1,
@@ -584,6 +587,10 @@ const styles = StyleSheet.create({
   },
   settingRight: {
     marginLeft: Spacing.s,
+    marginRight: Spacing.m,
+    minWidth: 72,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
     flexShrink: 0,
   },
   settingValue: {
