@@ -168,15 +168,19 @@ const SettingsScreen: React.FC = () => {
     rightElement?: React.ReactNode,
     onPress?: () => void,
     destructive?: boolean,
-  ) => (
-    <TouchableOpacity
-      style={[
-        styles.settingRow,
-        { borderBottomColor: theme.backgrounds.tertiary },
-      ]}
-      onPress={onPress}
-      disabled={!onPress}
-    >
+  ) => {
+    const RowComponent = onPress ? TouchableOpacity : View;
+
+    const rowProps = onPress ? { onPress, disabled: false } : undefined;
+
+    return (
+      <RowComponent
+        style={[
+          styles.settingRow,
+          { borderBottomColor: theme.backgrounds.tertiary },
+        ]}
+        {...rowProps}
+      >
       <View style={styles.settingLeft}>
         <Text
           style={[
@@ -194,9 +198,14 @@ const SettingsScreen: React.FC = () => {
           </Text>
         )}
       </View>
-      {rightElement && <View style={styles.settingRight}>{rightElement}</View>}
-    </TouchableOpacity>
-  );
+      {rightElement && (
+        <View style={styles.settingRight} pointerEvents="box-none">
+          {rightElement}
+        </View>
+      )}
+      </RowComponent>
+    );
+  };
 
   const renderThemeModal = () => (
     <Modal
@@ -379,7 +388,7 @@ const SettingsScreen: React.FC = () => {
                   {preferences.hapticFeedback ? t.settings.hapticsOn : t.settings.hapticsOff}
                 </Text>
               </View>
-              <View style={styles.settingRight}>
+              <View style={styles.settingRight} pointerEvents="box-none">
                 <Switch
                   value={preferences.hapticFeedback}
                   onValueChange={value => {
@@ -428,42 +437,6 @@ const SettingsScreen: React.FC = () => {
         {renderSection(
           t.settings.preferences,
           <>
-            {renderSettingRow(
-              t.settings.defaultExportFormat,
-              preferences.defaultExportFormat.toUpperCase(),
-              <Text
-                style={[styles.settingValue, { color: theme.text.secondary }]}
-              >
-                {preferences.defaultExportFormat.toUpperCase()}
-              </Text>,
-            )}
-            {renderSettingRow(
-              t.settings.defaultExportQuality,
-              `${preferences.defaultExportQuality}%`,
-              <Text
-                style={[styles.settingValue, { color: theme.text.secondary }]}
-              >
-                {preferences.defaultExportQuality}%
-              </Text>,
-            )}
-            {renderSettingRow(
-              t.settings.autoSaveProjects,
-              t.settings.autoSaveProjectsDesc,
-              <Switch
-                value={preferences.autoSaveProjects}
-                onValueChange={value => {
-                  if (preferences.hapticFeedback) {
-                    triggerHaptic('selection');
-                  }
-                  updatePreferences({ autoSaveProjects: value });
-                }}
-                trackColor={{
-                  false: theme.backgrounds.tertiary,
-                  true: theme.accent.primary,
-                }}
-                thumbColor={theme.text.primary}
-              />,
-            )}
             {renderSettingRow(
               t.settings.confirmDelete,
               t.settings.confirmDeleteDesc,
@@ -568,7 +541,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
-    paddingRight: Spacing.xl,
+    paddingRight: Spacing.s,
     paddingVertical: Spacing.s,
     minHeight: 44,
     borderBottomWidth: 1,
@@ -587,7 +560,7 @@ const styles = StyleSheet.create({
   },
   settingRight: {
     marginLeft: Spacing.s,
-    marginRight: Spacing.m,
+    marginRight: 0,
     minWidth: 72,
     alignItems: 'flex-end',
     justifyContent: 'center',
