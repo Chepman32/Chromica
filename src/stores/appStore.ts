@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MMKV } from 'react-native-mmkv';
 import { UserPreferences } from '../types';
 import { Language } from '../localization';
 
@@ -82,6 +83,20 @@ interface AppState {
   resetOnboarding: () => void;
 }
 
+const mmkvStorage = (() => {
+  try {
+    const storage = new MMKV({ id: 'app-storage' });
+    return {
+      getItem: (name: string) => storage.getString(name) ?? null,
+      setItem: (name: string, value: string) => storage.set(name, value),
+      removeItem: (name: string) => storage.delete(name),
+    };
+  } catch (error) {
+    console.warn('MMKV initialization failed for app storage:', error);
+    return null;
+  }
+})();
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -99,7 +114,11 @@ export const useAppStore = create<AppState>()(
         language: 'en', // Default to English, will be updated after app initialization
       },
 
-      setOnboardingSeen: () => set({ hasSeenOnboarding: true }),
+      setOnboardingSeen: () => {
+        console.log('Setting onboarding seen');
+        set({ hasSeenOnboarding: true });
+        console.log('New state:', useAppStore.getState().hasSeenOnboarding);
+      },
       updatePreferences: prefs =>
         set(state => ({
           preferences: { ...state.preferences, ...prefs },
@@ -120,7 +139,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'app-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage ?? AsyncStorage),
     },
   ),
 );

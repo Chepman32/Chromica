@@ -365,31 +365,20 @@ const SettingsScreen: React.FC = () => {
               </Text>,
               () => setShowThemeModal(true),
             )}
-            {renderSettingRow(
-              t.settings.sound,
-              preferences.soundEnabled
-                ? t.settings.soundOn
-                : t.settings.soundOff,
-              <Switch
-                value={preferences.soundEnabled}
-                onValueChange={value => {
-                  if (preferences.hapticFeedback) {
-                    triggerHaptic('selection');
-                  }
-                  updatePreferences({ soundEnabled: value });
-                }}
-                trackColor={{
-                  false: theme.backgrounds.tertiary,
-                  true: theme.accent.primary,
-                }}
-                thumbColor={theme.text.primary}
-              />,
-            )}
-            {renderSettingRow(
-              t.settings.haptics,
-              preferences.hapticFeedback
-                ? t.settings.hapticsOn
-                : t.settings.hapticsOff,
+            <View
+              style={[
+                styles.settingRow,
+                { borderBottomColor: theme.backgrounds.tertiary },
+              ]}
+            >
+              <View style={styles.settingLeft}>
+                <Text style={[styles.settingTitle, { color: theme.text.primary }]}>
+                  {t.settings.haptics}
+                </Text>
+                <Text style={[styles.settingSubtitle, { color: theme.text.tertiary }]}>
+                  {preferences.hapticFeedback ? t.settings.hapticsOn : t.settings.hapticsOff}
+                </Text>
+              </View>
               <Switch
                 value={preferences.hapticFeedback}
                 onValueChange={value => {
@@ -403,8 +392,8 @@ const SettingsScreen: React.FC = () => {
                   true: theme.accent.primary,
                 }}
                 thumbColor={theme.text.primary}
-              />,
-            )}
+              />
+            </View>
             {renderSettingRow(
               t.settings.language,
               languageNames[preferences.language],
@@ -576,7 +565,6 @@ const styles = StyleSheet.create({
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: Spacing.m,
     paddingVertical: Spacing.s,
     minHeight: 44,
@@ -584,6 +572,8 @@ const styles = StyleSheet.create({
   },
   settingLeft: {
     flex: 1,
+    flexShrink: 1,
+    paddingRight: Spacing.s,
   },
   settingTitle: {
     ...Typography.body.regular,
@@ -593,7 +583,8 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   settingRight: {
-    marginLeft: Spacing.m,
+    marginLeft: Spacing.s,
+    flexShrink: 0,
   },
   settingValue: {
     ...Typography.body.regular,
