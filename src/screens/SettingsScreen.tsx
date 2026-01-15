@@ -292,7 +292,7 @@ const SettingsScreen: React.FC = () => {
                 <View style={styles.languageOptionContent}>
                   <Image
                     source={flagImages[lang]}
-                    style={styles.flagImage}
+                    style={{...styles.flagImage, width: 24, height: 24}}
                     resizeMode="contain"
                   />
                   <Text
@@ -641,8 +641,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   flagImage: {
-    width: 24,
-    height: 16,
+    width: 36,
+    height: 36,
     marginRight: Spacing.m,
     borderRadius: 2,
   },
