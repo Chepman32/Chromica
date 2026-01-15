@@ -17,6 +17,7 @@ import Svg, {
   Stop,
   G,
   Line,
+  Text as SvgText,
 } from 'react-native-svg';
 import Animated, {
   useSharedValue,
@@ -29,6 +30,7 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useAppStore } from '../stores/appStore';
+import { useTranslation } from '../hooks/useTranslation';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
@@ -409,7 +411,7 @@ const ProjectsIllustration = () => (
         rx="8"
         fill="url(#projGrad1)"
       />
-      <Text
+      <SvgText
         x="90"
         y="176"
         fontSize="8"
@@ -418,7 +420,7 @@ const ProjectsIllustration = () => (
         fontWeight="bold"
       >
         1080p
-      </Text>
+      </SvgText>
     </G>
 
     {/* Auto-save indicator */}
@@ -448,6 +450,7 @@ const ProjectsIllustration = () => (
 
 const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation();
+  const t = useTranslation();
   const setOnboardingSeen = useAppStore(state => state.setOnboardingSeen);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -558,24 +561,22 @@ const OnboardingScreen: React.FC = () => {
           <EffectsIllustration />
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Professional Effects</Text>
+          <Text style={styles.headline}>{t.onboarding.effectsHeadline}</Text>
           <Text style={styles.body}>
-            50+ GPU-powered effects across 12 categories. Mosaic, Glass, Glitch,
-            Wave, Blur, Stylization and more. Real-time preview with adjustable
-            parameters.
+            {t.onboarding.effectsBody}
           </Text>
           <View style={styles.featurePills}>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Pixelate</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.effectPixelate}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Kaleidoscope</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.effectKaleidoscope}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Oil Paint</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.effectOilPaint}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>RGB Split</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.effectRgbSplit}</Text>
             </View>
           </View>
         </Animated.View>
@@ -611,25 +612,24 @@ const OnboardingScreen: React.FC = () => {
           <ProjectsIllustration />
         </Animated.View>
         <Animated.View style={[styles.contentSection, contentStyle]}>
-          <Text style={styles.headline}>Save & Share</Text>
+          <Text style={styles.headline}>{t.onboarding.saveShareHeadline}</Text>
           <Text style={styles.body}>
-            Auto-save projects with thumbnails. Resume editing anytime. Export
-            in high resolution directly to Instagram, X, gallery, or files.
+            {t.onboarding.saveShareBody}
           </Text>
           <View style={styles.featurePills}>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Auto-Save</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.featureAutoSave}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>1080p Export</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.feature1080pExport}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>Quick Share</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.featureQuickShare}</Text>
             </View>
           </View>
         </Animated.View>
         <TouchableOpacity style={styles.ctaButton} onPress={handleSkip}>
-          <Text style={styles.ctaButtonText}>Get Started</Text>
+          <Text style={styles.ctaButtonText}>{t.onboarding.getStarted}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -639,7 +639,7 @@ const OnboardingScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       {/* Skip Button */}
       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={styles.skipText}>{t.onboarding.skip}</Text>
       </TouchableOpacity>
 
       {/* Carousel with parallax */}

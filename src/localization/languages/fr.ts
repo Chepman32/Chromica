@@ -9,6 +9,26 @@ export const fr: Translations = {
     done: 'Terminé',
     back: 'Retour',
   },
+  splash: {
+    tagline: 'Effets d\'Image Professionnels',
+  },
+  onboarding: {
+    skip: 'Ignorer',
+    getStarted: 'Commencer',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'Effets Professionnels',
+    effectsBody: '50+ effets accélérés par GPU dans 12 catégories. Mosaïque, Verre, Glitch, Vague, Flou, Stylisation et plus. Aperçu en temps réel avec paramètres ajustables.',
+    effectPixelate: 'Pixelliser',
+    effectKaleidoscope: 'Kaléidoscope',
+    effectOilPaint: 'Peinture à l\'Huile',
+    effectRgbSplit: 'Séparation RVB',
+    // Panel 2: Save & Share
+    saveShareHeadline: 'Sauvegarder & Partager',
+    saveShareBody: 'Sauvegarde automatique des projets avec miniatures. Reprenez l\'édition à tout moment. Exportez en haute résolution directement vers Instagram, X, galerie ou fichiers.',
+    featureAutoSave: 'Sauvegarde Auto',
+    feature1080pExport: 'Export 1080p',
+    featureQuickShare: 'Partage Rapide',
+  },
   settings: {
     title: 'Paramètres',
     theme: 'Thème',
@@ -54,5 +74,7 @@ export const fr: Translations = {
       'Supprimer les miniatures en cache et les fichiers temporaires',
     deleteAllProjects: 'Supprimer tous les projets',
     deleteAllProjectsDesc: 'Supprimer définitivement tous les projets',
+    resetOnboarding: 'Réinitialiser l\'onboarding',
+    resetOnboardingDesc: 'Afficher à nouveau les écrans d\'onboarding',
   },
 };

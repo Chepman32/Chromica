@@ -21,6 +21,26 @@ export interface Translations {
     done: string;
     back: string;
   };
+  splash: {
+    tagline: string;
+  };
+  onboarding: {
+    skip: string;
+    getStarted: string;
+    // Panel 1: Professional Effects
+    effectsHeadline: string;
+    effectsBody: string;
+    effectPixelate: string;
+    effectKaleidoscope: string;
+    effectOilPaint: string;
+    effectRgbSplit: string;
+    // Panel 2: Save & Share
+    saveShareHeadline: string;
+    saveShareBody: string;
+    featureAutoSave: string;
+    feature1080pExport: string;
+    featureQuickShare: string;
+  };
   settings: {
     title: string;
     theme: string;
@@ -63,5 +83,7 @@ export interface Translations {
     clearCacheDesc: string;
     deleteAllProjects: string;
     deleteAllProjectsDesc: string;
+    resetOnboarding: string;
+    resetOnboardingDesc: string;
   };
 }

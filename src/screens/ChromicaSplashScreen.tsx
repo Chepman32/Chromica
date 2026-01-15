@@ -13,6 +13,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface ChromicaSplashScreenProps {
   onFinish?: () => void;
@@ -21,6 +22,8 @@ interface ChromicaSplashScreenProps {
 export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
   onFinish,
 }) => {
+  const t = useTranslation();
+  
   // Animation values
   const logoOpacity = useSharedValue(0);
   const logoRotation = useSharedValue(0);
@@ -85,7 +88,7 @@ export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
       <Animated.View style={[styles.textContainer, textStyle]}>
         <Animated.Text style={styles.appName}>CHROMICA</Animated.Text>
         <Animated.Text style={styles.tagline}>
-          Professional Image Effects
+          {t.splash.tagline}
         </Animated.Text>
       </Animated.View>
     </View>

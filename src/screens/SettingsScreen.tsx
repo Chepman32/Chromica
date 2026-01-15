@@ -26,7 +26,7 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const theme = useTheme();
   const t = useTranslation();
-  const { preferences, updatePreferences } = useAppStore();
+  const { preferences, updatePreferences, resetOnboarding } = useAppStore();
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
 
@@ -86,6 +86,24 @@ const SettingsScreen: React.FC = () => {
           text: t.common.delete,
           style: 'destructive',
           onPress: () => Alert.alert('All projects deleted'),
+        },
+      ],
+    );
+  };
+
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      t.settings.resetOnboarding,
+      t.settings.resetOnboardingDesc + '. Continue?',
+      [
+        { text: t.common.cancel, style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: () => {
+            resetOnboarding();
+            Alert.alert('Onboarding Reset', 'The app will now show the onboarding screens again.');
+          },
         },
       ],
     );
@@ -488,6 +506,13 @@ const SettingsScreen: React.FC = () => {
               handleDeleteAllProjects,
               true,
             )}
+            {renderSettingRow(
+              t.settings.resetOnboarding,
+              t.settings.resetOnboardingDesc,
+              undefined,
+              handleResetOnboarding,
+              true,
+            )}
           </>,
         )}
       </ScrollView>
@@ -598,7 +623,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   modalOptionText: {
-    ...Typography.display.h5,
+    ...Typography.body.large,
   },
   checkmark: {
     fontSize: 28,

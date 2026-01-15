@@ -9,6 +9,26 @@ export const ja: Translations = {
     done: '完了',
     back: '戻る',
   },
+  splash: {
+    tagline: 'プロフェッショナル画像エフェクト',
+  },
+  onboarding: {
+    skip: 'スキップ',
+    getStarted: '開始',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'プロフェッショナルエフェクト',
+    effectsBody: '12カテゴリーで50以上のGPUアクセラレーションエフェクト。モザイク、ガラス、グリッチ、波、ぼかし、スタイライゼーションなど。リアルタイムプレビューと調整可能なパラメータ。',
+    effectPixelate: 'ピクセル化',
+    effectKaleidoscope: '万華鏡',
+    effectOilPaint: '油絵',
+    effectRgbSplit: 'RGB分離',
+    // Panel 2: Save & Share
+    saveShareHeadline: '保存と共有',
+    saveShareBody: 'サムネイル付きでプロジェクトを自動保存。いつでも編集を再開できます。高解像度で直接Instagram、X、ギャラリー、ファイルにエクスポート。',
+    featureAutoSave: '自動保存',
+    feature1080pExport: '1080pエクスポート',
+    featureQuickShare: 'クイック共有',
+  },
   settings: {
     title: '設定',
     theme: 'テーマ',
@@ -51,5 +71,7 @@ export const ja: Translations = {
     clearCacheDesc: 'キャッシュされたサムネイルと一時ファイルを削除',
     deleteAllProjects: 'すべてのプロジェクトを削除',
     deleteAllProjectsDesc: 'すべてのプロジェクトを完全に削除',
+    resetOnboarding: 'オンボーディングをリセット',
+    resetOnboardingDesc: 'オンボーディング画面を再度表示',
   },
 };

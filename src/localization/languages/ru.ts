@@ -9,6 +9,26 @@ export const ru: Translations = {
     done: 'Готово',
     back: 'Назад',
   },
+  splash: {
+    tagline: 'Профессиональные эффекты для изображений',
+  },
+  onboarding: {
+    skip: 'Пропустить',
+    getStarted: 'Начать',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'Профессиональные эффекты',
+    effectsBody: '50+ GPU-эффектов в 12 категориях. Мозаика, стекло, глитч, волна, размытие, стилизация и многое другое. Предварительный просмотр в реальном времени с настраиваемыми параметрами.',
+    effectPixelate: 'Пикселизация',
+    effectKaleidoscope: 'Калейдоскоп',
+    effectOilPaint: 'Масляная живопись',
+    effectRgbSplit: 'RGB разделение',
+    // Panel 2: Save & Share
+    saveShareHeadline: 'Сохранение и обмен',
+    saveShareBody: 'Автосохранение проектов с миниатюрами. Возобновляйте редактирование в любое время. Экспортируйте в высоком разрешении напрямую в Instagram, X, галерею или файлы.',
+    featureAutoSave: 'Автосохранение',
+    feature1080pExport: 'Экспорт 1080p',
+    featureQuickShare: 'Быстрый обмен',
+  },
   settings: {
     title: 'Настройки',
     theme: 'Тема',
@@ -52,5 +72,7 @@ export const ru: Translations = {
     clearCacheDesc: 'Удалить кэшированные миниатюры и временные файлы',
     deleteAllProjects: 'Удалить все проекты',
     deleteAllProjectsDesc: 'Безвозвратно удалить все проекты',
+    resetOnboarding: 'Сбросить онбординг',
+    resetOnboardingDesc: 'Показать экраны онбординга снова',
   },
 };

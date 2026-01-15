@@ -9,6 +9,26 @@ export const en: Translations = {
     done: 'Done',
     back: 'Back',
   },
+  splash: {
+    tagline: 'Professional Image Effects',
+  },
+  onboarding: {
+    skip: 'Skip',
+    getStarted: 'Get Started',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'Professional Effects',
+    effectsBody: '50+ GPU-powered effects across 12 categories. Mosaic, Glass, Glitch, Wave, Blur, Stylization and more. Real-time preview with adjustable parameters.',
+    effectPixelate: 'Pixelate',
+    effectKaleidoscope: 'Kaleidoscope',
+    effectOilPaint: 'Oil Paint',
+    effectRgbSplit: 'RGB Split',
+    // Panel 2: Save & Share
+    saveShareHeadline: 'Save & Share',
+    saveShareBody: 'Auto-save projects with thumbnails. Resume editing anytime. Export in high resolution directly to Instagram, X, gallery, or files.',
+    featureAutoSave: 'Auto-Save',
+    feature1080pExport: '1080p Export',
+    featureQuickShare: 'Quick Share',
+  },
   settings: {
     title: 'Settings',
     theme: 'Theme',
@@ -51,5 +71,7 @@ export const en: Translations = {
     clearCacheDesc: 'Remove cached thumbnails and temporary files',
     deleteAllProjects: 'Delete All Projects',
     deleteAllProjectsDesc: 'Permanently delete all projects',
+    resetOnboarding: 'Reset Onboarding',
+    resetOnboardingDesc: 'Show the onboarding screens again',
   },
 };
