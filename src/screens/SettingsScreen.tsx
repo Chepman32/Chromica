@@ -419,27 +419,29 @@ const SettingsScreen: React.FC = () => {
             {renderSettingRow(
               t.settings.language,
               languageNames[preferences.language],
-              <Text
-                style={[styles.settingValue, { color: theme.text.secondary }]}
-              >
-                {languageNames[preferences.language]}
-              </Text>,
+              <View style={styles.languageRowContent}>
+                <Image
+                  source={flagImages[preferences.language]}
+                  style={styles.flagImage}
+                  resizeMode="contain"
+                />
+                <Text
+                  style={[styles.settingValue, { color: theme.text.secondary }]}
+                >
+                  {languageNames[preferences.language]}
+                </Text>
+              </View>,
               () => setShowLanguageModal(true),
             )}
           </>,
         )}
 
-        {/* Account Section */}
-        {renderSection(
-          t.settings.account,
-          <>
-            {renderSettingRow(
-              t.settings.exportAllProjects,
-              t.settings.exportAllProjectsDesc,
-              undefined,
-              handleExportAllProjects,
-            )}
-          </>,
+        {/* Export All Projects */}
+        {renderSettingRow(
+          t.settings.exportAllProjects,
+          t.settings.exportAllProjectsDesc,
+          undefined,
+          handleExportAllProjects,
         )}
 
         {/* Preferences Section */}
@@ -684,6 +686,11 @@ const styles = StyleSheet.create({
     height: 16,
     marginRight: Spacing.m,
     borderRadius: 2,
+  },
+  languageRowContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   languageText: {
     flex: 1,
