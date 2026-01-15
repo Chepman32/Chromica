@@ -10,6 +10,7 @@ import {
   Switch,
   Alert,
   Modal,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +22,40 @@ import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 import { ThemeType } from '../constants/themes';
 import { Language, languageNames } from '../localization';
 import { triggerHaptic } from '../utils/haptics';
+
+// Flag images mapping
+const flagImages: Record<Language, any> = {
+  en: require('../assets/flags/en.png'),
+  ru: require('../assets/flags/ru.png'),
+  es: require('../assets/flags/es.png'),
+  de: require('../assets/flags/de.png'),
+  fr: require('../assets/flags/fr.png'),
+  pt: require('../assets/flags/pt-BR.png'),
+  ja: require('../assets/flags/ja.png'),
+  zh: require('../assets/flags/zh.png'),
+  ko: require('../assets/flags/ko.png'),
+  uk: require('../assets/flags/uk.png'),
+  ar: require('../assets/flags/ar.png'),
+  cs: require('../assets/flags/cs.png'),
+  da: require('../assets/flags/da.png'),
+  el: require('../assets/flags/el.png'),
+  fi: require('../assets/flags/fi.png'),
+  fil: require('../assets/flags/fil.png'),
+  he: require('../assets/flags/he.png'),
+  hi: require('../assets/flags/hi.png'),
+  hu: require('../assets/flags/hu.png'),
+  id: require('../assets/flags/id.png'),
+  it: require('../assets/flags/it.png'),
+  ms: require('../assets/flags/ms.png'),
+  nl: require('../assets/flags/nl.png'),
+  no: require('../assets/flags/no.png'),
+  pl: require('../assets/flags/pl.png'),
+  ro: require('../assets/flags/ro.png'),
+  sv: require('../assets/flags/sv.png'),
+  th: require('../assets/flags/th.png'),
+  tr: require('../assets/flags/tr.png'),
+  vi: require('../assets/flags/vi.png'),
+};
 
 const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -260,23 +295,32 @@ const SettingsScreen: React.FC = () => {
                 key={lang}
                 style={[
                   styles.modalOption,
+                  styles.languageOption,
                   { borderBottomColor: theme.backgrounds.tertiary },
                 ]}
                 onPress={() => handleLanguageChange(lang)}
               >
-                <Text
-                  style={[
-                    styles.modalOptionText,
-                    {
-                      color:
-                        preferences.language === lang
-                          ? theme.accent.primary
-                          : theme.text.primary,
-                    },
-                  ]}
-                >
-                  {languageNames[lang]}
-                </Text>
+                <View style={styles.languageOptionContent}>
+                  <Image
+                    source={flagImages[lang]}
+                    style={styles.flagImage}
+                    resizeMode="contain"
+                  />
+                  <Text
+                    style={[
+                      styles.modalOptionText,
+                      styles.languageText,
+                      {
+                        color:
+                          preferences.language === lang
+                            ? theme.accent.primary
+                            : theme.text.primary,
+                      },
+                    ]}
+                  >
+                    {languageNames[lang]}
+                  </Text>
+                </View>
                 {preferences.language === lang && (
                   <Text
                     style={[styles.checkmark, { color: theme.accent.primary }]}
@@ -624,6 +668,25 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     ...Typography.body.large,
+  },
+  languageOption: {
+    paddingHorizontal: Spacing.m,
+    paddingVertical: Spacing.s,
+    minHeight: 60,
+  },
+  languageOptionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  flagImage: {
+    width: 24,
+    height: 16,
+    marginRight: Spacing.m,
+    borderRadius: 2,
+  },
+  languageText: {
+    flex: 1,
   },
   checkmark: {
     fontSize: 28,

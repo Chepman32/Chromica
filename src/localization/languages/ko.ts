@@ -9,6 +9,26 @@ export const ko: Translations = {
     done: '완료',
     back: '뒤로',
   },
+  splash: {
+    tagline: '전문가 이미지 효과',
+  },
+  onboarding: {
+    skip: '건너뛰기',
+    getStarted: '시작하기',
+    // Panel 1: Professional Effects
+    effectsHeadline: '전문가 효과',
+    effectsBody: '12개 카테고리의 50개 이상 GPU 가속 효과. 모자이크, 유리, 글리치, 파도, 블러, 스타일화 등. 조정 가능한 파라미터로 실시간 미리보기.',
+    effectPixelate: '픽셀화',
+    effectKaleidoscope: '칼레이도스코프',
+    effectOilPaint: '유화',
+    effectRgbSplit: 'RGB 분리',
+    // Panel 2: Save & Share
+    saveShareHeadline: '저장 및 공유',
+    saveShareBody: '썸네일이 포함된 프로젝트 자동 저장. 언제든지 편집 재개. 고해상도로 Instagram, X, 갤러리 또는 파일로 직접 내보내기.',
+    featureAutoSave: '자동 저장',
+    feature1080pExport: '1080p 내보내기',
+    featureQuickShare: '빠른 공유',
+  },
   settings: {
     title: '설정',
     theme: '테마',
@@ -51,5 +71,7 @@ export const ko: Translations = {
     clearCacheDesc: '캐시된 썸네일 및 임시 파일 제거',
     deleteAllProjects: '모든 프로젝트 삭제',
     deleteAllProjectsDesc: '모든 프로젝트를 영구적으로 삭제',
+    resetOnboarding: '온보딩 재설정',
+    resetOnboardingDesc: '온보딩 화면을 다시 표시',
   },
 };

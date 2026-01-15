@@ -66,7 +66,27 @@ const mapLanguageCode = (langCode: string): Language => {
     'ja': 'ja',
     'zh': 'zh',
     'ko': 'ko',
-    'uk': 'uk'
+    'uk': 'uk',
+    'ar': 'ar',
+    'cs': 'cs',
+    'da': 'da',
+    'el': 'el',
+    'fi': 'fi',
+    'tl': 'fil', // Filipino language code
+    'he': 'he',
+    'hi': 'hi',
+    'hu': 'hu',
+    'id': 'id',
+    'it': 'it',
+    'ms': 'ms',
+    'nl': 'nl',
+    'no': 'no',
+    'pl': 'pl',
+    'ro': 'ro',
+    'sv': 'sv',
+    'th': 'th',
+    'tr': 'tr',
+    'vi': 'vi'
   };
   
   return supportedLanguages[langCode] || 'en';

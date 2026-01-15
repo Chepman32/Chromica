@@ -10,7 +10,27 @@ export type Language =
   | 'ja'
   | 'zh'
   | 'ko'
-  | 'uk';
+  | 'uk'
+  | 'ar'
+  | 'cs'
+  | 'da'
+  | 'el'
+  | 'fi'
+  | 'fil'
+  | 'he'
+  | 'hi'
+  | 'hu'
+  | 'id'
+  | 'it'
+  | 'ms'
+  | 'nl'
+  | 'no'
+  | 'pl'
+  | 'ro'
+  | 'sv'
+  | 'th'
+  | 'tr'
+  | 'vi';
 
 export interface Translations {
   common: {

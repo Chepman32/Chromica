@@ -9,6 +9,26 @@ export const uk: Translations = {
     done: 'Готово',
     back: 'Назад',
   },
+  splash: {
+    tagline: 'Професійні Ефекти Зображень',
+  },
+  onboarding: {
+    skip: 'Пропустити',
+    getStarted: 'Почати',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'Професійні Ефекти',
+    effectsBody: '50+ ефектів з прискоренням GPU в 12 категоріях. Мозаїка, Скло, Гліч, Хвиля, Розмиття, Стилізація та багато іншого. Попередній перегляд в реальному часі з налаштовуваними параметрами.',
+    effectPixelate: 'Пікселізація',
+    effectKaleidoscope: 'Калейдоскоп',
+    effectOilPaint: 'Олійний живопис',
+    effectRgbSplit: 'Розділення RGB',
+    // Panel 2: Save & Share
+    saveShareHeadline: 'Зберегти та Поділитися',
+    saveShareBody: 'Автоматичне збереження проєктів з мініатюрами. Продовжуйте редагування в будь-який час. Експорт високої роздільності прямо в Instagram, X, галерею або файли.',
+    featureAutoSave: 'Автозбереження',
+    feature1080pExport: 'Експорт 1080p',
+    featureQuickShare: 'Швидке Поділитися',
+  },
   settings: {
     title: 'Налаштування',
     theme: 'Тема',
@@ -49,8 +69,10 @@ export const uk: Translations = {
     termsOfService: 'Умови використання',
     termsOfServiceDesc: 'Переглянути умови використання',
     clearCache: 'Очистити кеш',
-    clearCacheDesc: 'Видалити кешовані мініатюри та тимчасові файли',
-    deleteAllProjects: 'Видалити всі проекти',
-    deleteAllProjectsDesc: 'Безповоротно видалити всі проекти',
+    clearCacheDesc: 'Видалити мініатюри та тимчасові файли',
+    deleteAllProjects: 'Видалити всі проєкти',
+    deleteAllProjectsDesc: 'Назавжди видалити всі проєкти',
+    resetOnboarding: 'Скинути онбординг',
+    resetOnboardingDesc: 'Показати екрани онбордингу знову',
   },
 };

@@ -34,7 +34,7 @@ export interface UserPreferences {
   colorScheme: 'auto' | 'light' | 'dark';
   theme: 'light' | 'dark' | 'solar' | 'mono';
   soundEnabled: boolean;
-  language: 'en' | 'ru' | 'es' | 'de' | 'fr' | 'pt' | 'ja' | 'zh' | 'ko' | 'uk';
+  language: 'en' | 'ru' | 'es' | 'de' | 'fr' | 'pt' | 'ja' | 'zh' | 'ko' | 'uk' | 'ar' | 'cs' | 'da' | 'el' | 'fi' | 'fil' | 'he' | 'hi' | 'hu' | 'id' | 'it' | 'ms' | 'nl' | 'no' | 'pl' | 'ro' | 'sv' | 'th' | 'tr' | 'vi';
 }
 
 export interface ExportOptions {

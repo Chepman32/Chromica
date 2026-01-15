@@ -9,6 +9,26 @@ export const zh: Translations = {
     done: '完成',
     back: '返回',
   },
+  splash: {
+    tagline: '专业图像效果',
+  },
+  onboarding: {
+    skip: '跳过',
+    getStarted: '开始',
+    // Panel 1: Professional Effects
+    effectsHeadline: '专业效果',
+    effectsBody: '50多个GPU加速效果，涵盖12个类别。马赛克、玻璃、故障、波浪、模糊、风格化等。实时预览，参数可调。',
+    effectPixelate: '像素化',
+    effectKaleidoscope: '万花筒',
+    effectOilPaint: '油画',
+    effectRgbSplit: 'RGB分离',
+    // Panel 2: Save & Share
+    saveShareHeadline: '保存与分享',
+    saveShareBody: '自动保存项目并生成缩略图。随时恢复编辑。高分辨率导出，直接分享到Instagram、X、相册或文件。',
+    featureAutoSave: '自动保存',
+    feature1080pExport: '1080p导出',
+    featureQuickShare: '快速分享',
+  },
   settings: {
     title: '设置',
     theme: '主题',
@@ -51,5 +71,7 @@ export const zh: Translations = {
     clearCacheDesc: '删除缓存的缩略图和临时文件',
     deleteAllProjects: '删除所有项目',
     deleteAllProjectsDesc: '永久删除所有项目',
+    resetOnboarding: '重置引导',
+    resetOnboardingDesc: '再次显示引导界面',
   },
 };

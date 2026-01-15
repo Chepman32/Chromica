@@ -9,6 +9,26 @@ export const pt: Translations = {
     done: 'Concluído',
     back: 'Voltar',
   },
+  splash: {
+    tagline: 'Efeitos Profissionais de Imagem',
+  },
+  onboarding: {
+    skip: 'Pular',
+    getStarted: 'Começar',
+    // Panel 1: Professional Effects
+    effectsHeadline: 'Efeitos Profissionais',
+    effectsBody: 'Mais de 50 efeitos acelerados por GPU em 12 categorias. Mosaico, Vidro, Glitch, Onda, Desfoque, Estilização e mais. Visualização em tempo real com parâmetros ajustáveis.',
+    effectPixelate: 'Pixelizar',
+    effectKaleidoscope: 'Calidoscópio',
+    effectOilPaint: 'Pintura a Óleo',
+    effectRgbSplit: 'Divisão RGB',
+    // Panel 2: Save & Share
+    saveShareHeadline: 'Salvar & Compartilhar',
+    saveShareBody: 'Salvamento automático de projetos com miniaturas. Retome a edição a qualquer momento. Exporte em alta resolução diretamente para Instagram, X, galeria ou arquivos.',
+    featureAutoSave: 'Salvamento Automático',
+    feature1080pExport: 'Exportação 1080p',
+    featureQuickShare: 'Compartilhamento Rápido',
+  },
   settings: {
     title: 'Configurações',
     theme: 'Tema',
@@ -48,9 +68,11 @@ export const pt: Translations = {
     privacyPolicyDesc: 'Ver nossa política de privacidade',
     termsOfService: 'Termos de serviço',
     termsOfServiceDesc: 'Ver termos de serviço',
-    clearCache: 'Limpar cache',
-    clearCacheDesc: 'Remover miniaturas em cache e arquivos temporários',
-    deleteAllProjects: 'Excluir todos os projetos',
+    clearCache: 'Limpar Cache',
+    clearCacheDesc: 'Remover miniaturas e arquivos temporários',
+    deleteAllProjects: 'Excluir Todos os Projetos',
     deleteAllProjectsDesc: 'Excluir permanentemente todos os projetos',
+    resetOnboarding: 'Redefinir Onboarding',
+    resetOnboardingDesc: 'Mostrar telas de onboarding novamente',
   },
 };
