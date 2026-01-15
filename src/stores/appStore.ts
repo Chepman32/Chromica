@@ -74,6 +74,7 @@ export const mapLanguageCode = (langCode: string): Language => {
 interface AppState {
   hasSeenOnboarding: boolean;
   preferences: UserPreferences;
+  _languageVersion: number; // Force re-render when language changes
 
   // Actions
   setOnboardingSeen: () => void;
@@ -85,6 +86,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
       hasSeenOnboarding: false,
+      _languageVersion: 0,
       preferences: {
         defaultExportFormat: 'png',
         defaultExportQuality: 100,
@@ -101,6 +103,7 @@ export const useAppStore = create<AppState>()(
       updatePreferences: prefs =>
         set(state => ({
           preferences: { ...state.preferences, ...prefs },
+          _languageVersion: state._languageVersion + 1, // Increment version to force re-render
         })),
       resetOnboarding: () => {
         const detectedLanguage = detectDeviceLanguage();
@@ -110,7 +113,8 @@ export const useAppStore = create<AppState>()(
           preferences: {
             ...get().preferences,
             language: detectedLanguage, // Reset to detected language
-          }
+          },
+          _languageVersion: get()._languageVersion + 1,
         });
       },
     }),

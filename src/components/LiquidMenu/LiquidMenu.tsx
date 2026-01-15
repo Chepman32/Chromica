@@ -39,6 +39,7 @@ import Animated, {
   Extrapolation,
   SharedValue,
 } from 'react-native-reanimated';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -127,14 +128,42 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
   onCenterPress,
   satellites,
   centerIcon,
-  centerLabel = 'Start',
+  centerLabel,
 }) => {
+  const t = useTranslation();
+  const liquidMenuT = (t as any)?.liquidMenu ?? (t as any)?.settings?.liquidMenu;
+
+  // Memoize satellite items to prevent unnecessary recalculations
+  const memoizedSatellites = useMemo(() => satellites, [satellites]);
+
   // Center position
   const centerX = SCREEN_WIDTH / 2;
   const centerY = SCREEN_HEIGHT / 2 - 50;
 
   // Reduce motion preference
   const [reduceMotion, setReduceMotion] = React.useState(false);
+
+  // Shared values for animations
+  const parentOpacity = useSharedValue(0);
+  const parentScale = useSharedValue(0);
+  
+  // Individual satellite progress shared values
+  const satelliteProgress0 = useSharedValue(0);
+  const satelliteProgress1 = useSharedValue(0);
+  const satelliteProgress2 = useSharedValue(0);
+  const satelliteProgress3 = useSharedValue(0);
+  const satelliteProgress4 = useSharedValue(0);
+  const satelliteProgress5 = useSharedValue(0);
+  const satelliteProgress6 = useSharedValue(0);
+  const satelliteProgress7 = useSharedValue(0);
+  
+  const satelliteAngles = useMemo(() => {
+    const count = satellites.length;
+    return Array.from({ length: count }, (_, index) => {
+      const angleStep = (2 * Math.PI) / count;
+      return -Math.PI / 2 + index * angleStep; // Start from top
+    });
+  }, [satellites.length]);
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
@@ -144,39 +173,6 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
     );
     return () => subscription.remove();
   }, []);
-
-  // Parent bubble animation values
-  const parentScale = useSharedValue(0);
-  const parentOpacity = useSharedValue(0);
-
-  // Satellite animation values - positions relative to center
-  const satelliteProgress = satellites.map(() => useSharedValue(0));
-
-  // Calculate satellite positions based on count
-  const satelliteAngles = useMemo(() => {
-    const count = satellites.length;
-    const startAngle = -Math.PI / 2; // Start from top
-    return satellites.map((_, index) => {
-      return startAngle + (2 * Math.PI * index) / count;
-    });
-  }, [satellites.length]);
-
-  // Satellite X/Y positions for Skia rendering
-  const satelliteX = satellites.map((_, index) => {
-    return useDerivedValue(() => {
-      const progress = satelliteProgress[index].value;
-      const angle = satelliteAngles[index];
-      return centerX + Math.cos(angle) * ORBITAL_DISTANCE * progress;
-    });
-  });
-
-  const satelliteY = satellites.map((_, index) => {
-    return useDerivedValue(() => {
-      const progress = satelliteProgress[index].value;
-      const angle = satelliteAngles[index];
-      return centerY + Math.sin(angle) * ORBITAL_DISTANCE * progress;
-    });
-  });
 
   // Entrance animation
   useEffect(() => {
@@ -190,12 +186,24 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
     // Satellites pop out with stagger
     satellites.forEach((_, index) => {
       const delay = reduceMotion ? 0 : ENTRANCE_DELAY + index * STAGGER_DELAY;
-      satelliteProgress[index].value = withDelay(
-        delay,
-        withSpring(1, SPRING_CONFIG),
-      );
+      const progressValue = [
+        satelliteProgress0,
+        satelliteProgress1,
+        satelliteProgress2,
+        satelliteProgress3,
+        satelliteProgress4,
+        satelliteProgress5,
+        satelliteProgress6,
+        satelliteProgress7,
+      ][index];
+      if (progressValue) {
+        progressValue.value = withDelay(
+          delay,
+          withSpring(1, SPRING_CONFIG),
+        );
+      }
     });
-  }, [reduceMotion]);
+  }, [reduceMotion, parentOpacity, parentScale, satelliteProgress0, satelliteProgress1, satelliteProgress2, satelliteProgress3, satelliteProgress4, satelliteProgress5, satelliteProgress6, satelliteProgress7, satellites]);
 
   // Parent animated styles
   const parentAnimatedStyle = useAnimatedStyle(() => ({
@@ -204,10 +212,10 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
   }));
 
   // Satellite animated styles
-  const satelliteAnimatedStyles = satellites.map((_, index) => {
-    return useAnimatedStyle(() => {
-      const progress = satelliteProgress[index].value;
-      const angle = satelliteAngles[index];
+  const satelliteAnimatedStyles = [
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress0.value;
+      const angle = satelliteAngles[0] || 0;
       const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
       const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
 
@@ -221,8 +229,127 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
           },
         ],
       };
-    });
-  });
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress1.value;
+      const angle = satelliteAngles[1] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress2.value;
+      const angle = satelliteAngles[2] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress3.value;
+      const angle = satelliteAngles[3] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress4.value;
+      const angle = satelliteAngles[4] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress5.value;
+      const angle = satelliteAngles[5] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress6.value;
+      const angle = satelliteAngles[6] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+    useAnimatedStyle(() => {
+      const progress = satelliteProgress7.value;
+      const angle = satelliteAngles[7] || 0;
+      const x = Math.cos(angle) * ORBITAL_DISTANCE * progress;
+      const y = Math.sin(angle) * ORBITAL_DISTANCE * progress;
+
+      return {
+        opacity: progress,
+        transform: [
+          { translateX: x },
+          { translateY: y },
+          {
+            scale: interpolate(progress, [0, 1], [0.3, 1], Extrapolation.CLAMP),
+          },
+        ],
+      };
+    }),
+  ];
 
   // Center X/Y for Skia (shared values for consistency)
   const parentX = useSharedValue(centerX);
@@ -238,12 +365,8 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
       pulseScale.value = withSpring(
         1.05,
         { damping: 8, stiffness: 100 },
-        () => {
-          pulseScale.value = withSpring(1, { damping: 8, stiffness: 100 });
-        },
       );
     };
-
     const interval = setInterval(pulse, 2000);
     return () => clearInterval(interval);
   }, [reduceMotion]);
@@ -256,32 +379,11 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
     <View style={styles.container}>
       {/* Skia Canvas Layer - Gooey Effect */}
       <Canvas style={styles.canvas}>
-        <Group
-          layer={
-            <Paint>
-              <Blur blur={20} />
-              <ColorMatrix matrix={ALPHA_THRESHOLD_MATRIX} />
-            </Paint>
-          }
-        >
-          {/* Parent bubble */}
-          <AnimatedBubble
-            x={parentX}
-            y={parentY}
-            radius={PARENT_RADIUS + 8}
-            color="#D4AF37"
-          />
-
-          {/* Satellite bubbles */}
-          {satellites.map((_, index) => (
-            <AnimatedBubble
-              key={index}
-              x={satelliteX[index]}
-              y={satelliteY[index]}
-              radius={CHILD_RADIUS + 5}
-              color="#3A3A4E"
-            />
-          ))}
+        <Group>
+          <Paint>
+            <Blur blur={20} />
+            <ColorMatrix matrix={ALPHA_THRESHOLD_MATRIX} />
+          </Paint>
         </Group>
       </Canvas>
 
@@ -300,8 +402,8 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
               style={styles.parentButton}
               onPress={onCenterPress}
               accessibilityRole="button"
-              accessibilityLabel={`${centerLabel}. Open image picker`}
-              accessibilityHint="Double tap to select an image to edit"
+              accessibilityLabel={`${centerLabel ?? ''}. ${liquidMenuT?.openImagePicker ?? 'Open image picker'}`}
+              accessibilityHint={`${liquidMenuT?.doubleTapToEdit ?? 'Double tap to select an image to edit'}`}
             >
               {centerIcon && (
                 <Image
@@ -315,7 +417,7 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
         </Animated.View>
 
         {/* Satellite Buttons */}
-        {satellites.map((satellite, index) => (
+        {memoizedSatellites.map((satellite, index) => (
           <Animated.View
             key={satellite.id}
             style={[
@@ -324,19 +426,23 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
               satelliteAnimatedStyles[index],
             ]}
           >
-            <Pressable
+            <Animated.View
               style={styles.satelliteButton}
-              onPress={satellite.onPress}
-              accessibilityRole="button"
-              accessibilityLabel={satellite.label}
             >
-              <Image
-                source={satellite.icon}
-                style={styles.satelliteIcon}
-                resizeMode="contain"
-              />
-            </Pressable>
-            <Text style={styles.satelliteLabel}>{satellite.label}</Text>
+              <Pressable
+                style={styles.satelliteButton}
+                onPress={satellite.onPress}
+                accessibilityRole="button"
+                accessibilityLabel={satellite.label}
+              >
+                <Image
+                  source={satellite.icon}
+                  style={styles.satelliteIcon}
+                  resizeMode="contain"
+                />
+              </Pressable>
+              <Text style={styles.satelliteLabel}>{satellite.label}</Text>
+            </Animated.View>
           </Animated.View>
         ))}
       </View>

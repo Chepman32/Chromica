@@ -1,4 +1,4 @@
-// Translations for Chromica
+// Localization system for Chromica
 
 export type Language =
   | 'en'
@@ -41,6 +41,13 @@ export interface Translations {
     done: string;
     back: string;
   };
+  home?: {
+    tapToStartEditing: string;
+    startEditing: string;
+    selectImageHint: string;
+    recent: string;
+    mixes: string;
+  };
   splash: {
     tagline: string;
   };
@@ -60,6 +67,10 @@ export interface Translations {
     featureAutoSave: string;
     feature1080pExport: string;
     featureQuickShare: string;
+  };
+  liquidMenu: {
+    openImagePicker: string;
+    doubleTapToEdit: string;
   };
   settings: {
     title: string;
@@ -107,5 +118,9 @@ export interface Translations {
     deleteAllProjectsDesc: string;
     resetOnboarding: string;
     resetOnboardingDesc: string;
+    liquidMenu: {
+      openImagePicker: string;
+      doubleTapToEdit: string;
+    };
   };
-}
+};

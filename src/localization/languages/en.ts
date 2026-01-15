@@ -74,6 +74,10 @@ export const en: Translations = {
     deleteAllProjects: 'Delete All Projects',
     deleteAllProjectsDesc: 'Permanently delete all projects',
     resetOnboarding: 'Reset Onboarding',
-    resetOnboardingDesc: 'Show the onboarding screens again',
+    resetOnboardingDesc: 'Show onboarding screens again',
+    liquidMenu: {
+      openImagePicker: 'Open image picker',
+      doubleTapToEdit: 'Double tap to select an image to edit',
+    },
   },
 };

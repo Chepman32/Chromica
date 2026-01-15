@@ -4,7 +4,11 @@
  */
 
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+} from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -13,16 +17,19 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import { useTranslation } from '../hooks/useTranslation';
+import { translations } from '../localization';
 
 interface ChromicaSplashScreenProps {
-  onFinish?: () => void;
+  onFinish: () => void;
+  initialLanguage?: string;
 }
 
 export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
   onFinish,
+  initialLanguage,
 }) => {
-  const t = useTranslation();
+  // Use initialLanguage if provided, otherwise fall back to useTranslation
+  const t = initialLanguage ? translations[initialLanguage as keyof typeof translations] : useTranslation();
   
   // Animation values
   const logoOpacity = useSharedValue(0);
@@ -86,10 +93,10 @@ export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
 
       {/* App Name */}
       <Animated.View style={[styles.textContainer, textStyle]}>
-        <Animated.Text style={styles.appName}>CHROMICA</Animated.Text>
-        <Animated.Text style={styles.tagline}>
+        <Text style={styles.appName}>CHROMICA</Text>
+        <Text style={styles.tagline}>
           {t.splash.tagline}
-        </Animated.Text>
+        </Text>
       </Animated.View>
     </View>
   );

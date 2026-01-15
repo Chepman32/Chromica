@@ -31,8 +31,8 @@ import Animated, {
 
 import { LiquidMenu, SatelliteItem } from '../components/LiquidMenu/LiquidMenu';
 import { Colors } from '../constants/colors';
-import { Typography } from '../constants/typography';
 import { Spacing } from '../constants/spacing';
+import { useTranslation } from '../hooks/useTranslation';
 
 const menuIcons = {
   settings: require('../assets/icons/homescreenMenu/setting.png'),
@@ -45,6 +45,9 @@ const menuIcons = {
 export const LiquidRadialHomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const t = useTranslation();
+
+  const homeT = (t as any)?.home;
 
   // Check reduce motion preference
   useEffect(() => {
@@ -121,25 +124,25 @@ export const LiquidRadialHomeScreen: React.FC = () => {
   const satellites: SatelliteItem[] = [
     {
       id: 'settings',
-      label: 'Settings',
+      label: t.settings.title,
       icon: menuIcons.settings,
       onPress: handleSettings,
     },
     {
       id: 'recent',
-      label: 'Recent',
+      label: homeT?.recent ?? 'Recent',
       icon: menuIcons.recent,
       onPress: handleRecent,
     },
     {
       id: 'mixes',
-      label: 'Mixes',
+      label: homeT?.mixes ?? 'Mixes',
       icon: menuIcons.mixes,
       onPress: handleMixes,
     },
     {
       id: 'about',
-      label: 'About',
+      label: t.settings.about,
       icon: menuIcons.about,
       onPress: handleAbout,
     },
@@ -155,7 +158,9 @@ export const LiquidRadialHomeScreen: React.FC = () => {
         {/* Header */}
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
           <Text style={styles.title}>Chromica</Text>
-          <Text style={styles.subtitle}>Tap to start editing</Text>
+          <Text style={styles.subtitle}>
+            {homeT?.tapToStartEditing ?? 'Tap to start editing'}
+          </Text>
         </Animated.View>
 
         {/* Liquid Menu */}
@@ -164,7 +169,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
             onCenterPress={handleOpenImagePicker}
             satellites={satellites}
             centerIcon={menuIcons.main}
-            centerLabel="Start Editing"
+            centerLabel={homeT?.startEditing ?? 'Start Editing'}
           />
         </View>
 
@@ -174,7 +179,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
           entering={reduceMotion ? undefined : FadeIn.delay(1000).duration(500)}
         >
           <Text style={styles.footerText}>
-            Select an image to apply stunning effects
+            {homeT?.selectImageHint ?? 'Select an image to apply stunning effects'}
           </Text>
         </Animated.View>
       </SafeAreaView>

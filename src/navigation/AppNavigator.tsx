@@ -46,6 +46,7 @@ export default function AppNavigator() {
   const currentLanguage = useAppStore(state => state.preferences.language);
   const updatePreferences = useAppStore(state => state.updatePreferences);
   const [showSplash, setShowSplash] = useState(true);
+  const [detectedLanguage, setDetectedLanguage] = useState<string>('en');
 
   useEffect(() => {
     // Splash screen duration matches animation (2.8 seconds)
@@ -55,20 +56,21 @@ export default function AppNavigator() {
 
   // Re-detect device language if onboarding hasn't been completed
   useEffect(() => {
-    if (!showSplash && !hasSeenOnboarding) {
-      const detectedLanguage = detectDeviceLanguage();
-      console.log('Language detection - detected:', detectedLanguage, 'current:', currentLanguage);
-
+    if (!hasSeenOnboarding) {
+      const detectedLang = detectDeviceLanguage();
+      console.log('Language detection - detected:', detectedLang, 'current:', currentLanguage);
+      setDetectedLanguage(detectedLang);
+      
       // Always update language if different, regardless of hasCheckedLanguage
-      if (detectedLanguage !== currentLanguage) {
-        console.log('Updating language from', currentLanguage, 'to', detectedLanguage);
-        updatePreferences({ language: detectedLanguage });
+      if (detectedLang !== currentLanguage) {
+        console.log('Updating language from', currentLanguage, 'to', detectedLang);
+        updatePreferences({ language: detectedLang });
       }
     }
-  }, [showSplash, hasSeenOnboarding, currentLanguage, updatePreferences]);
+  }, [hasSeenOnboarding, currentLanguage, updatePreferences]);
 
   if (showSplash) {
-    return <ChromicaSplashScreen onFinish={() => setShowSplash(false)} />;
+    return <ChromicaSplashScreen onFinish={() => setShowSplash(false)} initialLanguage={detectedLanguage} />;
   }
 
   return (
