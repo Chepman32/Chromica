@@ -1,6 +1,6 @@
 // Onboarding carousel with parallax effects
 
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
@@ -22,10 +22,9 @@ import Svg, {
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  interpolate,
   useAnimatedScrollHandler,
+  interpolate,
   Extrapolation,
-  runOnJS,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -453,36 +452,17 @@ const OnboardingScreen: React.FC = () => {
   const t = useTranslation();
   const setOnboardingSeen = useAppStore(state => state.setOnboardingSeen);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useSharedValue(0);
-
-  const updateCurrentIndex = (index: number) => {
-    setCurrentIndex(index);
-  };
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: event => {
       scrollX.value = event.contentOffset.x;
-      const index = Math.round(event.contentOffset.x / screenWidth);
-      runOnJS(updateCurrentIndex)(index);
     },
   });
 
   const handleSkip = () => {
     setOnboardingSeen();
     navigation.navigate('Home' as never);
-  };
-
-  const handleNext = () => {
-    if (currentIndex < 1) {
-      const nextIndex = currentIndex + 1;
-      scrollViewRef.current?.scrollTo({
-        x: nextIndex * screenWidth,
-        animated: true,
-      });
-    } else {
-      handleSkip();
-    }
   };
 
   const renderDot = (index: number) => {

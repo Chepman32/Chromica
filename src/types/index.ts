@@ -9,6 +9,7 @@ export interface ProjectEffect {
 
 export interface Project {
   id: string;
+  name?: string; // User-defined project name
   sourceImagePath: string;
   sourceImageDimensions: { width: number; height: number };
   thumbnailPath: string;
@@ -34,6 +35,7 @@ export interface UserPreferences {
   colorScheme: 'auto' | 'light' | 'dark';
   theme: 'light' | 'dark' | 'solar' | 'mono';
   soundEnabled: boolean;
+  confirmDelete: boolean; // Show confirmation before deleting projects
   language: 'en' | 'ru' | 'es' | 'de' | 'fr' | 'pt' | 'ja' | 'zh' | 'ko' | 'uk' | 'ar' | 'cs' | 'da' | 'el' | 'fi' | 'fil' | 'he' | 'hi' | 'hu' | 'id' | 'it' | 'ms' | 'nl' | 'no' | 'pl' | 'ro' | 'sv' | 'th' | 'tr' | 'vi';
 }
 

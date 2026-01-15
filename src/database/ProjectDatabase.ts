@@ -110,6 +110,30 @@ export class ProjectDatabase {
     }
   }
 
+  // Alias for deleteMultiple to match store usage
+  static async deleteMany(ids: string[]): Promise<void> {
+    return this.deleteMultiple(ids);
+  }
+
+  // Update project name
+  static async updateName(id: string, name: string): Promise<void> {
+    try {
+      const project = await this.getById(id);
+      if (!project) {
+        throw new Error('Project not found');
+      }
+
+      project.name = name;
+      project.updatedAt = new Date();
+      await this.save(project);
+
+      console.log('Project renamed:', id, name);
+    } catch (error) {
+      console.error('Failed to update project name:', error);
+      throw new Error('Failed to update project name');
+    }
+  }
+
   // Duplicate a project
   static async duplicate(id: string): Promise<Project | null> {
     try {

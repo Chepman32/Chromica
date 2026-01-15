@@ -3,12 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAppStore } from '../stores/appStore';
+import { useAppStore, detectDeviceLanguage } from '../stores/appStore';
 
 // Screens
 import { ChromicaSplashScreen } from '../screens/ChromicaSplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
-import HomeScreen from '../screens/HomeScreen';
 import { LiquidRadialHomeScreen } from '../screens/LiquidRadialHomeScreen';
 import { RecentProjectsScreen } from '../screens/RecentProjectsScreen';
 import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
@@ -44,6 +43,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function AppNavigator() {
   const hasSeenOnboarding = useAppStore(state => state.hasSeenOnboarding);
+  const currentLanguage = useAppStore(state => state.preferences.language);
+  const updatePreferences = useAppStore(state => state.updatePreferences);
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
@@ -51,6 +52,20 @@ export default function AppNavigator() {
     const timer = setTimeout(() => setShowSplash(false), 2800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Re-detect device language if onboarding hasn't been completed
+  useEffect(() => {
+    if (!showSplash && !hasSeenOnboarding) {
+      const detectedLanguage = detectDeviceLanguage();
+      console.log('Language detection - detected:', detectedLanguage, 'current:', currentLanguage);
+
+      // Always update language if different, regardless of hasCheckedLanguage
+      if (detectedLanguage !== currentLanguage) {
+        console.log('Updating language from', currentLanguage, 'to', detectedLanguage);
+        updatePreferences({ language: detectedLanguage });
+      }
+    }
+  }, [showSplash, hasSeenOnboarding, currentLanguage, updatePreferences]);
 
   if (showSplash) {
     return <ChromicaSplashScreen onFinish={() => setShowSplash(false)} />;

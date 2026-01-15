@@ -16,6 +16,7 @@ interface ProjectGalleryState {
   addProject: (project: Project) => void;
   deleteProjects: (ids: string[]) => Promise<void>;
   duplicateProject: (id: string) => Promise<void>;
+  renameProject: (id: string, name: string) => Promise<void>;
   enterSelectionMode: () => void;
   exitSelectionMode: () => void;
   toggleSelection: (id: string) => void;
@@ -93,6 +94,7 @@ export const useProjectGalleryStore = create<ProjectGalleryState>(
       const duplicate: Project = {
         ...original,
         id: generateId(),
+        name: original.name ? `${original.name} (Copy)` : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -102,6 +104,19 @@ export const useProjectGalleryStore = create<ProjectGalleryState>(
         set(state => ({ projects: [duplicate, ...state.projects] }));
       } catch (error) {
         console.error('Failed to duplicate project:', error);
+      }
+    },
+
+    renameProject: async (id, name) => {
+      try {
+        await ProjectDatabase.updateName(id, name);
+        set(state => ({
+          projects: state.projects.map(p =>
+            p.id === id ? { ...p, name, updatedAt: new Date() } : p,
+          ),
+        }));
+      } catch (error) {
+        console.error('Failed to rename project:', error);
       }
     },
 

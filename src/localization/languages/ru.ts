@@ -57,6 +57,8 @@ export const ru: Translations = {
     defaultExportQuality: 'Качество экспорта по умолчанию',
     autoSaveProjects: 'Автосохранение проектов',
     autoSaveProjectsDesc: 'Автоматическое сохранение каждые 30 секунд',
+    confirmDelete: 'Подтверждать удаление',
+    confirmDeleteDesc: 'Показывать диалог подтверждения при удалении проектов',
     hapticFeedback: 'Тактильная обратная связь',
     hapticFeedbackDesc: 'Вибрация при взаимодействии',
     version: 'Версия',

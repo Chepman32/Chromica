@@ -4,58 +4,37 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserPreferences } from '../types';
-import { Platform, NativeModules } from 'react-native';
 import { Language } from '../localization';
 
-// Function to detect device language
-const detectDeviceLanguage = (): Language => {
+// Function to detect device language using react-native-localize
+export const detectDeviceLanguage = (): Language => {
   try {
-    let deviceLanguage: string | undefined;
-    
-    // For iOS, try to get the preferred language
-    if (Platform.OS === 'ios') {
-      // Try Settings.AppleLanguages first
-      const appleLanguages = NativeModules.Settings?.AppleLanguages || 
-                           NativeModules.Settings?.settings?.AppleLanguages;
-      
-      if (appleLanguages && appleLanguages.length > 0) {
-        deviceLanguage = appleLanguages[0];
-        console.log('iOS AppleLanguages[0]:', deviceLanguage);
+    // Lazy require to safely handle when native module isn't available
+    const RNLocalize = require('react-native-localize');
+
+    // Get device locales (returns array of {languageTag, languageCode, countryCode, ...})
+    const locales = RNLocalize.getLocales();
+    console.log('Device locales:', JSON.stringify(locales));
+
+    if (locales && locales.length > 0) {
+      const langCode = locales[0].languageCode?.toLowerCase();
+      console.log('Device language code:', langCode);
+
+      if (langCode) {
+        const mappedLanguage = mapLanguageCode(langCode);
+        console.log('Final mapped language:', mappedLanguage);
+        return mappedLanguage;
       }
-      
-      // Fallback: try to get from device locale
-      if (!deviceLanguage) {
-        deviceLanguage = 'en'; // Hardcoded fallback for testing
-      }
-    } 
-    // For Android
-    else if (Platform.OS === 'android') {
-      deviceLanguage = NativeModules.I18nManager?.localeIdentifier;
-      console.log('Android localeIdentifier:', deviceLanguage);
-      
-      if (!deviceLanguage) {
-        deviceLanguage = 'en'; // Hardcoded fallback for testing
-      }
-    }
-    
-    if (deviceLanguage) {
-      // Extract language code (handle formats like 'en-US', 'en_US', 'en')
-      const langCode = deviceLanguage.split('-')[0].split('_')[0].toLowerCase();
-      console.log('Extracted language code:', langCode);
-      
-      const mappedLanguage = mapLanguageCode(langCode);
-      console.log('Final mapped language:', mappedLanguage);
-      return mappedLanguage;
     }
   } catch (error) {
     console.warn('Failed to detect device language:', error);
   }
-  
+
   console.log('Using fallback language: en');
   return 'en'; // Fallback to English
 };
 
-const mapLanguageCode = (langCode: string): Language => {
+export const mapLanguageCode = (langCode: string): Language => {
   const supportedLanguages: Record<string, Language> = {
     'en': 'en',
     'ru': 'ru', 
@@ -114,7 +93,8 @@ export const useAppStore = create<AppState>()(
         colorScheme: 'auto',
         theme: 'dark',
         soundEnabled: true,
-        language: detectDeviceLanguage(), // Auto-detect language on first launch
+        confirmDelete: true, // Default: confirm before deleting projects
+        language: 'en', // Default to English, will be updated after app initialization
       },
 
       setOnboardingSeen: () => set({ hasSeenOnboarding: true }),

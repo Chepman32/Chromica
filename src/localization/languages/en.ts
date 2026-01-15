@@ -56,6 +56,8 @@ export const en: Translations = {
     defaultExportQuality: 'Default Export Quality',
     autoSaveProjects: 'Auto-Save Projects',
     autoSaveProjectsDesc: 'Automatically save every 30 seconds',
+    confirmDelete: 'Confirm before deleting',
+    confirmDeleteDesc: 'Show confirmation dialog when deleting projects',
     hapticFeedback: 'Haptic Feedback',
     hapticFeedbackDesc: 'Vibration for interactions',
     version: 'Version',

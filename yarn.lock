@@ -1475,6 +1475,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dominicstop/ts-event-emitter@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@dominicstop/ts-event-emitter@npm:1.1.0"
+  checksum: 10c0/fe16c03132736a0a798c232636ab6b127fd8063509511ccafbd99405c224a106cfb7a8d4af13c4f6f412ec0ea3baae3678aa2c8c09d81c9985c423d476404e1a
+  languageName: node
+  linkType: hard
+
 "@egjs/hammerjs@npm:^2.0.17":
   version: 2.0.17
   resolution: "@egjs/hammerjs@npm:2.0.17"
@@ -3062,6 +3069,9 @@ __metadata:
     react-native-gesture-handler: "npm:^2.14.0"
     react-native-haptic-feedback: "npm:^2.2.0"
     react-native-image-picker: "npm:^7.1.0"
+    react-native-ios-context-menu: "npm:^3.2.1"
+    react-native-ios-utilities: "npm:5.1.8-1"
+    react-native-localize: "npm:^3.6.1"
     react-native-mmkv: "npm:^2.11.0"
     react-native-reanimated: "npm:^3.6.0"
     react-native-safe-area-context: "npm:^5.5.2"
@@ -8623,6 +8633,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-native-ios-context-menu@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "react-native-ios-context-menu@npm:3.2.1"
+  dependencies:
+    "@dominicstop/ts-event-emitter": "npm:^1.1.0"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-ios-utilities: "*"
+  checksum: 10c0/501d1f0934011f8b24a1d7e683a69df7368311781527097d9d8b3ad4d4e19c392ecd55603b386960fa13f23d6014ecc34f84cf2370b7683e2977ad906ee23e1a
+  languageName: node
+  linkType: hard
+
+"react-native-ios-utilities@npm:5.1.8-1":
+  version: 5.1.8-1
+  resolution: "react-native-ios-utilities@npm:5.1.8-1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/23d9e90bfcf47cb1da44bdac51f696f7e986ee727448b87061a88aef2d3af144437612b52279d387dfcfa72aef6dd61fb62f39404fba07acc1d4d5ae33b87284
+  languageName: node
+  linkType: hard
+
 "react-native-is-edge-to-edge@npm:1.1.7":
   version: 1.1.7
   resolution: "react-native-is-edge-to-edge@npm:1.1.7"
@@ -8640,6 +8673,23 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 10c0/87d20b900aded7d44c90afb946a7aa03c23a94ca3dd547bdddc2303b85357e4aab22567a57b19f1558d6c8be7058e3dcf34faa1e15182d1604f90974266d9a1d
+  languageName: node
+  linkType: hard
+
+"react-native-localize@npm:^3.6.1":
+  version: 3.6.1
+  resolution: "react-native-localize@npm:3.6.1"
+  peerDependencies:
+    "@expo/config-plugins": "*"
+    react: "*"
+    react-native: "*"
+    react-native-macos: "*"
+  peerDependenciesMeta:
+    "@expo/config-plugins":
+      optional: true
+    react-native-macos:
+      optional: true
+  checksum: 10c0/d36f00c07d390aa86e72064266d4b21924920a900647bb99175aeccc7f67aad8e4fcebc7c4a932f3faf97221a0e3df78bd08f204bd4ba6fc5afc8386c8d4be71
   languageName: node
   linkType: hard
 

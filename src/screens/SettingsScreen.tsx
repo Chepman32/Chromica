@@ -473,6 +473,24 @@ const SettingsScreen: React.FC = () => {
                 thumbColor={theme.text.primary}
               />,
             )}
+            {renderSettingRow(
+              t.settings.confirmDelete,
+              t.settings.confirmDeleteDesc,
+              <Switch
+                value={preferences.confirmDelete ?? true}
+                onValueChange={value => {
+                  if (preferences.hapticFeedback) {
+                    triggerHaptic('selection');
+                  }
+                  updatePreferences({ confirmDelete: value });
+                }}
+                trackColor={{
+                  false: theme.backgrounds.tertiary,
+                  true: theme.accent.primary,
+                }}
+                thumbColor={theme.text.primary}
+              />,
+            )}
           </>,
         )}
 

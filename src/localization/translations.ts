@@ -88,6 +88,8 @@ export interface Translations {
     defaultExportQuality: string;
     autoSaveProjects: string;
     autoSaveProjectsDesc: string;
+    confirmDelete: string;
+    confirmDeleteDesc: string;
     hapticFeedback: string;
     hapticFeedbackDesc: string;
     version: string;
