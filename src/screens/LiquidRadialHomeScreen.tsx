@@ -111,12 +111,10 @@ export const LiquidRadialHomeScreen: React.FC = () => {
     navigation.navigate('Mixes' as never);
   }, [navigation]);
 
-  // Show About (could be a modal or screen)
+  // Show About screen
   const handleAbout = useCallback(() => {
     ReactNativeHapticFeedback.trigger('selection');
-    // For now, navigate to settings or show a modal
-    // You can replace this with an About screen navigation
-    navigation.navigate('Settings' as never);
+    navigation.navigate('About' as never);
   }, [navigation]);
 
   // Satellite menu items

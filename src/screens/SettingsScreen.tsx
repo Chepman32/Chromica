@@ -89,17 +89,6 @@ const SettingsScreen: React.FC = () => {
     Alert.alert('Export All Projects', 'This Pro feature will be implemented');
   };
 
-  const handleRateApp = () => {
-    Alert.alert('Rate Chromica', 'This will open the App Store rating dialog');
-  };
-
-  const handleContactSupport = () => {
-    Alert.alert(
-      'Contact Support',
-      'This will open email composer to support@chromica.app',
-    );
-  };
-
   const handleClearCache = () => {
     Alert.alert(
       'Clear Cache',
@@ -483,54 +472,6 @@ const SettingsScreen: React.FC = () => {
                 }}
                 thumbColor={theme.text.primary}
               />,
-            )}
-          </>,
-        )}
-
-        {/* About Section */}
-        {renderSection(
-          t.settings.about,
-          <>
-            {renderSettingRow(
-              t.settings.version,
-              '1.0.0',
-              <Text
-                style={[styles.settingValue, { color: theme.text.secondary }]}
-              >
-                1.0.0
-              </Text>,
-            )}
-            {renderSettingRow(
-              t.settings.rateApp,
-              t.settings.rateAppDesc,
-              undefined,
-              handleRateApp,
-            )}
-            {renderSettingRow(
-              t.settings.contactSupport,
-              t.settings.contactSupportDesc,
-              undefined,
-              handleContactSupport,
-            )}
-            {renderSettingRow(
-              t.settings.privacyPolicy,
-              t.settings.privacyPolicyDesc,
-              undefined,
-              () =>
-                Alert.alert(
-                  t.settings.privacyPolicy,
-                  'This will open chromica.app/privacy',
-                ),
-            )}
-            {renderSettingRow(
-              t.settings.termsOfService,
-              t.settings.termsOfServiceDesc,
-              undefined,
-              () =>
-                Alert.alert(
-                  t.settings.termsOfService,
-                  'This will open chromica.app/terms',
-                ),
             )}
           </>,
         )}

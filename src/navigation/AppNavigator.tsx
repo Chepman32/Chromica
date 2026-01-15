@@ -15,6 +15,7 @@ import { EffectsEditorScreen } from '../screens/EffectsEditorScreen';
 import { MixesScreen } from '../screens/MixesScreen';
 import { ExportScreen } from '../screens/ExportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import AboutScreen from '../screens/AboutScreen';
 import ImagePickerScreen from '../screens/ImagePickerScreen';
 
 export type RootStackParamList = {
@@ -35,6 +36,7 @@ export type RootStackParamList = {
     params?: Record<string, any>;
   };
   Settings: undefined;
+  About: undefined;
   ImagePicker: undefined;
 };
 
@@ -109,6 +111,7 @@ export default function AppNavigator() {
         {/* Modal Screens */}
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
           <Stack.Screen name="Settings" component={SettingsScreen} />
+          <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="ImagePicker" component={ImagePickerScreen} />
         </Stack.Group>
       </Stack.Navigator>
