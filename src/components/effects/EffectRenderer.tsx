@@ -2228,9 +2228,27 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform float colorShift;
             ${COMMON_NOISE_SNIPPET}
 
-            float3 hsl2rgb(float h, float s, float l) {
-              float3 rgb = clamp(abs(mod(h * 6.0 + float3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
-              return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
+            // Create a single aurora curtain
+            float curtain(float2 uv, float xPos, float width, float waveFreq, float waveAmp, float seed) {
+              // Wavy horizontal displacement - curtains wave side to side
+              float wave = sin(uv.y * waveFreq + seed * 10.0) * waveAmp;
+              wave += fbm(float2(uv.y * 3.0 + seed, seed)) * waveAmp * 0.5;
+
+              float x = xPos + wave;
+
+              // Distance from curtain center
+              float dist = abs(uv.x - x);
+
+              // Soft curtain edge
+              float curtainShape = smoothstep(width, width * 0.1, dist);
+
+              // Vertical fade - bright at top, fades toward bottom
+              float vertFade = smoothstep(0.0, 0.4, uv.y) * smoothstep(1.1, 0.5, uv.y);
+
+              // Add some vertical variation with noise
+              float vertNoise = fbm(float2(uv.x * 2.0 + seed, uv.y * 4.0)) * 0.4 + 0.6;
+
+              return curtainShape * vertFade * vertNoise;
             }
 
             half4 main(float2 coord) {
@@ -2239,30 +2257,47 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
               float2 uv = coord / resolution;
 
-              // Aurora waves - horizontal bands that flow
-              float wave1 = sin(uv.x * 8.0 + fbm(float2(uv.x * 2.0, uv.y * 0.5)) * 3.0) * 0.5 + 0.5;
-              float wave2 = sin(uv.x * 12.0 + fbm(float2(uv.x * 3.0, uv.y * 0.3)) * 4.0) * 0.5 + 0.5;
-              float wave3 = sin(uv.x * 6.0 + fbm(float2(uv.x * 1.5, uv.y * 0.7)) * 2.0) * 0.5 + 0.5;
+              // Hue offset from parameter (0-360 degrees)
+              float hueBase = colorShift / 360.0;
 
-              // Vertical position affects aurora visibility
-              float verticalMask = smoothstep(0.0, 0.3, uv.y) * smoothstep(1.0, 0.5, uv.y);
+              // Create multiple aurora curtains at different positions
+              float c1 = curtain(uv, 0.2, 0.15, 4.0, 0.08, 1.0);
+              float c2 = curtain(uv, 0.4, 0.12, 5.0, 0.06, 2.3);
+              float c3 = curtain(uv, 0.55, 0.18, 3.5, 0.10, 3.7);
+              float c4 = curtain(uv, 0.75, 0.14, 4.5, 0.07, 4.1);
+              float c5 = curtain(uv, 0.9, 0.10, 5.5, 0.05, 5.5);
 
-              // Combine waves with noise for organic movement
-              float n = fbm(float2(uv.x * 4.0, uv.y * 2.0));
-              float aurora = (wave1 * 0.5 + wave2 * 0.3 + wave3 * 0.2) * verticalMask;
-              aurora *= smoothstep(0.3, 0.7, n);
+              // Aurora colors - vivid greens, cyans, magentas, purples
+              float3 green = float3(0.2, 1.0, 0.4);
+              float3 cyan = float3(0.3, 0.9, 1.0);
+              float3 magenta = float3(1.0, 0.3, 0.8);
+              float3 purple = float3(0.6, 0.2, 1.0);
+              float3 teal = float3(0.1, 0.8, 0.7);
 
-              // Color gradient based on colorShift
-              float hue = (colorShift / 360.0) + aurora * 0.3;
-              float3 auroraColor = hsl2rgb(hue, 0.8, 0.5 + aurora * 0.3);
+              // Rotate colors based on colorShift
+              float3 col1 = mix(green, cyan, fract(hueBase));
+              float3 col2 = mix(cyan, teal, fract(hueBase + 0.15));
+              float3 col3 = mix(teal, purple, fract(hueBase + 0.3));
+              float3 col4 = mix(purple, magenta, fract(hueBase + 0.5));
+              float3 col5 = mix(magenta, green, fract(hueBase + 0.7));
 
-              // Secondary color layer
-              float3 auroraColor2 = hsl2rgb(hue + 0.15, 0.9, 0.4 + aurora * 0.2);
-              float3 finalAurora = mix(auroraColor, auroraColor2, wave2);
+              // Combine curtains with colors
+              float3 aurora = float3(0.0);
+              aurora += c1 * col1 * 1.2;
+              aurora += c2 * col2 * 1.0;
+              aurora += c3 * col3 * 1.3;
+              aurora += c4 * col4 * 0.9;
+              aurora += c5 * col5 * 0.8;
 
-              // Apply with intensity - additive for glow
-              float amount = intensity * aurora * 1.5;
-              float3 result = base.rgb + finalAurora * amount;
+              // Add overall glow/haze in the aurora region
+              float haze = smoothstep(0.0, 0.5, uv.y) * smoothstep(1.0, 0.6, uv.y) * 0.15;
+              float3 hazeColor = mix(col1, col3, uv.x) * haze;
+
+              aurora += hazeColor;
+
+              // Apply with intensity - additive blending for luminous glow
+              float amount = intensity * 1.5;
+              float3 result = base.rgb + aurora * amount;
 
               return half4(clamp(result, 0.0, 1.0), base.a);
             }
