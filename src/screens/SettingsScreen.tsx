@@ -566,7 +566,7 @@ const styles = StyleSheet.create({
   settingRight: {
     marginLeft: Spacing.s,
     marginRight: 0,
-    minWidth: 72,
+    minWidth: 48,
     alignItems: 'flex-end',
     justifyContent: 'center',
     flexShrink: 0,
