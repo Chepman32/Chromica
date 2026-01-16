@@ -42,6 +42,7 @@ import {
   EffectCategory,
   EffectLayer,
 } from '../domain/effects/types';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -50,20 +51,6 @@ const TILE_GAP = Spacing.m;
 const TILE_WIDTH =
   (SCREEN_WIDTH - Spacing.screen * 2 - TILE_GAP) / 2;
 
-const CATEGORY_LABELS: Record<EffectCategory, string> = {
-  [EffectCategory.CELLULAR]: 'Mosaic',
-  [EffectCategory.TILING]: 'Tiling',
-  [EffectCategory.DISTORTION]: 'Distortion',
-  [EffectCategory.GLASS]: 'Glass',
-  [EffectCategory.CORRECTION]: 'Correction',
-  [EffectCategory.BLUR_SHARPEN]: 'Blur',
-  [EffectCategory.GLITCH]: 'Glitch',
-  [EffectCategory.RELIEF]: 'Relief',
-  [EffectCategory.STYLIZATION]: 'Stylize',
-  [EffectCategory.BRUSH]: 'Brush',
-  [EffectCategory.FREQUENCY]: 'Frequency',
-  [EffectCategory.RENDER]: 'Render',
-};
 
 const CATEGORY_ORDER: EffectCategory[] = [
   EffectCategory.CELLULAR,
@@ -193,6 +180,22 @@ export const MixesScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const { loadProjects } = useProjectGalleryStore();
   const canvasRef = useCanvasRef();
+  const t = useTranslation();
+
+  const categoryTranslationMap: Record<EffectCategory, keyof typeof t.effects.categories> = {
+    [EffectCategory.CELLULAR]: 'cellular',
+    [EffectCategory.TILING]: 'tiling',
+    [EffectCategory.DISTORTION]: 'distortion',
+    [EffectCategory.GLASS]: 'glass',
+    [EffectCategory.CORRECTION]: 'correction',
+    [EffectCategory.BLUR_SHARPEN]: 'blurSharpen',
+    [EffectCategory.GLITCH]: 'glitch',
+    [EffectCategory.RELIEF]: 'relief',
+    [EffectCategory.STYLIZATION]: 'stylization',
+    [EffectCategory.BRUSH]: 'brush',
+    [EffectCategory.FREQUENCY]: 'frequency',
+    [EffectCategory.RENDER]: 'render',
+  };
 
   const [imageUri, setImageUri] = useState<string | null>(
     params?.imageUri ? normalizeImageUri(params.imageUri) : null,
@@ -581,7 +584,7 @@ export const MixesScreen: React.FC = () => {
               mixStack.map((layer, index) => {
                 const effect = EFFECT_MAP.get(layer.effectId);
                 const label = effect?.category
-                  ? CATEGORY_LABELS[effect.category]
+                  ? t.effects?.categories?.[categoryTranslationMap[effect.category]] || 'Effect'
                   : 'Effect';
 
                 return (
@@ -686,7 +689,7 @@ export const MixesScreen: React.FC = () => {
                         styles.categoryTextActive,
                     ]}
                   >
-                    {CATEGORY_LABELS[category]}
+                    {t.effects?.categories?.[categoryTranslationMap[category]] || category}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -719,9 +722,9 @@ export const MixesScreen: React.FC = () => {
                         </View>
                       )}
                     </View>
-                    <Text style={styles.effectName}>{effect.name}</Text>
+                    <Text style={styles.effectName}>{t.effects?.names?.[effect.id as keyof typeof t.effects.names] || effect.name}</Text>
                     <Text style={styles.effectMeta}>
-                      {CATEGORY_LABELS[effect.category]}
+                      {t.effects?.categories?.[categoryTranslationMap[effect.category]] || effect.category}
                     </Text>
                   </TouchableOpacity>
                 );

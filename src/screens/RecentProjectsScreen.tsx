@@ -9,7 +9,6 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  Dimensions,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,14 +22,16 @@ import { SwipeableProjectItem } from '../components/projects/SwipeableProjectIte
 import { RenameProjectModal } from '../components/modals/RenameProjectModal';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
-import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
+import { Spacing } from '../constants/spacing';
 import { Project } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
 
 export const RecentProjectsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { projects, isLoading, loadProjects, deleteProjects, duplicateProject, renameProject } =
     useProjectGalleryStore();
   const { preferences } = useAppStore();
+  const { recents, common } = useTranslation();
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -51,10 +52,10 @@ export const RecentProjectsScreen: React.FC = () => {
   const handleProjectPress = (project: Project) => {
     ReactNativeHapticFeedback.trigger('impactLight');
     if (Array.isArray(project.mixStack)) {
-      navigation.navigate('Mixes' as never, { projectId: project.id } as never);
+      (navigation as any).navigate('Mixes', { projectId: project.id });
       return;
     }
-    navigation.navigate('Editor' as never, { projectId: project.id } as never);
+    (navigation as any).navigate('Editor', { projectId: project.id });
   };
 
   const handleBackPress = () => {
@@ -72,18 +73,18 @@ export const RecentProjectsScreen: React.FC = () => {
 
     if (confirmDelete) {
       Alert.alert(
-        'Delete Project',
-        'Are you sure you want to delete this project? This cannot be undone.',
+        recents.deleteConfirmation.title,
+        recents.deleteConfirmation.message,
         [
           {
-            text: 'Cancel',
+            text: common.cancel,
             style: 'cancel',
             onPress: () => {
               ReactNativeHapticFeedback.trigger('selection');
             },
           },
           {
-            text: 'Delete',
+            text: common.delete,
             style: 'destructive',
             onPress: executeDelete,
           },
@@ -142,22 +143,22 @@ export const RecentProjectsScreen: React.FC = () => {
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <Text style={styles.emptyIcon}>📂</Text>
-      <Text style={styles.emptyTitle}>No Recent Projects</Text>
+      <Text style={styles.emptyTitle}>{recents.emptyState.title}</Text>
       <Text style={styles.emptySubtitle}>
-        Your edited projects will appear here
+        {recents.emptyState.subtitle}
       </Text>
     </View>
   );
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.gestureRoot}>
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
             <Text style={styles.backIcon}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Recent Projects</Text>
+          <Text style={styles.headerTitle}>{recents.title}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -186,6 +187,9 @@ export const RecentProjectsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  gestureRoot: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.backgrounds.primary,

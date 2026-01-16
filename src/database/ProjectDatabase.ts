@@ -6,10 +6,104 @@ import { Project } from '../types';
 const PROJECT_PREFIX = 'chromica_project_';
 const METADATA_KEY = 'chromica_project_ids';
 
+// Initialize AsyncStorage to ensure it's ready
+let isInitialized = false;
+const initializeStorage = async (): Promise<void> => {
+  if (isInitialized) return;
+  
+  try {
+    // Try to access AsyncStorage to trigger initialization
+    await AsyncStorage.getItem('init_check');
+    isInitialized = true;
+  } catch (error) {
+    console.warn('AsyncStorage initialization failed, retrying...', error);
+    // Wait a bit and retry
+    await new Promise<void>(resolve => setTimeout(resolve, 100));
+    try {
+      await AsyncStorage.getItem('init_check');
+      isInitialized = true;
+    } catch (retryError) {
+      console.error('AsyncStorage initialization completely failed:', retryError);
+      // Try a different approach - set a dummy item to force initialization
+      try {
+        await AsyncStorage.setItem('init_check', 'true');
+        await AsyncStorage.removeItem('init_check');
+        isInitialized = true;
+        console.log('AsyncStorage initialized via fallback method');
+      } catch (fallbackError) {
+        console.error('Fallback initialization also failed:', fallbackError);
+        // Check if it's a manifest.json issue and handle it specifically
+        const errorMsg = fallbackError instanceof Error ? fallbackError.message : '';
+        if (errorMsg.includes('manifest.json') || errorMsg.includes('NSCocoaErrorDomain') || errorMsg.includes('No such file or directory')) {
+          console.log('Manifest directory issue detected, forcing reinitialization...');
+          await forceReinitializeStorage();
+          isInitialized = true;
+        } else {
+          throw new Error('AsyncStorage could not be initialized');
+        }
+      }
+    }
+  }
+};
+
+// Separate function for force reinitialization to avoid circular dependency
+const forceReinitializeStorage = async (): Promise<void> => {
+  try {
+    console.log('Force reinitializing AsyncStorage...');
+    
+    // Clear any existing data that might be corrupted
+    try {
+      await AsyncStorage.clear();
+    } catch (clearError) {
+      console.warn('Could not clear AsyncStorage:', clearError);
+    }
+    
+    // Wait a moment for the clear to complete
+    await new Promise<void>(resolve => setTimeout(resolve, 300));
+    
+    // Multiple attempts to ensure manifest directory is created
+    let success = false;
+    let attempts = 0;
+    const maxAttempts = 3;
+    
+    while (!success && attempts < maxAttempts) {
+      attempts++;
+      try {
+        console.log(`AsyncStorage reinitialization attempt ${attempts}...`);
+        
+        // Set a test item to verify it works and create manifest
+        await AsyncStorage.setItem('test_key', 'test_value');
+        const testValue = await AsyncStorage.getItem('test_key');
+        await AsyncStorage.removeItem('test_key');
+        
+        if (testValue === 'test_value') {
+          console.log('AsyncStorage successfully reinitialized');
+          success = true;
+        } else {
+          throw new Error('AsyncStorage reinitialization verification failed');
+        }
+      } catch (attemptError) {
+        console.warn(`AsyncStorage reinitialization attempt ${attempts} failed:`, attemptError);
+        if (attempts >= maxAttempts) {
+          throw attemptError;
+        }
+        // Wait before retry
+        await new Promise<void>(resolve => setTimeout(resolve, 200));
+      }
+    }
+  } catch (error) {
+    console.error('Failed to force reinitialize AsyncStorage:', error);
+    throw new Error('AsyncStorage reinitialization failed');
+  }
+};
+
 export class ProjectDatabase {
   // Save or update a project
   static async save(project: Project): Promise<void> {
     try {
+      // Ensure AsyncStorage is initialized
+      await initializeStorage();
+      
       // Save project data
       const projectData = {
         ...project,
@@ -27,6 +121,58 @@ export class ProjectDatabase {
       console.log('Project saved:', project.id);
     } catch (error) {
       console.error('Failed to save project:', error);
+      
+      // Check if it's a manifest/directory issue
+      const errorMsg = error instanceof Error ? error.message : '';
+      const isManifestIssue = errorMsg.includes('manifest.json') || 
+                             errorMsg.includes('NSCocoaErrorDomain') ||
+                             errorMsg.includes('No such file or directory') ||
+                             errorMsg.includes('folder') ||
+                             errorMsg.includes('directory');
+      
+      if (isManifestIssue) {
+        console.warn('AsyncStorage manifest/directory issue detected, attempting to reinitialize...');
+        try {
+          // Force reinitialize AsyncStorage
+          await this.forceReinitialize();
+          
+          // Retry the save operation
+          const projectData = {
+            ...project,
+            updatedAt: new Date(),
+          };
+          await AsyncStorage.setItem(
+            PROJECT_PREFIX + project.id,
+            JSON.stringify(projectData),
+          );
+          await this.updateProjectList(project.id);
+          console.log('Project saved after reinitialization:', project.id);
+          return;
+        } catch (retryError) {
+          console.error('Reinitialization retry failed:', retryError);
+          // If reinitialization still fails, try one more time with a fresh approach
+          try {
+            console.log('Attempting final recovery...');
+            isInitialized = false;
+            await initializeStorage();
+            
+            const finalProjectData = {
+              ...project,
+              updatedAt: new Date(),
+            };
+            await AsyncStorage.setItem(
+              PROJECT_PREFIX + project.id,
+              JSON.stringify(finalProjectData),
+            );
+            await this.updateProjectList(project.id);
+            console.log('Project saved after final recovery:', project.id);
+            return;
+          } catch (finalError) {
+            console.error('Final recovery failed:', finalError);
+          }
+        }
+      }
+      
       throw new Error('Failed to save project');
     }
   }
@@ -34,6 +180,7 @@ export class ProjectDatabase {
   // Get project by ID
   static async getById(id: string): Promise<Project | null> {
     try {
+      await initializeStorage();
       const projectData = await AsyncStorage.getItem(PROJECT_PREFIX + id);
       if (!projectData) return null;
 
@@ -195,9 +342,70 @@ export class ProjectDatabase {
     }
   }
 
+  // Force reinitialize AsyncStorage (for fixing manifest issues)
+  static async forceReinitialize(): Promise<void> {
+    try {
+      console.log('Force reinitializing AsyncStorage...');
+      isInitialized = false;
+      
+      // Clear any existing data that might be corrupted
+      try {
+        await AsyncStorage.clear();
+      } catch (clearError) {
+        console.warn('Could not clear AsyncStorage:', clearError);
+      }
+      
+      // Wait a moment for the clear to complete
+      await new Promise<void>(resolve => setTimeout(resolve, 300));
+      
+      // Use the dedicated reinitialization function
+      await forceReinitializeStorage();
+      
+      // Reinitialize the main storage
+      await initializeStorage();
+    } catch (error) {
+      console.error('Failed to force reinitialize AsyncStorage:', error);
+      throw new Error('AsyncStorage reinitialization failed');
+    }
+  }
+
+  // Debug method to check AsyncStorage status
+  static async debugStorageStatus(): Promise<void> {
+    try {
+      console.log('=== AsyncStorage Debug Status ===');
+      console.log('isInitialized:', isInitialized);
+      
+      // Test basic operations
+      const testKey = 'debug_test';
+      await AsyncStorage.setItem(testKey, 'working');
+      const value = await AsyncStorage.getItem(testKey);
+      await AsyncStorage.removeItem(testKey);
+      
+      console.log('Basic operations test:', value === 'working' ? 'PASS' : 'FAIL');
+      
+      // Check if manifest exists
+      try {
+        await AsyncStorage.getItem('any_key');
+        console.log('Manifest access: OK');
+      } catch (manifestError) {
+        console.log('Manifest access: FAILED -', (manifestError as Error).message);
+      }
+      
+      // Check project metadata
+      const projectIds = await this.getProjectIds();
+      console.log('Project IDs count:', projectIds.length);
+      console.log('Project IDs:', projectIds);
+      
+      console.log('=== End Debug Status ===');
+    } catch (error) {
+      console.error('Storage debug failed:', error);
+    }
+  }
+
   // Private helper methods
   private static async getProjectIds(): Promise<string[]> {
     try {
+      await initializeStorage();
       const idsData = await AsyncStorage.getItem(METADATA_KEY);
       return idsData ? JSON.parse(idsData) : [];
     } catch (error) {

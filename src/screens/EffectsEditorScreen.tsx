@@ -30,71 +30,24 @@ import { EffectCategory } from '../domain/effects/types';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EffectSlider } from '../components/effects/EffectSlider';
 import { EffectSegmentedControl } from '../components/effects/EffectSegmentedControl';
+import { useTranslation } from '../hooks/useTranslation';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const CATEGORIES = [
-  {
-    id: EffectCategory.CELLULAR,
-    label: 'Mosaic',
-    icon: require('../assets/icons/categories/mosaic.png'),
-  },
-  {
-    id: EffectCategory.TILING,
-    label: 'Tiling',
-    icon: require('../assets/icons/categories/tiles.png'),
-  },
-  {
-    id: EffectCategory.DISTORTION,
-    label: 'Wave',
-    icon: require('../assets/icons/categories/wave.png'),
-  },
-  {
-    id: EffectCategory.GLASS,
-    label: 'Glass',
-    icon: require('../assets/icons/categories/glass.png'),
-  },
-  {
-    id: EffectCategory.CORRECTION,
-    label: 'Distortion',
-    icon: require('../assets/icons/categories/distortion.jpeg'),
-  },
-  {
-    id: EffectCategory.BLUR_SHARPEN,
-    label: 'Blur',
-    icon: require('../assets/icons/categories/blur.png'),
-  },
-  {
-    id: EffectCategory.GLITCH,
-    label: 'Glitch',
-    icon: require('../assets/icons/categories/glitch.png'),
-  },
-  {
-    id: EffectCategory.RELIEF,
-    label: 'Relief',
-    icon: require('../assets/icons/categories/relief.jpg'),
-  },
-  {
-    id: EffectCategory.STYLIZATION,
-    label: 'Style',
-    icon: require('../assets/icons/categories/style.jpeg'),
-  },
-  {
-    id: EffectCategory.BRUSH,
-    label: 'Brush',
-    icon: require('../assets/icons/categories/brush.png'),
-  },
-  {
-    id: EffectCategory.FREQUENCY,
-    label: 'Frequency',
-    icon: require('../assets/icons/categories/frequency.png'),
-  },
-  {
-    id: EffectCategory.RENDER,
-    label: 'Render',
-    icon: require('../assets/icons/categories/render.png'),
-  },
-];
+const CATEGORY_ICONS = {
+  [EffectCategory.CELLULAR]: require('../assets/icons/categories/mosaic.png'),
+  [EffectCategory.TILING]: require('../assets/icons/categories/tiles.png'),
+  [EffectCategory.DISTORTION]: require('../assets/icons/categories/wave.png'),
+  [EffectCategory.GLASS]: require('../assets/icons/categories/glass.png'),
+  [EffectCategory.CORRECTION]: require('../assets/icons/categories/distortion.jpeg'),
+  [EffectCategory.BLUR_SHARPEN]: require('../assets/icons/categories/blur.png'),
+  [EffectCategory.GLITCH]: require('../assets/icons/categories/glitch.png'),
+  [EffectCategory.RELIEF]: require('../assets/icons/categories/relief.jpg'),
+  [EffectCategory.STYLIZATION]: require('../assets/icons/categories/style.jpeg'),
+  [EffectCategory.BRUSH]: require('../assets/icons/categories/brush.png'),
+  [EffectCategory.FREQUENCY]: require('../assets/icons/categories/frequency.png'),
+  [EffectCategory.RENDER]: require('../assets/icons/categories/render.png'),
+};
 
 export const EffectsEditorScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -105,6 +58,7 @@ export const EffectsEditorScreen: React.FC = () => {
   };
   const { loadProjects } = useProjectGalleryStore();
   const canvasRef = useCanvasRef();
+  const t = useTranslation();
 
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(
     projectId || null,
@@ -136,19 +90,53 @@ export const EffectsEditorScreen: React.FC = () => {
     clearAllCaches,
   } = useEffectsStore();
 
+  const categoryTranslationMap: Record<EffectCategory, keyof typeof t.effects.categories> = {
+  [EffectCategory.CELLULAR]: 'cellular',
+  [EffectCategory.TILING]: 'tiling',
+  [EffectCategory.DISTORTION]: 'distortion',
+  [EffectCategory.GLASS]: 'glass',
+  [EffectCategory.CORRECTION]: 'correction',
+  [EffectCategory.BLUR_SHARPEN]: 'blurSharpen',
+  [EffectCategory.GLITCH]: 'glitch',
+  [EffectCategory.RELIEF]: 'relief',
+  [EffectCategory.STYLIZATION]: 'stylization',
+  [EffectCategory.BRUSH]: 'brush',
+  [EffectCategory.FREQUENCY]: 'frequency',
+  [EffectCategory.RENDER]: 'render',
+};
+
+const categories = useMemo(() => [
+  EffectCategory.CELLULAR,
+  EffectCategory.TILING,
+  EffectCategory.DISTORTION,
+  EffectCategory.GLASS,
+  EffectCategory.CORRECTION,
+  EffectCategory.BLUR_SHARPEN,
+  EffectCategory.GLITCH,
+  EffectCategory.RELIEF,
+  EffectCategory.STYLIZATION,
+  EffectCategory.BRUSH,
+  EffectCategory.FREQUENCY,
+  EffectCategory.RENDER,
+  ], []);
+
   const categoryIconMap = useMemo(() => {
     const map = new Map<EffectCategory, string>();
-    CATEGORIES.forEach(category => {
-      map.set(category.id, category.icon);
+    categories.forEach(category => {
+      map.set(category, CATEGORY_ICONS[category]);
     });
     return map;
-  }, []);
+  }, [categories]);
 
   // Load image - either from imageUri or from project
   useEffect(() => {
     const loadImage = async () => {
       try {
         setLoadingImage(true);
+
+        // Debug AsyncStorage status
+        console.log('=== Checking AsyncStorage Status ===');
+        await ProjectDatabase.debugStorageStatus();
 
         // Clear all effects and caches first
         clearEffects();
@@ -346,8 +334,8 @@ export const EffectsEditorScreen: React.FC = () => {
         setSelectedCategory(effect.category);
 
         // Scroll to the category tab with animation
-        const categoryIndex = CATEGORIES.findIndex(
-          c => c.id === effect.category,
+        const categoryIndex = categories.findIndex(
+          c => c === effect.category,
         );
         if (categoryIndex >= 0 && categoryScrollRef.current) {
           // Each tab is ~108px (minWidth 100 + marginRight 8)
@@ -611,32 +599,32 @@ export const EffectsEditorScreen: React.FC = () => {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.categoryTabsContent}
             >
-              {CATEGORIES.map(category => (
+              {categories.map(category => (
                 <TouchableOpacity
-                  key={category.id}
+                  key={category}
                   onPress={() => {
-                    setSelectedCategory(category.id);
+                    setSelectedCategory(category);
                     ReactNativeHapticFeedback.trigger('selection');
                   }}
                   style={[
                     styles.categoryTab,
-                    selectedCategory === category.id &&
+                    selectedCategory === category &&
                       styles.categoryTabSelected,
                   ]}
                 >
                   <Image
-                    source={category.icon}
+                    source={CATEGORY_ICONS[category]}
                     style={styles.categoryIconImage}
                     resizeMode="cover"
                   />
                   <Text
                     style={[
                       styles.categoryLabel,
-                      selectedCategory === category.id &&
+                      selectedCategory === category &&
                         styles.categoryLabelSelected,
                     ]}
                   >
-                    {category.label}
+                    {t.effects?.categories?.[categoryTranslationMap[category]] || category}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -672,7 +660,7 @@ export const EffectsEditorScreen: React.FC = () => {
                       </Text>
                     )}
                   </View>
-                  <Text style={styles.effectName}>{effect.name}</Text>
+                  <Text style={styles.effectName}>{t.effects?.names?.[effect.id as keyof typeof t.effects.names] || effect.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -684,7 +672,7 @@ export const EffectsEditorScreen: React.FC = () => {
           <View style={styles.parametersPage}>
             <View style={styles.parametersHeader}>
               <Text style={styles.parametersPanelTitle}>
-                {selectedEffect.name}
+                {t.effects?.names?.[selectedEffect.id as keyof typeof t.effects.names] || selectedEffect.name}
               </Text>
 
               <TouchableOpacity
@@ -707,7 +695,7 @@ export const EffectsEditorScreen: React.FC = () => {
                   return (
                     <EffectSlider
                       key={param.name}
-                      label={param.label}
+                      label={t.effects?.parameters?.[param.name as keyof typeof t.effects.parameters] || param.label}
                       value={currentValue as number}
                       min={param.min!}
                       max={param.max!}
@@ -727,11 +715,14 @@ export const EffectsEditorScreen: React.FC = () => {
                   const isColorParameter = param.name
                     .toLowerCase()
                     .includes('color');
+                  const translatedOptions = param.options.map(option => 
+                    t.effects?.options?.[option as keyof typeof t.effects.options] || option
+                  );
                   return (
                     <EffectSegmentedControl
                       key={param.name}
-                      label={param.label}
-                      options={param.options}
+                      label={t.effects?.parameters?.[param.name as keyof typeof t.effects.parameters] || param.label}
+                      options={translatedOptions}
                       value={currentValue as string}
                       onChange={value =>
                         handleParameterChange(param.name, value)
