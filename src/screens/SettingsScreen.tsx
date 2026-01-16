@@ -372,6 +372,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView
+      edges={['bottom']}
       style={[styles.container, { backgroundColor: theme.backgrounds.primary }]}
     >
       {/* Header */}
@@ -546,7 +547,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.m,
-    paddingRight: Spacing.s,
     paddingVertical: Spacing.s,
     minHeight: 44,
     borderBottomWidth: 1,
