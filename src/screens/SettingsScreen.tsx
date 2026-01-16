@@ -146,6 +146,42 @@ const SettingsScreen: React.FC = () => {
     }
   };
 
+  const renderSwitchRow = (
+    title: string,
+    subtitle: string,
+    value: boolean,
+    onValueChange: (value: boolean) => void,
+  ) => (
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={() => onValueChange(!value)}
+      style={[
+        styles.settingRow,
+        { borderBottomColor: theme.backgrounds.tertiary },
+      ]}
+    >
+      <View style={styles.settingLeft}>
+        <Text style={[styles.settingTitle, { color: theme.text.primary }]}>
+          {title}
+        </Text>
+        <Text style={[styles.settingSubtitle, { color: theme.text.tertiary }]}>
+          {subtitle}
+        </Text>
+      </View>
+      <View style={styles.settingRight}>
+        <Switch
+          value={value}
+          onValueChange={onValueChange}
+          trackColor={{
+            false: theme.backgrounds.tertiary,
+            true: theme.accent.primary,
+          }}
+          thumbColor={theme.text.primary}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+
   const renderSection = (title: string, children: React.ReactNode) => (
     <View style={styles.section}>
       <Text style={[styles.sectionHeader, { color: theme.text.tertiary }]}>
@@ -199,7 +235,7 @@ const SettingsScreen: React.FC = () => {
         )}
       </View>
       {rightElement && (
-        <View style={styles.settingRight} pointerEvents="box-none">
+        <View style={styles.settingRight}>
           {rightElement}
         </View>
       )}
@@ -374,37 +410,15 @@ const SettingsScreen: React.FC = () => {
               </Text>,
               () => setShowThemeModal(true),
             )}
-            <View
-              style={[
-                styles.settingRow,
-                { borderBottomColor: theme.backgrounds.tertiary },
-              ]}
-            >
-              <View style={styles.settingLeft}>
-                <Text style={[styles.settingTitle, { color: theme.text.primary }]}>
-                  {t.settings.haptics}
-                </Text>
-                <Text style={[styles.settingSubtitle, { color: theme.text.tertiary }]}>
-                  {preferences.hapticFeedback ? t.settings.hapticsOn : t.settings.hapticsOff}
-                </Text>
-              </View>
-              <View style={styles.settingRight} pointerEvents="box-none">
-                <Switch
-                  value={preferences.hapticFeedback}
-                  onValueChange={value => {
-                    if (value) {
-                      triggerHaptic('selection');
-                    }
-                    updatePreferences({ hapticFeedback: value });
-                  }}
-                  trackColor={{
-                    false: theme.backgrounds.tertiary,
-                    true: theme.accent.primary,
-                  }}
-                  thumbColor={theme.text.primary}
-                />
-              </View>
-            </View>
+            {renderSwitchRow(
+              t.settings.haptics,
+              preferences.hapticFeedback ? t.settings.hapticsOn : t.settings.hapticsOff,
+              preferences.hapticFeedback,
+              (value) => {
+                if (value) triggerHaptic('selection');
+                updatePreferences({ hapticFeedback: value });
+              },
+            )}
             {renderSettingRow(
               t.settings.language,
               languageNames[preferences.language],
@@ -437,23 +451,14 @@ const SettingsScreen: React.FC = () => {
         {renderSection(
           t.settings.preferences,
           <>
-            {renderSettingRow(
+            {renderSwitchRow(
               t.settings.confirmDelete,
               t.settings.confirmDeleteDesc,
-              <Switch
-                value={preferences.confirmDelete ?? true}
-                onValueChange={value => {
-                  if (preferences.hapticFeedback) {
-                    triggerHaptic('selection');
-                  }
-                  updatePreferences({ confirmDelete: value });
-                }}
-                trackColor={{
-                  false: theme.backgrounds.tertiary,
-                  true: theme.accent.primary,
-                }}
-                thumbColor={theme.text.primary}
-              />,
+              preferences.confirmDelete ?? true,
+              (value) => {
+                if (preferences.hapticFeedback) triggerHaptic('selection');
+                updatePreferences({ confirmDelete: value });
+              },
             )}
           </>,
         )}
