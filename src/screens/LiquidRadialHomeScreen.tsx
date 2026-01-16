@@ -16,6 +16,7 @@ import {
   StyleSheet,
   StatusBar,
   AccessibilityInfo,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -83,16 +84,29 @@ export const LiquidRadialHomeScreen: React.FC = () => {
         mediaType: 'photo',
         quality: 1,
         selectionLimit: 1,
+        assetRepresentationMode: 'compatible',
       });
 
+      if (result.errorCode) {
+        console.error('Image picker error:', result.errorCode, result.errorMessage);
+        Alert.alert(
+          'Unable to Load Photos',
+          'Please ensure you have granted photo library access and have photos available.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
       if (result.assets && result.assets.length > 0) {
-        const imageUri = result.assets[0].uri;
-        if (imageUri) {
-          navigation.navigate('Editor' as never, { imageUri } as never);
+        const asset = result.assets[0];
+        if (asset.uri) {
+          // @ts-ignore - navigation types
+          navigation.navigate('Editor', { imageUri: asset.uri });
         }
       }
     } catch (error) {
       console.error('Image picker error:', error);
+      Alert.alert('Error', 'Failed to open photo library');
     }
   }, [navigation]);
 
