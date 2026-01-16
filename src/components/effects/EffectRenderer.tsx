@@ -2217,6 +2217,386 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           });
         }
 
+        case 'aurora-borealis': {
+          const intensity = params.intensity ?? 0.5;
+          const colorShift = params.colorShift ?? 120;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float intensity;
+            uniform float colorShift;
+            ${COMMON_NOISE_SNIPPET}
+
+            float3 hsl2rgb(float h, float s, float l) {
+              float3 rgb = clamp(abs(mod(h * 6.0 + float3(0.0, 4.0, 2.0), 6.0) - 3.0) - 1.0, 0.0, 1.0);
+              return l + s * (rgb - 0.5) * (1.0 - abs(2.0 * l - 1.0));
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              if (base.a < 0.01) return base;
+
+              float2 uv = coord / resolution;
+
+              // Aurora waves - horizontal bands that flow
+              float wave1 = sin(uv.x * 8.0 + fbm(float2(uv.x * 2.0, uv.y * 0.5)) * 3.0) * 0.5 + 0.5;
+              float wave2 = sin(uv.x * 12.0 + fbm(float2(uv.x * 3.0, uv.y * 0.3)) * 4.0) * 0.5 + 0.5;
+              float wave3 = sin(uv.x * 6.0 + fbm(float2(uv.x * 1.5, uv.y * 0.7)) * 2.0) * 0.5 + 0.5;
+
+              // Vertical position affects aurora visibility
+              float verticalMask = smoothstep(0.0, 0.3, uv.y) * smoothstep(1.0, 0.5, uv.y);
+
+              // Combine waves with noise for organic movement
+              float n = fbm(float2(uv.x * 4.0, uv.y * 2.0));
+              float aurora = (wave1 * 0.5 + wave2 * 0.3 + wave3 * 0.2) * verticalMask;
+              aurora *= smoothstep(0.3, 0.7, n);
+
+              // Color gradient based on colorShift
+              float hue = (colorShift / 360.0) + aurora * 0.3;
+              float3 auroraColor = hsl2rgb(hue, 0.8, 0.5 + aurora * 0.3);
+
+              // Secondary color layer
+              float3 auroraColor2 = hsl2rgb(hue + 0.15, 0.9, 0.4 + aurora * 0.2);
+              float3 finalAurora = mix(auroraColor, auroraColor2, wave2);
+
+              // Apply with intensity - additive for glow
+              float amount = intensity * aurora * 1.5;
+              float3 result = base.rgb + finalAurora * amount;
+
+              return half4(clamp(result, 0.0, 1.0), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            intensity,
+            colorShift,
+          });
+        }
+
+        case 'plasma-wave': {
+          const scale = params.scale ?? 2;
+          const colorIntensity = params.colorIntensity ?? 0.7;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float scale;
+            uniform float colorIntensity;
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              if (base.a < 0.01) return base;
+
+              float2 uv = coord / resolution;
+              float2 p = uv * scale * 4.0;
+
+              // Classic plasma formula with multiple sine waves
+              float v1 = sin(p.x + sin(p.y * 2.0) * 0.5);
+              float v2 = sin(p.y + sin(p.x * 2.0) * 0.5);
+              float v3 = sin((p.x + p.y) * 0.5);
+              float v4 = sin(sqrt(p.x * p.x + p.y * p.y + 1.0));
+
+              float plasma = (v1 + v2 + v3 + v4) * 0.25;
+
+              // Create vibrant color palette
+              float3 col1 = float3(1.0, 0.2, 0.5);  // Magenta
+              float3 col2 = float3(0.2, 0.8, 1.0);  // Cyan
+              float3 col3 = float3(1.0, 0.8, 0.2);  // Yellow
+              float3 col4 = float3(0.5, 0.2, 1.0);  // Purple
+
+              // Mix colors based on plasma value
+              float t = plasma * 0.5 + 0.5;
+              float3 plasmaColor;
+              if (t < 0.33) {
+                plasmaColor = mix(col1, col2, t * 3.0);
+              } else if (t < 0.66) {
+                plasmaColor = mix(col2, col3, (t - 0.33) * 3.0);
+              } else {
+                plasmaColor = mix(col3, col4, (t - 0.66) * 3.0);
+              }
+
+              // Blend with original
+              float amount = colorIntensity * 0.6;
+              float3 result = mix(base.rgb, base.rgb * 0.5 + plasmaColor * 0.7, amount);
+
+              return half4(clamp(result, 0.0, 1.0), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            scale,
+            colorIntensity,
+          });
+        }
+
+        case 'lightning-storm': {
+          const intensity = params.intensity ?? 0.6;
+          const branches = params.branches ?? 3;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float intensity;
+            uniform float branches;
+            ${COMMON_NOISE_SNIPPET}
+
+            float hash(float2 p) {
+              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              if (base.a < 0.01) return base;
+
+              float2 uv = coord / resolution;
+
+              // Single vertical lightning bolt going from top to bottom
+              float boltX = 0.5;
+              float path = boltX;
+
+              // Build jagged path - displacement varies with Y position
+              float freq = 5.0;
+              for (int i = 0; i < 6; i++) {
+                float noiseVal = hash(float2(floor(uv.y * freq), float(i) * 3.7));
+                path += (noiseVal - 0.5) * (0.12 / (float(i) + 1.0));
+                freq *= 1.7;
+              }
+
+              // Distance from the lightning path
+              float dist = abs(uv.x - path);
+
+              // Core bolt - thin bright line
+              float core = smoothstep(0.006, 0.0, dist);
+
+              // Inner glow
+              float innerGlow = smoothstep(0.025, 0.0, dist) * 0.6;
+
+              // Outer glow - softer, wider
+              float outerGlowVal = smoothstep(0.1, 0.0, dist) * 0.25;
+
+              float totalBolt = core + innerGlow + outerGlowVal;
+
+              // Add small branches off the main bolt
+              float numBranches = floor(branches);
+              for (int b = 0; b < 5; b++) {
+                if (float(b) >= numBranches) break;
+
+                // Branch Y position
+                float branchY = 0.1 + hash(float2(float(b) * 5.3, 2.1)) * 0.75;
+
+                // Get main bolt X at this Y
+                float branchStartX = boltX;
+                float bf = 5.0;
+                for (int j = 0; j < 6; j++) {
+                  float nv = hash(float2(floor(branchY * bf), float(j) * 3.7));
+                  branchStartX += (nv - 0.5) * (0.12 / (float(j) + 1.0));
+                  bf *= 1.7;
+                }
+
+                // Branch direction and length
+                float dir = (hash(float2(float(b) * 7.1, 3.3)) > 0.5) ? 1.0 : -1.0;
+                float branchLen = 0.06 + hash(float2(float(b) * 4.2, 1.7)) * 0.08;
+                float angle = 0.4 + hash(float2(float(b) * 2.9, 8.1)) * 0.6;
+
+                // Create branch as angled line
+                float2 branchStart = float2(branchStartX, branchY);
+                float2 branchDir = normalize(float2(dir, angle));
+
+                // Distance to branch
+                float2 toPoint = uv - branchStart;
+                float proj = dot(toPoint, branchDir);
+
+                if (proj > 0.0 && proj < branchLen) {
+                  float2 closest = branchStart + branchDir * proj;
+                  float branchDist = length(uv - closest);
+
+                  float fade = 1.0 - proj / branchLen;
+                  float branchCore = smoothstep(0.004, 0.0, branchDist) * fade * 0.7;
+                  float branchGlow = smoothstep(0.02, 0.0, branchDist) * fade * 0.3;
+
+                  totalBolt = max(totalBolt, branchCore + branchGlow);
+                }
+              }
+
+              totalBolt = clamp(totalBolt, 0.0, 1.0);
+
+              // Lightning color: white core with cyan glow
+              float3 coreColor = float3(1.0, 1.0, 1.0);
+              float3 glowColor = float3(0.7, 0.9, 1.0);
+              float3 outerColor = float3(0.4, 0.6, 1.0);
+
+              float3 lightningColor = mix(outerColor, glowColor, pow(totalBolt, 0.5));
+              lightningColor = mix(lightningColor, coreColor, smoothstep(0.5, 1.0, totalBolt));
+
+              // Apply
+              float amount = intensity * totalBolt * 2.0;
+              float3 result = base.rgb + lightningColor * amount;
+
+              return half4(clamp(result, 0.0, 1.0), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            intensity,
+            branches,
+          });
+        }
+
+        case 'nebula-render': {
+          const density = params.density ?? 1.5;
+          const colorMix = params.colorMix ?? 0.5;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float density;
+            uniform float colorMix;
+            ${COMMON_NOISE_SNIPPET}
+
+            float hash(float2 p) {
+              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              if (base.a < 0.01) return base;
+
+              float2 uv = coord / resolution;
+              float2 p = uv * density * 3.0;
+
+              // Multiple layers of cosmic gas
+              float n1 = fbm(p);
+              float n2 = fbm(p * 2.0 + float2(5.2, 1.3));
+              float n3 = fbm(p * 0.5 + float2(n1, n2));
+
+              // Combine for nebula density
+              float nebula = n1 * 0.5 + n2 * 0.3 + n3 * 0.2;
+              nebula = pow(nebula, 1.5);
+
+              // Color palette for nebula
+              float3 deepPurple = float3(0.2, 0.05, 0.3);
+              float3 cosmicBlue = float3(0.1, 0.2, 0.5);
+              float3 hotPink = float3(0.8, 0.2, 0.5);
+              float3 warmOrange = float3(0.9, 0.4, 0.1);
+
+              // Mix colors based on noise and colorMix parameter
+              float3 nebColor1 = mix(deepPurple, cosmicBlue, n1);
+              float3 nebColor2 = mix(hotPink, warmOrange, n2);
+              float3 nebulaColor = mix(nebColor1, nebColor2, colorMix);
+
+              // Add bright highlights
+              nebulaColor += float3(1.0, 0.9, 0.8) * pow(nebula, 3.0) * 0.5;
+
+              // Sparse stars
+              float starField = hash(floor(uv * resolution * 0.1));
+              float star = smoothstep(0.997, 1.0, starField) * (0.5 + n1 * 0.5);
+              nebulaColor += float3(1.0) * star * 2.0;
+
+              // Blend nebula with image
+              float amount = 0.3 + nebula * 0.5;
+              float3 result = mix(base.rgb, base.rgb * 0.7 + nebulaColor * 0.8, amount);
+
+              return half4(clamp(result, 0.0, 1.0), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            density,
+            colorMix,
+          });
+        }
+
+        case 'energy-field': {
+          const scale = params.scale ?? 5;
+          const glowIntensity = params.glowIntensity ?? 0.6;
+
+          const source = `
+            uniform shader image;
+            uniform float2 resolution;
+            uniform float scale;
+            uniform float glowIntensity;
+            ${COMMON_NOISE_SNIPPET}
+
+            float hash(float2 p) {
+              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+            }
+
+            // Voronoi for cellular pattern
+            float2 voronoi(float2 p) {
+              float2 n = floor(p);
+              float2 f = fract(p);
+
+              float minDist = 10.0;
+              float2 minPoint = float2(0.0);
+
+              for (int j = -1; j <= 1; j++) {
+                for (int i = -1; i <= 1; i++) {
+                  float2 neighbor = float2(float(i), float(j));
+                  float2 point = neighbor + hash(n + neighbor) * 0.8 + 0.1;
+                  float dist = length(f - point);
+                  if (dist < minDist) {
+                    minDist = dist;
+                    minPoint = point;
+                  }
+                }
+              }
+
+              return float2(minDist, hash(n + floor(minPoint)));
+            }
+
+            half4 main(float2 coord) {
+              half4 base = image.eval(coord);
+              if (base.a < 0.01) return base;
+
+              float2 uv = coord / resolution;
+              float2 p = uv * scale;
+
+              // Get voronoi cell info
+              float2 v = voronoi(p);
+              float cellDist = v.x;
+              float cellId = v.y;
+
+              // Edge glow - stronger near cell boundaries
+              float edge = 1.0 - smoothstep(0.0, 0.15, cellDist);
+
+              // Inner cell glow with variation
+              float innerGlow = smoothstep(0.4, 0.0, cellDist) * (0.3 + cellId * 0.4);
+
+              // Add noise for energy fluctuation
+              float n = fbm(p * 2.0);
+              float energyPulse = edge + innerGlow * n;
+
+              // Energy field colors: cyan to blue to purple
+              float3 cyanColor = float3(0.2, 0.9, 1.0);
+              float3 blueColor = float3(0.3, 0.5, 1.0);
+              float3 purpleColor = float3(0.6, 0.2, 0.9);
+
+              float3 energyColor = mix(blueColor, cyanColor, edge);
+              energyColor = mix(energyColor, purpleColor, cellId * 0.5);
+
+              // Bright edge highlights
+              energyColor += float3(0.8, 0.95, 1.0) * pow(edge, 2.0);
+
+              // Apply with glow intensity - additive for energy effect
+              float amount = glowIntensity * energyPulse * 1.2;
+              float3 result = base.rgb + energyColor * amount;
+
+              return half4(clamp(result, 0.0, 1.0), base.a);
+            }
+          `;
+
+          return compile(source, {
+            resolution: [width, height],
+            scale,
+            glowIntensity,
+          });
+        }
+
         case 'liquid-glass': {
           const distortion = params.distortion ?? 35;
           const scale = Math.max(params.scale ?? 8, 1);
