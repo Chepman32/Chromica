@@ -117,6 +117,8 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           } else if (typeof value === 'string' && param.options) {
             const index = param.options.indexOf(value);
             uniforms[param.name] = index >= 0 ? index : 0;
+          } else if (Array.isArray(value)) {
+            uniforms[param.name] = value;
           }
         });
 
@@ -2380,6 +2382,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         case 'lightning-storm': {
           const lightningType = Math.round(params.lightningType ?? 1);
           const size = params.size ?? 1;
+          const position = params.position ?? [0, 0];
 
           // Select lightning mask based on type
           const lightningMasks = [lightning1, lightning2, lightning3, lightning4, lightning5, lightning6];
@@ -2395,16 +2398,17 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform shader lightningMask;
             uniform float2 resolution;
             uniform float size;
+            uniform float2 position;
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
               if (base.a < 0.01) return base;
 
-              // Scale coordinates for lightning mask sampling
+              // Apply position offset and scale for lightning mask sampling
               float2 center = resolution * 0.5;
-              float2 scaledCoord = center + (coord - center) / size;
+              float2 scaledCoord = center + (coord - center - position) / size;
 
-              // Sample lightning mask at scaled coordinate
+              // Sample lightning mask at transformed coordinate
               half4 mask = lightningMask.eval(scaledCoord);
               float3 overlay = mask.rgb;
               float overlayAlpha = mask.a;
@@ -2426,6 +2430,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniforms: {
               resolution: [width, height],
               size,
+              position,
             },
             lightningMask: selectedMask,
           };

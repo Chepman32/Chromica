@@ -1432,6 +1432,12 @@ export const EFFECTS: Effect[] = [
         default: 0.8,
         step: 0.1,
       },
+      {
+        name: 'position',
+        label: 'Position',
+        type: '2d-pad',
+        default: [0, 0],
+      },
     ],
   },
   {

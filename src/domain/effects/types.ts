@@ -31,7 +31,7 @@ export interface EffectParameter {
   type: 'slider' | 'segmented' | 'color' | 'toggle' | '2d-pad';
   min?: number;
   max?: number;
-  default: number | string | boolean;
+  default: number | string | boolean | number[];
   options?: string[];
   step?: number;
 }

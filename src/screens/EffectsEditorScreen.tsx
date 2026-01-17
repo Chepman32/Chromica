@@ -17,6 +17,7 @@ import { Canvas, useImage, useCanvasRef } from '@shopify/react-native-skia';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  runOnJS,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -75,8 +76,6 @@ export const EffectsEditorScreen: React.FC = () => {
 
   const {
     effectStack,
-    history,
-    historyIndex,
     addEffect,
     updateEffectParamsNoHistory,
     commitEffectParamsToHistory,
@@ -221,9 +220,28 @@ const categories = useMemo(() => [
     return effectStack[effectStack.length - 1]?.params;
   }, [effectStack]);
 
+  const currentLayerId = useMemo(() => {
+    if (effectStack.length === 0) return null;
+    return effectStack[effectStack.length - 1]?.id ?? null;
+  }, [effectStack]);
+
   // Canvas transform
   const scale = useSharedValue(1);
   const savedScale = useSharedValue(1);
+
+  const lightningPosX = useSharedValue(0);
+  const lightningPosY = useSharedValue(0);
+  const lightningStartX = useSharedValue(0);
+  const lightningStartY = useSharedValue(0);
+
+  useEffect(() => {
+    if (selectedEffectId !== 'lightning-storm') return;
+    const p = currentParams?.position;
+    if (Array.isArray(p) && p.length >= 2) {
+      lightningPosX.value = Number(p[0]) || 0;
+      lightningPosY.value = Number(p[1]) || 0;
+    }
+  }, [selectedEffectId, currentParams?.position, lightningPosX, lightningPosY]);
 
   // Gestures
   const pinchGesture = Gesture.Pinch()
@@ -234,7 +252,34 @@ const categories = useMemo(() => [
       savedScale.value = scale.value;
     });
 
-  const composedGesture = pinchGesture;
+  const panGesture = Gesture.Pan()
+    .enabled(selectedEffectId === 'lightning-storm' && !!currentLayerId)
+    .onBegin(() => {
+      lightningStartX.value = lightningPosX.value;
+      lightningStartY.value = lightningPosY.value;
+    })
+    .onUpdate(e => {
+      const layerId = currentLayerId;
+      if (!layerId) return;
+
+      const s = scale.value || 1;
+      const nextX = lightningStartX.value + e.translationX / s;
+      const nextY = lightningStartY.value + e.translationY / s;
+
+      lightningPosX.value = nextX;
+      lightningPosY.value = nextY;
+
+      runOnJS(updateEffectParamsNoHistory)(layerId, {
+        position: [nextX, nextY],
+      });
+    })
+    .onEnd(() => {
+      const layerId = currentLayerId;
+      if (!layerId) return;
+      runOnJS(commitEffectParamsToHistory)(layerId);
+    });
+
+  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
 
   const canvasStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
