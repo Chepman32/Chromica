@@ -2549,39 +2549,41 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         case 'energy-field': {
           const scale = params.scale ?? 5;
           const glowIntensity = params.glowIntensity ?? 0.6;
+          const waveAmplitude = params.waveAmplitude ?? 1.0;
+          const waveFrequency = params.waveFrequency ?? 1.5;
 
           const source = `
             uniform shader image;
             uniform float2 resolution;
             uniform float scale;
             uniform float glowIntensity;
+            uniform float waveAmplitude;
+            uniform float waveFrequency;
             ${COMMON_NOISE_SNIPPET}
 
-            float hash(float2 p) {
-              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+            // Wave height function
+            float waveHeight(float2 p, float freq, float amplitude) {
+              float h = 0.0;
+              // Primary wave (horizontal flow)
+              h += sin(p.x * freq * 2.0 + p.y * 0.5) * 0.5;
+              // Secondary wave (creates depth variation)
+              h += sin(p.y * freq * 1.5 - p.x * 0.3) * 0.3;
+              // Add noise for organic variation
+              h += fbm(p * 0.5) * 0.4;
+              return h * amplitude;
             }
 
-            // Voronoi for cellular pattern
-            float2 voronoi(float2 p) {
-              float2 n = floor(p);
-              float2 f = fract(p);
+            // Continuous particle field texture
+            float particleTexture(float2 p, float density) {
+              // High-frequency noise for particle appearance
+              float particles = 0.0;
 
-              float minDist = 10.0;
-              float2 minPoint = float2(0.0);
+              // Layer multiple frequencies for rich texture
+              particles += noise(p * density * 15.0) * 0.6;
+              particles += noise(p * density * 30.0) * 0.3;
+              particles += noise(p * density * 60.0) * 0.1;
 
-              for (int j = -1; j <= 1; j++) {
-                for (int i = -1; i <= 1; i++) {
-                  float2 neighbor = float2(float(i), float(j));
-                  float2 point = neighbor + hash(n + neighbor) * 0.8 + 0.1;
-                  float dist = length(f - point);
-                  if (dist < minDist) {
-                    minDist = dist;
-                    minPoint = point;
-                  }
-                }
-              }
-
-              return float2(minDist, hash(n + floor(minPoint)));
+              return particles;
             }
 
             half4 main(float2 coord) {
@@ -2591,34 +2593,31 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
               float2 uv = coord / resolution;
               float2 p = uv * scale;
 
-              // Get voronoi cell info
-              float2 v = voronoi(p);
-              float cellDist = v.x;
-              float cellId = v.y;
+              // Calculate wave height at this position
+              float height = waveHeight(p, waveFrequency, waveAmplitude);
+              float normalizedHeight = (height + 1.0) * 0.5; // 0-1 range
 
-              // Edge glow - stronger near cell boundaries
-              float edge = 1.0 - smoothstep(0.0, 0.15, cellDist);
+              // Generate continuous particle field
+              float particles = particleTexture(p, 1.0);
 
-              // Inner cell glow with variation
-              float innerGlow = smoothstep(0.4, 0.0, cellDist) * (0.3 + cellId * 0.4);
+              // Modulate particle brightness by wave height
+              // Peaks are bright, troughs are dimmer
+              float waveMask = smoothstep(0.2, 0.8, normalizedHeight);
+              float particleIntensity = particles * (0.3 + waveMask * 0.7);
 
-              // Add noise for energy fluctuation
-              float n = fbm(p * 2.0);
-              float energyPulse = edge + innerGlow * n;
+              // Add extra brightness to wave peaks
+              particleIntensity += pow(waveMask, 3.0) * 0.5;
 
-              // Energy field colors: cyan to blue to purple
+              // Color based on depth/height
               float3 cyanColor = float3(0.2, 0.9, 1.0);
               float3 blueColor = float3(0.3, 0.5, 1.0);
               float3 purpleColor = float3(0.6, 0.2, 0.9);
 
-              float3 energyColor = mix(blueColor, cyanColor, edge);
-              energyColor = mix(energyColor, purpleColor, cellId * 0.5);
+              float3 energyColor = mix(blueColor, cyanColor, waveMask);
+              energyColor = mix(energyColor, purpleColor, normalizedHeight * 0.4);
 
-              // Bright edge highlights
-              energyColor += float3(0.8, 0.95, 1.0) * pow(edge, 2.0);
-
-              // Apply with glow intensity - additive for energy effect
-              float amount = glowIntensity * energyPulse * 1.2;
+              // Apply intensity and glow
+              float amount = glowIntensity * particleIntensity * 1.5;
               float3 result = base.rgb + energyColor * amount;
 
               return half4(clamp(result, 0.0, 1.0), base.a);
@@ -2629,6 +2628,8 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             resolution: [width, height],
             scale,
             glowIntensity,
+            waveAmplitude,
+            waveFrequency,
           });
         }
 
