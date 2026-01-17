@@ -1423,6 +1423,15 @@ export const EFFECTS: Effect[] = [
         default: 1,
         step: 1,
       },
+      {
+        name: 'size',
+        label: 'Size',
+        type: 'slider',
+        min: 0.5,
+        max: 3,
+        default: 0.8,
+        step: 0.1,
+      },
     ],
   },
   {

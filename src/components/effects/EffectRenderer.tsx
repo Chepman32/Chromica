@@ -2379,6 +2379,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
         case 'lightning-storm': {
           const lightningType = Math.round(params.lightningType ?? 1);
+          const size = params.size ?? 1;
 
           // Select lightning mask based on type
           const lightningMasks = [lightning1, lightning2, lightning3, lightning4, lightning5, lightning6];
@@ -2393,13 +2394,18 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             uniform shader image;
             uniform shader lightningMask;
             uniform float2 resolution;
+            uniform float size;
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
               if (base.a < 0.01) return base;
 
-              // Sample lightning mask at the same coordinate
-              half4 mask = lightningMask.eval(coord);
+              // Scale coordinates for lightning mask sampling
+              float2 center = resolution * 0.5;
+              float2 scaledCoord = center + (coord - center) / size;
+
+              // Sample lightning mask at scaled coordinate
+              half4 mask = lightningMask.eval(scaledCoord);
               float3 overlay = mask.rgb;
               float overlayAlpha = mask.a;
 
@@ -2419,6 +2425,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             source: runtimeEffect,
             uniforms: {
               resolution: [width, height],
+              size,
             },
             lightningMask: selectedMask,
           };
@@ -2824,7 +2831,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           {effectData.lightningMask && (
             <ImageShader
               image={effectData.lightningMask}
-              fit="cover"
+              fit="contain"
               x={x}
               y={y}
               width={width}
