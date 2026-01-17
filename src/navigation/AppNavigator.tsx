@@ -72,18 +72,15 @@ export default function AppNavigator() {
 
     if (!hasSeenOnboarding) {
       const detectedLang = detectDeviceLanguage();
-      console.log('Language detection - detected:', detectedLang, 'current:', currentLanguage);
       setDetectedLanguage(detectedLang);
-      
+
       // Always update language if different, regardless of hasCheckedLanguage
       if (detectedLang !== currentLanguage) {
-        console.log('Updating language from', currentLanguage, 'to', detectedLang);
         updatePreferences({ language: detectedLang });
       }
     }
   }, [hasHydrated, hasSeenOnboarding, currentLanguage, updatePreferences]);
 
-  console.log('Render decision - splash:', showSplash, 'hydrated:', hasHydrated, 'seen:', hasSeenOnboarding);
   if (showSplash || !hasHydrated) {
     return <ChromicaSplashScreen onFinish={() => setShowSplash(false)} initialLanguage={detectedLanguage} />;
   }

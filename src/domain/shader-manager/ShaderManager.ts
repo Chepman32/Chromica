@@ -4,6 +4,7 @@
 
 import { Skia, SkRuntimeEffect } from '@shopify/react-native-skia';
 import { MMKV } from 'react-native-mmkv';
+import { logger } from '../../utils/logger';
 
 const shaderCache = new Map<string, SkRuntimeEffect>();
 
@@ -12,7 +13,7 @@ let storage: MMKV | null = null;
 try {
   storage = new MMKV({ id: 'shader-cache' });
 } catch (error) {
-  console.warn('MMKV initialization failed for shader cache:', error);
+  logger.warn('MMKV initialization failed for shader cache:', error);
 }
 
 // Shader source files - inline for now (will be loaded from files in production)
@@ -558,13 +559,13 @@ export class ShaderManager {
     try {
       const source = SHADER_SOURCES[shaderPath];
       if (!source) {
-        console.warn(`Shader not found: ${shaderPath}`);
+        logger.warn(`Shader not found: ${shaderPath}`);
         return null;
       }
 
       const shader = Skia.RuntimeEffect.Make(source);
       if (!shader) {
-        console.error(`Failed to compile shader: ${shaderPath}`);
+        logger.error(`Failed to compile shader: ${shaderPath}`);
         return null;
       }
 
@@ -573,7 +574,7 @@ export class ShaderManager {
 
       return shader;
     } catch (error) {
-      console.error(`Error loading shader ${shaderPath}:`, error);
+      logger.error(`Error loading shader ${shaderPath}:`, error);
       return null;
     }
   }

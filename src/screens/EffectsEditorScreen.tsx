@@ -134,10 +134,6 @@ const categories = useMemo(() => [
       try {
         setLoadingImage(true);
 
-        // Debug AsyncStorage status
-        console.log('=== Checking AsyncStorage Status ===');
-        await ProjectDatabase.debugStorageStatus();
-
         // Clear all effects and caches first
         clearEffects();
         clearAllCaches();
@@ -175,7 +171,6 @@ const categories = useMemo(() => [
         // For ph:// URIs, try using them directly first
         // Skia might be able to handle them on iOS
         if (uriToLoad.startsWith('ph://')) {
-          console.log('Using ph:// URI directly');
           setFileUri(uriToLoad);
         } else if (uriToLoad.startsWith('file://')) {
           setFileUri(uriToLoad);
@@ -211,18 +206,7 @@ const categories = useMemo(() => [
   const image = useImage(fileUri || '');
 
   useEffect(() => {
-    console.log('Original URI:', imageUri);
-    console.log('File URI:', fileUri);
-    if (!image) {
-      console.log('Image not loaded yet...');
-    } else {
-      console.log(
-        'Image loaded successfully:',
-        image.width(),
-        'x',
-        image.height(),
-      );
-    }
+    // Image loading monitoring (for development)
   }, [image, imageUri, fileUri]);
 
   // Get the current effect to apply
@@ -354,48 +338,24 @@ const categories = useMemo(() => [
   }, [effectStack]);
 
   const handleUndo = () => {
-    console.log(
-      'Undo - historyIndex:',
-      historyIndex,
-      'history.length:',
-      history.length,
-    );
     if (canUndo()) {
       undo();
       ReactNativeHapticFeedback.trigger('impactLight');
-      console.log('Undo executed');
-    } else {
-      console.log('Cannot undo');
     }
   };
 
   const handleRedo = () => {
-    console.log(
-      'Redo - historyIndex:',
-      historyIndex,
-      'history.length:',
-      history.length,
-    );
     if (canRedo()) {
       redo();
       ReactNativeHapticFeedback.trigger('impactLight');
-      console.log('Redo executed');
-    } else {
-      console.log('Cannot redo');
     }
   };
 
   const handleReset = () => {
-    console.log('Reset clicked');
-    console.log('Before reset - canUndo:', canUndo(), 'canRedo:', canRedo());
     clearEffects();
     clearAllCaches();
     setSelectedEffectId(null);
     ReactNativeHapticFeedback.trigger('notificationWarning');
-    // Check state after reset
-    setTimeout(() => {
-      console.log('After reset - canUndo:', canUndo(), 'canRedo:', canRedo());
-    }, 100);
   };
 
   // Capture canvas as thumbnail
@@ -403,7 +363,6 @@ const categories = useMemo(() => [
     try {
       const snapshot = canvasRef.current?.makeImageSnapshot();
       if (!snapshot) {
-        console.log('No snapshot available');
         return null;
       }
 
@@ -417,7 +376,6 @@ const categories = useMemo(() => [
       const thumbnailPath = `${thumbnailDir}/thumb_${Date.now()}.jpg`;
       await RNFS.writeFile(thumbnailPath, base64, 'base64');
 
-      console.log('Thumbnail saved to:', thumbnailPath);
       return `file://${thumbnailPath}`;
     } catch (error) {
       console.error('Failed to capture thumbnail:', error);
@@ -427,9 +385,7 @@ const categories = useMemo(() => [
 
   // Save project to database
   const saveProject = async (): Promise<void> => {
-    console.log('saveProject called, fileUri:', fileUri);
     if (!fileUri) {
-      console.log('No fileUri, skipping save');
       return;
     }
 
@@ -451,11 +407,9 @@ const categories = useMemo(() => [
           existingProject.effect = effectToSave;
           existingProject.updatedAt = new Date();
           await ProjectDatabase.save(existingProject);
-          console.log('Project updated:', currentProjectId);
         }
       } else {
         // Create new project
-        console.log('Creating project with thumbnail:', thumbnailPath);
         const project = await ProjectDatabase.create(
           fileUri,
           { width: image?.width() || 0, height: image?.height() || 0 },
@@ -467,12 +421,10 @@ const categories = useMemo(() => [
           await ProjectDatabase.save(project);
         }
         setCurrentProjectId(project.id);
-        console.log('Project created successfully:', project);
       }
 
       // Refresh projects list
       await loadProjects();
-      console.log('Projects reloaded');
     } catch (error) {
       console.error('Failed to save project:', error);
     }

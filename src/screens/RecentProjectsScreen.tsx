@@ -2,7 +2,7 @@
  * Recent Projects Screen - List of recent app projects with thumbnails
  */
 
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -39,15 +39,9 @@ export const RecentProjectsScreen: React.FC = () => {
   // Reload projects every time screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log('RecentProjectsScreen focused, loading projects...');
       loadProjects();
     }, [loadProjects]),
   );
-
-  // Debug log
-  useEffect(() => {
-    console.log('Projects in store:', projects.length, projects);
-  }, [projects]);
 
   const handleProjectPress = (project: Project) => {
     ReactNativeHapticFeedback.trigger('impactLight');

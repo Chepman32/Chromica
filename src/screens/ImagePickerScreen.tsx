@@ -95,7 +95,6 @@ const ImagePickerScreen: React.FC = () => {
         const granted = await PermissionsAndroid.request(permission);
 
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Android permission denied, using fallback photos');
           setPhotos(FALLBACK_PHOTOS);
           setLoading(false);
           return;
@@ -124,7 +123,6 @@ const ImagePickerScreen: React.FC = () => {
         setPhotos(FALLBACK_PHOTOS);
       }
     } catch (error) {
-      console.log('Failed to load photos, using fallback:', error);
       setPhotos(FALLBACK_PHOTOS);
     } finally {
       setLoading(false);
@@ -160,7 +158,6 @@ const ImagePickerScreen: React.FC = () => {
       <Image
         source={{ uri: item.uri }}
         style={styles.photoImage}
-        onError={() => console.log('Image failed to load:', item.uri)}
       />
     </TouchableOpacity>
   );

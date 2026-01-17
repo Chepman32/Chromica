@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MMKV } from 'react-native-mmkv';
 import { UserPreferences } from '../types';
 import { Language } from '../localization';
+import { logger } from '../utils/logger';
 
 // Function to detect device language using react-native-localize
 export const detectDeviceLanguage = (): Language => {
@@ -15,23 +16,19 @@ export const detectDeviceLanguage = (): Language => {
 
     // Get device locales (returns array of {languageTag, languageCode, countryCode, ...})
     const locales = RNLocalize.getLocales();
-    console.log('Device locales:', JSON.stringify(locales));
 
     if (locales && locales.length > 0) {
       const langCode = locales[0].languageCode?.toLowerCase();
-      console.log('Device language code:', langCode);
 
       if (langCode) {
         const mappedLanguage = mapLanguageCode(langCode);
-        console.log('Final mapped language:', mappedLanguage);
         return mappedLanguage;
       }
     }
   } catch (error) {
-    console.warn('Failed to detect device language:', error);
+    logger.warn('Failed to detect device language:', error);
   }
 
-  console.log('Using fallback language: en');
   return 'en'; // Fallback to English
 };
 
@@ -92,7 +89,7 @@ const mmkvStorage = (() => {
       removeItem: (name: string) => storage.delete(name),
     };
   } catch (error) {
-    console.warn('MMKV initialization failed for app storage:', error);
+    logger.warn('MMKV initialization failed for app storage:', error);
     return null;
   }
 })();
@@ -115,9 +112,7 @@ export const useAppStore = create<AppState>()(
       },
 
       setOnboardingSeen: () => {
-        console.log('Setting onboarding seen');
         set({ hasSeenOnboarding: true });
-        console.log('New state:', useAppStore.getState().hasSeenOnboarding);
       },
       updatePreferences: prefs =>
         set(state => ({
@@ -126,7 +121,6 @@ export const useAppStore = create<AppState>()(
         })),
       resetOnboarding: () => {
         const detectedLanguage = detectDeviceLanguage();
-        console.log('Reset onboarding - detected language:', detectedLanguage);
         set({ 
           hasSeenOnboarding: false,
           preferences: {

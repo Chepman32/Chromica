@@ -372,7 +372,6 @@ export const MixesScreen: React.FC = () => {
     try {
       const snapshot = canvasRef.current?.makeImageSnapshot();
       if (!snapshot) {
-        console.log('No snapshot available');
         return null;
       }
 

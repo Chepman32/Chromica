@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { MMKV } from 'react-native-mmkv';
 import { EffectLayer, EffectPreset, BlendMode } from '../domain/effects/types';
+import { logger } from '../utils/logger';
 
 // Safe MMKV initialization
 let storage: MMKV | null = null;
@@ -13,7 +14,7 @@ let storage: MMKV | null = null;
 try {
   storage = new MMKV({ id: 'effects-store' });
 } catch (error) {
-  console.warn('MMKV initialization failed, using in-memory storage:', error);
+  logger.warn('MMKV initialization failed, using in-memory storage:', error);
 }
 
 const mmkvStorage = {
@@ -23,7 +24,7 @@ const mmkvStorage = {
       const value = storage.getString(name);
       return value ?? null;
     } catch (error) {
-      console.warn('MMKV getItem error:', error);
+      logger.warn('MMKV getItem error:', error);
       return null;
     }
   },
@@ -32,7 +33,7 @@ const mmkvStorage = {
     try {
       storage.set(name, value);
     } catch (error) {
-      console.warn('MMKV setItem error:', error);
+      logger.warn('MMKV setItem error:', error);
     }
   },
   removeItem: (name: string) => {
@@ -40,7 +41,7 @@ const mmkvStorage = {
     try {
       storage.delete(name);
     } catch (error) {
-      console.warn('MMKV removeItem error:', error);
+      logger.warn('MMKV removeItem error:', error);
     }
   },
 };
