@@ -10,6 +10,7 @@ import {
   Shader,
   ImageShader,
   Fill,
+  useImage,
 } from '@shopify/react-native-skia';
 import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import { Effect } from '../../domain/effects/types';
@@ -67,9 +68,18 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
   width,
   height,
 }) => {
+  // Load all lightning mask images
+  const lightning1 = useImage(require('../../assets/images/effects/lightning/1.png'));
+  const lightning2 = useImage(require('../../assets/images/effects/lightning/2.png'));
+  const lightning3 = useImage(require('../../assets/images/effects/lightning/3.png'));
+  const lightning4 = useImage(require('../../assets/images/effects/lightning/4.png'));
+  const lightning5 = useImage(require('../../assets/images/effects/lightning/5.png'));
+  const lightning6 = useImage(require('../../assets/images/effects/lightning/6.png'));
+
   type ShaderData = {
     source: SkRuntimeEffect;
     uniforms: Record<string, number | number[]>;
+    lightningMask?: any; // Lightning mask image for special rendering
   };
 
   // Create shader source and uniforms for the effect
@@ -850,7 +860,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
         case 'emboss': {
           const angle = params.angle || 135;
-          const height = params.height || 3;
+          const embossHeight = params.height || 3;
 
           const source = `
             uniform shader image;
@@ -879,7 +889,7 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
           return compile(source, {
             resolution: [width, height],
             angle,
-            height,
+            height: embossHeight,
           });
         }
 
@@ -2368,117 +2378,50 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
         }
 
         case 'lightning-storm': {
-          const intensity = params.intensity ?? 0.6;
-          const branches = params.branches ?? 3;
+          const lightningType = Math.round(params.lightningType ?? 1);
+
+          // Select lightning mask based on type
+          const lightningMasks = [lightning1, lightning2, lightning3, lightning4, lightning5, lightning6];
+          const selectedMask = lightningMasks[lightningType - 1];
+
+          if (!selectedMask) {
+            console.warn('Lightning mask not loaded for type:', lightningType);
+            return null;
+          }
 
           const source = `
             uniform shader image;
+            uniform shader lightningMask;
             uniform float2 resolution;
-            uniform float intensity;
-            uniform float branches;
-            ${COMMON_NOISE_SNIPPET}
-
-            float hash(float2 p) {
-              return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
-            }
 
             half4 main(float2 coord) {
               half4 base = image.eval(coord);
               if (base.a < 0.01) return base;
 
-              float2 uv = coord / resolution;
+              // Sample lightning mask at the same coordinate
+              half4 mask = lightningMask.eval(coord);
+              float3 overlay = mask.rgb;
+              float overlayAlpha = mask.a;
 
-              // Single vertical lightning bolt going from top to bottom
-              float boltX = 0.5;
-              float path = boltX;
-
-              // Build jagged path - displacement varies with Y position
-              float freq = 5.0;
-              for (int i = 0; i < 6; i++) {
-                float noiseVal = hash(float2(floor(uv.y * freq), float(i) * 3.7));
-                path += (noiseVal - 0.5) * (0.12 / (float(i) + 1.0));
-                freq *= 1.7;
-              }
-
-              // Distance from the lightning path
-              float dist = abs(uv.x - path);
-
-              // Core bolt - thin bright line
-              float core = smoothstep(0.006, 0.0, dist);
-
-              // Inner glow
-              float innerGlow = smoothstep(0.025, 0.0, dist) * 0.6;
-
-              // Outer glow - softer, wider
-              float outerGlowVal = smoothstep(0.1, 0.0, dist) * 0.25;
-
-              float totalBolt = core + innerGlow + outerGlowVal;
-
-              // Add small branches off the main bolt
-              float numBranches = floor(branches);
-              for (int b = 0; b < 5; b++) {
-                if (float(b) >= numBranches) break;
-
-                // Branch Y position
-                float branchY = 0.1 + hash(float2(float(b) * 5.3, 2.1)) * 0.75;
-
-                // Get main bolt X at this Y
-                float branchStartX = boltX;
-                float bf = 5.0;
-                for (int j = 0; j < 6; j++) {
-                  float nv = hash(float2(floor(branchY * bf), float(j) * 3.7));
-                  branchStartX += (nv - 0.5) * (0.12 / (float(j) + 1.0));
-                  bf *= 1.7;
-                }
-
-                // Branch direction and length
-                float dir = (hash(float2(float(b) * 7.1, 3.3)) > 0.5) ? 1.0 : -1.0;
-                float branchLen = 0.06 + hash(float2(float(b) * 4.2, 1.7)) * 0.08;
-                float angle = 0.4 + hash(float2(float(b) * 2.9, 8.1)) * 0.6;
-
-                // Create branch as angled line
-                float2 branchStart = float2(branchStartX, branchY);
-                float2 branchDir = normalize(float2(dir, angle));
-
-                // Distance to branch
-                float2 toPoint = uv - branchStart;
-                float proj = dot(toPoint, branchDir);
-
-                if (proj > 0.0 && proj < branchLen) {
-                  float2 closest = branchStart + branchDir * proj;
-                  float branchDist = length(uv - closest);
-
-                  float fade = 1.0 - proj / branchLen;
-                  float branchCore = smoothstep(0.004, 0.0, branchDist) * fade * 0.7;
-                  float branchGlow = smoothstep(0.02, 0.0, branchDist) * fade * 0.3;
-
-                  totalBolt = max(totalBolt, branchCore + branchGlow);
-                }
-              }
-
-              totalBolt = clamp(totalBolt, 0.0, 1.0);
-
-              // Lightning color: white core with cyan glow
-              float3 coreColor = float3(1.0, 1.0, 1.0);
-              float3 glowColor = float3(0.7, 0.9, 1.0);
-              float3 outerColor = float3(0.4, 0.6, 1.0);
-
-              float3 lightningColor = mix(outerColor, glowColor, pow(totalBolt, 0.5));
-              lightningColor = mix(lightningColor, coreColor, smoothstep(0.5, 1.0, totalBolt));
-
-              // Apply
-              float amount = intensity * totalBolt * 2.0;
-              float3 result = base.rgb + lightningColor * amount;
+              float3 result = base.rgb + overlay * overlayAlpha * 1.5;
 
               return half4(clamp(result, 0.0, 1.0), base.a);
             }
           `;
 
-          return compile(source, {
-            resolution: [width, height],
-            intensity,
-            branches,
-          });
+          const runtimeEffect = Skia.RuntimeEffect.Make(source);
+          if (!runtimeEffect) {
+            console.error('Failed to compile lightning shader');
+            return null;
+          }
+
+          return {
+            source: runtimeEffect,
+            uniforms: {
+              resolution: [width, height],
+            },
+            lightningMask: selectedMask,
+          };
         }
 
         case 'nebula-render': {
@@ -2859,16 +2802,17 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
       console.error('Error creating shader:', error);
       return null;
     }
-
-    return null;
-  }, [effect, params, image, width, height]);
+  }, [effect, params, width, height, lightning1, lightning2, lightning3, lightning4, lightning5, lightning6]);
 
   // Render image with or without shader effect
   if (effectData) {
     // Render with shader effect
     return (
       <Fill>
-        <Shader source={effectData.source} uniforms={effectData.uniforms}>
+        <Shader
+          source={effectData.source}
+          uniforms={effectData.uniforms}
+        >
           <ImageShader
             image={image}
             fit="contain"
@@ -2877,6 +2821,16 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
             width={width}
             height={height}
           />
+          {effectData.lightningMask && (
+            <ImageShader
+              image={effectData.lightningMask}
+              fit="cover"
+              x={x}
+              y={y}
+              width={width}
+              height={height}
+            />
+          )}
         </Shader>
       </Fill>
     );
