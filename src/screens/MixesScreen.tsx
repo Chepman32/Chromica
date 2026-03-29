@@ -458,10 +458,10 @@ export const MixesScreen: React.FC = () => {
         <View style={styles.header}>
           <View style={styles.headerSide}>
             <TouchableOpacity
-              style={styles.headerButton}
+              style={styles.closeButton}
               onPress={handleBack}
             >
-              <Text style={styles.headerButtonText}>{t.common.back}</Text>
+              <Text style={styles.closeIcon}>✕</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.headerCenter}>
@@ -787,6 +787,16 @@ const styles = StyleSheet.create({
   },
   headerSideRight: {
     alignItems: 'flex-end',
+  },
+  closeButton: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeIcon: {
+    fontSize: 20,
+    color: Colors.text.primary,
   },
   headerCenter: {
     flex: 1,

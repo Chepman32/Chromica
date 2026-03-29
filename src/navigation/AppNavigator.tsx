@@ -106,17 +106,6 @@ export default function AppNavigator() {
 
         <Stack.Screen name="Home" component={LiquidRadialHomeScreen} />
 
-        <Stack.Screen name="RecentProjects" component={RecentProjectsScreen} />
-
-        <Stack.Screen
-          name="Mixes"
-          component={MixesScreen}
-          options={{
-            animation: 'slide_from_right',
-            gestureEnabled: true,
-            gestureDirection: 'horizontal',
-          }}
-        />
 
         <Stack.Screen
           name="Editor"
@@ -139,6 +128,8 @@ export default function AppNavigator() {
 
         {/* Modal Screens */}
         <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="RecentProjects" component={RecentProjectsScreen} />
+          <Stack.Screen name="Mixes" component={MixesScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
           <Stack.Screen name="About" component={AboutScreen} />
           <Stack.Screen name="ImagePicker" component={ImagePickerScreen} />

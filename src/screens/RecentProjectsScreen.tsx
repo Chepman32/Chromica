@@ -149,8 +149,8 @@ export const RecentProjectsScreen: React.FC = () => {
       <SafeAreaView style={styles.container} edges={['top']}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={handleBackPress} style={styles.backButton}>
-            <Text style={styles.backIcon}>‹</Text>
+          <TouchableOpacity style={styles.closeButton} onPress={handleBackPress}>
+            <Text style={styles.closeIcon}>✕</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{recents.title}</Text>
           <View style={styles.headerSpacer} />
@@ -197,16 +197,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.backgrounds.secondary,
   },
-  backButton: {
+  closeButton: {
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backIcon: {
-    fontSize: 32,
+  closeIcon: {
+    fontSize: 20,
     color: Colors.text.primary,
-    fontWeight: '300',
   },
   headerTitle: {
     ...Typography.display.h4,
