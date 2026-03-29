@@ -215,7 +215,7 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.topBarIcon}>⚙️</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Chromica</Text>
+        <Text style={styles.title}>Corivo</Text>
       </View>
 
       {/* Selection Mode Top Bar */}

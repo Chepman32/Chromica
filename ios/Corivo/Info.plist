@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>Chromica</string>
+	<string>Corivo</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -40,9 +40,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Chromica needs permission to save your edited photos to your photo library.</string>
+	<string>Corivo needs permission to save your edited photos to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Chromica needs access to your photo library to let you select images for editing.</string>
+	<string>Corivo needs access to your photo library to let you select images for editing.</string>
 	<key>RCTNewArchEnabled</key>
 	<false/>
 	<key>UIAppFonts</key>

@@ -1,6 +1,6 @@
-# Chromica - Offline Photo Annotation App
+# Corivo - Offline Photo Annotation App
 
-Chromica is a premium iOS photo annotation app built with React Native, designed to provide an elegant, gesture-driven interface for adding watermarks, text, stickers, and stamps to photos. The app operates completely offline, ensuring user privacy and reliability.
+Corivo is a premium iOS photo annotation app built with React Native, designed to provide an elegant, gesture-driven interface for adding watermarks, text, stickers, and stamps to photos. The app operates completely offline, ensuring user privacy and reliability.
 
 ## 🎯 Key Features
 
@@ -17,7 +17,7 @@ Chromica is a premium iOS photo annotation app built with React Native, designed
 - ✅ 8 fonts, 30 stickers, 10 watermark templates, 8 stamps
 - ✅ Full gesture editing capabilities
 - ✅ Unlimited project saves
-- ⚠️ Exported photos include small "Made with Chromica" watermark
+- ⚠️ Exported photos include small "Made with Corivo" watermark
 
 ### Pro Tier ($9.99 one-time purchase)
 
@@ -77,7 +77,7 @@ src/
 
 ```bash
 git clone <repository-url>
-cd Chromica
+cd Corivo
 yarn install
 ```
 
@@ -252,13 +252,13 @@ This project is proprietary software. All rights reserved.
 
 ## 🤝 Contributing
 
-This is a commercial project. For bug reports or feature requests, please contact support@chromica.app.
+This is a commercial project. For bug reports or feature requests, please contact support@corivo.app.
 
 ## 📞 Support
 
-- **Email**: support@chromica.app
-- **Privacy Policy**: chromica.app/privacy
-- **Terms of Service**: chromica.app/terms
+- **Email**: support@corivo.app
+- **Privacy Policy**: corivo.app/privacy
+- **Terms of Service**: corivo.app/terms
 
 ---
 

@@ -217,7 +217,7 @@ export const es: Translations = {
     hapticFeedback: 'Retroalimentación háptica',
     hapticFeedbackDesc: 'Vibración para interacciones',
     version: 'Versión',
-    rateApp: 'Calificar Chromica',
+    rateApp: 'Calificar Corivo',
     rateAppDesc: 'Ayúdanos a mejorar con tus comentarios',
     contactSupport: 'Contactar soporte',
     contactSupportDesc: 'Obtener ayuda o reportar problemas',

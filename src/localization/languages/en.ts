@@ -217,7 +217,7 @@ export const en: Translations = {
     hapticFeedback: 'Haptic Feedback',
     hapticFeedbackDesc: 'Vibration for interactions',
     version: 'Version',
-    rateApp: 'Rate Chromica',
+    rateApp: 'Rate Corivo',
     rateAppDesc: 'Help us improve with your feedback',
     contactSupport: 'Contact Support',
     contactSupportDesc: 'Get help or report issues',

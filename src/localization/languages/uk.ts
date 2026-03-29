@@ -218,7 +218,7 @@ export const uk: Translations = {
     hapticFeedback: "Тактильний зворотний зв'язок",
     hapticFeedbackDesc: 'Вібрація при взаємодії',
     version: 'Версія',
-    rateApp: 'Оцінити Chromica',
+    rateApp: 'Оцінити Corivo',
     rateAppDesc: 'Допоможіть нам покращитися з вашим відгуком',
     contactSupport: "Зв'язатися з підтримкою",
     contactSupportDesc: 'Отримати допомогу або повідомити про проблему',

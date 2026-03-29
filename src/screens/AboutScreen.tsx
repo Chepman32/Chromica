@@ -26,13 +26,13 @@ const AboutScreen: React.FC = () => {
   };
 
   const handleRateApp = () => {
-    Alert.alert('Rate Chromica', 'This will open the App Store rating dialog');
+    Alert.alert('Rate Corivo', 'This will open the App Store rating dialog');
   };
 
   const handleContactSupport = () => {
     Alert.alert(
       'Contact Support',
-      'This will open email composer to support@chromica.app',
+      'This will open email composer to support@corivo.app',
     );
   };
 
@@ -137,7 +137,7 @@ const AboutScreen: React.FC = () => {
               () =>
                 Alert.alert(
                   t.settings.privacyPolicy,
-                  'This will open chromica.app/privacy',
+                  'This will open corivo.app/privacy',
                 ),
             )}
             {renderSettingRow(
@@ -147,7 +147,7 @@ const AboutScreen: React.FC = () => {
               () =>
                 Alert.alert(
                   t.settings.termsOfService,
-                  'This will open chromica.app/terms',
+                  'This will open corivo.app/terms',
                 ),
             )}
           </>,

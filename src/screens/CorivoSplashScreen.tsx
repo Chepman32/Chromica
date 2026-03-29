@@ -1,5 +1,5 @@
 /**
- * Chromica Animated Splash Screen
+ * Corivo Animated Splash Screen
  * Simple animated logo with text reveal
  */
 
@@ -18,19 +18,22 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { translations } from '../localization';
+import { useTranslation } from '../hooks/useTranslation';
 
-interface ChromicaSplashScreenProps {
+interface CorivoSplashScreenProps {
   onFinish: () => void;
   initialLanguage?: string;
 }
 
-export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
+export const CorivoSplashScreen: React.FC<CorivoSplashScreenProps> = ({
   onFinish,
   initialLanguage,
 }) => {
   // Use initialLanguage if provided, otherwise fall back to useTranslation
-  const t = initialLanguage ? translations[initialLanguage as keyof typeof translations] : useTranslation();
-  
+  const t = initialLanguage
+    ? translations[initialLanguage as keyof typeof translations]
+    : useTranslation();
+
   // Animation values
   const logoOpacity = useSharedValue(0);
   const logoRotation = useSharedValue(0);
@@ -93,7 +96,7 @@ export const ChromicaSplashScreen: React.FC<ChromicaSplashScreenProps> = ({
 
       {/* App Name */}
       <Animated.View style={[styles.textContainer, textStyle]}>
-        <Text style={styles.appName}>CHROMICA</Text>
+        <Text style={styles.appName}>CORIVO</Text>
         <Text style={styles.tagline}>
           {t.splash.tagline}
         </Text>

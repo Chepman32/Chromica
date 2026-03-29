@@ -156,7 +156,7 @@ export class ImageProcessor {
 
       const path = `${
         RNFS.CachesDirectoryPath
-      }/chromica_${Date.now()}.${format}`;
+      }/corivo_${Date.now()}.${format}`;
       await RNFS.writeFile(path, encoded.toBase64(), 'base64');
 
       return path;

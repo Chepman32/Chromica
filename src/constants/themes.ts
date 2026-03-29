@@ -1,4 +1,4 @@
-// Theme definitions for Chromica
+// Theme definitions for Corivo
 
 export type ThemeType = 'light' | 'dark' | 'solar' | 'mono';
 

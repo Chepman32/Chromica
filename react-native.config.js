@@ -1,4 +1,4 @@
-// React Native configuration for Chromica
+// React Native configuration for Corivo
 
 module.exports = {
   project: {

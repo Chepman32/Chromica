@@ -1,4 +1,4 @@
-// Core type definitions for Chromica
+// Core type definitions for Corivo
 
 import { EffectLayer } from '../domain/effects/types';
 

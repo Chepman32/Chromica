@@ -217,7 +217,7 @@ export const ko: Translations = {
     hapticFeedback: '햅틱 피드백',
     hapticFeedbackDesc: '상호작용 진동',
     version: '버전',
-    rateApp: 'Chromica 평가',
+    rateApp: 'Corivo 평가',
     rateAppDesc: '피드백으로 개선에 도움을 주세요',
     contactSupport: '지원 문의',
     contactSupportDesc: '도움 받기 또는 문제 보고',

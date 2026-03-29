@@ -4,8 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Project } from '../types';
 import { logger } from '../utils/logger';
 
-const PROJECT_PREFIX = 'chromica_project_';
-const METADATA_KEY = 'chromica_project_ids';
+const PROJECT_PREFIX = 'corivo_project_';
+const METADATA_KEY = 'corivo_project_ids';
 
 // Initialize AsyncStorage to ensure it's ready
 let isInitialized = false;

@@ -1,4 +1,4 @@
-// Localization system for Chromica
+// Localization system for Corivo
 
 import { Language, Translations } from './translations';
 import { en } from './languages/en';

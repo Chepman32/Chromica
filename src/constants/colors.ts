@@ -1,4 +1,4 @@
-// Color palette for Chromica - Dark mode first design
+// Color palette for Corivo - Dark mode first design
 
 export const Colors = {
   // Base Colors

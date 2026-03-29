@@ -1,4 +1,4 @@
-// Localization system for Chromica
+// Localization system for Corivo
 
 export type Language =
   | 'en'

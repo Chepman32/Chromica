@@ -1,4 +1,4 @@
-package com.chromica
+package com.corivo
 
 import android.app.Application
 import com.facebook.react.PackageList

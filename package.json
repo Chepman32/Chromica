@@ -1,19 +1,19 @@
 {
-  "name": "Chromica",
+  "name": "Corivo",
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
-    "android:release": "react-native run-android --variant=release",
-    "ios": "react-native run-ios",
-    "ios:release": "react-native run-ios --configuration Release",
+    "android": "node ./node_modules/react-native/cli.js run-android",
+    "android:release": "node ./node_modules/react-native/cli.js run-android --variant=release",
+    "ios": "node ./node_modules/react-native/cli.js run-ios",
+    "ios:release": "node ./node_modules/react-native/cli.js run-ios --configuration Release",
     "build:android:release": "cd android && ./gradlew assembleRelease",
     "build:android:bundle": "cd android && ./gradlew bundleRelease",
     "clean:android": "cd android && ./gradlew clean",
-    "clean:ios": "cd ios && xcodebuild clean -workspace Chromica.xcworkspace -scheme Chromica",
-    "lint": "eslint .",
-    "start": "react-native start",
-    "test": "jest"
+    "clean:ios": "cd ios && xcodebuild clean -workspace Corivo.xcworkspace -scheme Corivo",
+    "lint": "node ./node_modules/eslint/bin/eslint.js .",
+    "start": "node ./node_modules/react-native/cli.js start",
+    "test": "node ./node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.21.0",
