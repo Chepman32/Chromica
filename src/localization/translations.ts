@@ -48,6 +48,33 @@ export interface Translations {
     recent: string;
     mixes: string;
   };
+  mixes?: {
+    title: string;
+    subtitle: string;
+    reset: string;
+    loadingImage: string;
+    noPhotoYet: string;
+    preparingCanvas: string;
+    pickImagePrompt: string;
+    pickPhoto: string;
+    original: string;
+    mixCount: string;
+    changePhoto: string;
+    stackTitle: string;
+    addFiltersTitle: string;
+    tapToToggle: string;
+    emptyTitle: string;
+    emptySubtitle: string;
+    mixLimitTitle: string;
+    mixLimitMessage: string;
+    effectFallback: string;
+    unknownEffect: string;
+    visibleOn: string;
+    visibleOff: string;
+    moveUp: string;
+    moveDown: string;
+    remove: string;
+  };
   splash: {
     tagline: string;
   };

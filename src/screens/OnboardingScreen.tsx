@@ -25,6 +25,7 @@ import Animated, {
   useAnimatedScrollHandler,
   interpolate,
   Extrapolation,
+  type SharedValue,
 } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -33,8 +34,55 @@ import { useTranslation } from '../hooks/useTranslation';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
+import { triggerHaptic } from '../utils/haptics';
 
 const { width: screenWidth } = Dimensions.get('window');
+
+type PaginationDotProps = {
+  index: number;
+  scrollX: SharedValue<number>;
+};
+
+const PaginationDot: React.FC<PaginationDotProps> = ({ index, scrollX }) => {
+  const dotStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * screenWidth,
+        index * screenWidth,
+        (index + 1) * screenWidth,
+      ],
+      [0.8, 1.33, 0.8],
+      Extrapolation.CLAMP,
+    );
+
+    const opacity = interpolate(
+      scrollX.value,
+      [
+        (index - 1) * screenWidth,
+        index * screenWidth,
+        (index + 1) * screenWidth,
+      ],
+      [0.4, 1, 0.4],
+      Extrapolation.CLAMP,
+    );
+
+    return {
+      transform: [{ scale }],
+      opacity,
+    };
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.dot,
+        { backgroundColor: Colors.accent.primary },
+        dotStyle,
+      ]}
+    />
+  );
+};
 
 // SVG Illustration: Effects Grid with visual effects
 const EffectsIllustration = () => (
@@ -451,6 +499,7 @@ const OnboardingScreen: React.FC = () => {
   const navigation = useNavigation();
   const t = useTranslation();
   const setOnboardingSeen = useAppStore(state => state.setOnboardingSeen);
+  const preferences = useAppStore(state => state.preferences);
   const scrollViewRef = useRef<Animated.ScrollView>(null);
   const scrollX = useSharedValue(0);
 
@@ -460,51 +509,20 @@ const OnboardingScreen: React.FC = () => {
     },
   });
 
-  const handleSkip = () => {
+  const completeOnboarding = (withHaptic: boolean) => {
+    if (withHaptic && preferences.hapticFeedback) {
+      triggerHaptic('selection');
+    }
     setOnboardingSeen();
     navigation.navigate('Home' as never);
   };
 
-  const renderDot = (index: number) => {
-    const dotStyle = useAnimatedStyle(() => {
-      const scale = interpolate(
-        scrollX.value,
-        [
-          (index - 1) * screenWidth,
-          index * screenWidth,
-          (index + 1) * screenWidth,
-        ],
-        [0.8, 1.33, 0.8],
-        Extrapolation.CLAMP,
-      );
+  const handleSkip = () => {
+    completeOnboarding(false);
+  };
 
-      const opacity = interpolate(
-        scrollX.value,
-        [
-          (index - 1) * screenWidth,
-          index * screenWidth,
-          (index + 1) * screenWidth,
-        ],
-        [0.4, 1, 0.4],
-        Extrapolation.CLAMP,
-      );
-
-      return {
-        transform: [{ scale }],
-        opacity,
-      };
-    });
-
-    return (
-      <Animated.View
-        key={index}
-        style={[
-          styles.dot,
-          { backgroundColor: Colors.accent.primary },
-          dotStyle,
-        ]}
-      />
-    );
+  const handleGetStarted = () => {
+    completeOnboarding(true);
   };
 
   // Panel 1: Professional Photo Effects Editor
@@ -608,7 +626,7 @@ const OnboardingScreen: React.FC = () => {
             </View>
           </View>
         </Animated.View>
-        <TouchableOpacity style={styles.ctaButton} onPress={handleSkip}>
+        <TouchableOpacity style={styles.ctaButton} onPress={handleGetStarted}>
           <Text style={styles.ctaButtonText}>{t.onboarding.getStarted}</Text>
         </TouchableOpacity>
       </View>
@@ -638,7 +656,11 @@ const OnboardingScreen: React.FC = () => {
       </Animated.ScrollView>
 
       {/* Progress Indicators */}
-      <View style={styles.pagination}>{[0, 1].map(renderDot)}</View>
+      <View style={styles.pagination}>
+        {[0, 1].map(index => (
+          <PaginationDot key={index} index={index} scrollX={scrollX} />
+        ))}
+      </View>
     </SafeAreaView>
   );
 };

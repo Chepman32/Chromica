@@ -73,6 +73,9 @@ const MIX_CATEGORIES = CATEGORY_ORDER.filter(category =>
 );
 const EFFECT_MAP = new Map(MIXABLE_EFFECTS.map(effect => [effect.id, effect]));
 
+const fillCount = (template: string, count: number) =>
+  template.replace('{count}', String(count));
+
 const normalizeImageUri = (uri: string): string => {
   if (uri.startsWith('ph://')) return uri;
   if (uri.startsWith('file://')) return uri;
@@ -181,6 +184,7 @@ export const MixesScreen: React.FC = () => {
   const { loadProjects } = useProjectGalleryStore();
   const canvasRef = useCanvasRef();
   const t = useTranslation();
+  const mixesT = t.mixes;
 
   const categoryTranslationMap: Record<EffectCategory, keyof typeof t.effects.categories> = {
     [EffectCategory.CELLULAR]: 'cellular',
@@ -314,8 +318,8 @@ export const MixesScreen: React.FC = () => {
       }
       if (prev.length >= MAX_STACK) {
         Alert.alert(
-          'Mix limit reached',
-          `You can stack up to ${MAX_STACK} filters at once.`,
+          mixesT.mixLimitTitle,
+          fillCount(mixesT.mixLimitMessage, MAX_STACK),
         );
         return prev;
       }
@@ -332,7 +336,7 @@ export const MixesScreen: React.FC = () => {
 
       return [...prev, newLayer];
     });
-  }, []);
+  }, [mixesT]);
 
   const handleMoveLayer = useCallback((index: number, direction: -1 | 1) => {
     setMixStack(prev => {
@@ -457,14 +461,12 @@ export const MixesScreen: React.FC = () => {
               style={styles.headerButton}
               onPress={handleBack}
             >
-              <Text style={styles.headerButtonText}>Back</Text>
+              <Text style={styles.headerButtonText}>{t.common.back}</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.headerCenter}>
-            <Text style={styles.headerTitle}>Mixes</Text>
-            <Text style={styles.headerSubtitle}>
-              Stack a few filters at once
-            </Text>
+            <Text style={styles.headerTitle}>{mixesT.title}</Text>
+            <Text style={styles.headerSubtitle}>{mixesT.subtitle}</Text>
           </View>
           <View style={[styles.headerSide, styles.headerSideRight]}>
             <TouchableOpacity
@@ -481,7 +483,7 @@ export const MixesScreen: React.FC = () => {
                   mixStack.length === 0 && styles.headerButtonTextDisabled,
                 ]}
               >
-                Reset
+                {mixesT.reset}
               </Text>
             </TouchableOpacity>
           </View>
@@ -525,19 +527,19 @@ export const MixesScreen: React.FC = () => {
               ) : (
                 <View style={styles.previewPlaceholder}>
                   <Text style={styles.placeholderTitle}>
-                    {isLoadingImage ? 'Loading image...' : 'No photo yet'}
+                    {isLoadingImage ? mixesT.loadingImage : mixesT.noPhotoYet}
                   </Text>
                   <Text style={styles.placeholderText}>
                     {isLoadingImage
-                      ? 'Preparing your canvas.'
-                      : 'Pick an image to start mixing filters.'}
+                      ? mixesT.preparingCanvas
+                      : mixesT.pickImagePrompt}
                   </Text>
                   {!isLoadingImage && (
                     <TouchableOpacity
                       style={styles.pickButton}
                       onPress={handlePickImage}
                     >
-                      <Text style={styles.pickButtonText}>Pick Photo</Text>
+                      <Text style={styles.pickButtonText}>{mixesT.pickPhoto}</Text>
                     </TouchableOpacity>
                   )}
                 </View>
@@ -547,8 +549,8 @@ export const MixesScreen: React.FC = () => {
                 <View style={styles.previewBadge}>
                   <Text style={styles.previewBadgeText}>
                     {mixStack.length === 0
-                      ? 'Original'
-                      : `Mix ${mixStack.length}`}
+                      ? mixesT.original
+                      : fillCount(mixesT.mixCount, mixStack.length)}
                   </Text>
                 </View>
               )}
@@ -559,14 +561,14 @@ export const MixesScreen: React.FC = () => {
                 style={styles.changePhotoButton}
                 onPress={handlePickImage}
               >
-                <Text style={styles.changePhotoText}>Change Photo</Text>
+                <Text style={styles.changePhotoText}>{mixesT.changePhoto}</Text>
               </TouchableOpacity>
             )}
           </View>
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Mix Stack</Text>
+              <Text style={styles.sectionTitle}>{mixesT.stackTitle}</Text>
               <Text style={styles.sectionMeta}>
                 {mixStack.length}/{MAX_STACK}
               </Text>
@@ -574,17 +576,22 @@ export const MixesScreen: React.FC = () => {
 
             {mixStack.length === 0 ? (
               <View style={styles.emptyCard}>
-                <Text style={styles.emptyTitle}>No filters yet</Text>
+                <Text style={styles.emptyTitle}>{mixesT.emptyTitle}</Text>
                 <Text style={styles.emptyText}>
-                  Tap below to stack up to {MAX_STACK} filters for a mix.
+                  {fillCount(mixesT.emptySubtitle, MAX_STACK)}
                 </Text>
               </View>
             ) : (
               mixStack.map((layer, index) => {
                 const effect = EFFECT_MAP.get(layer.effectId);
                 const label = effect?.category
-                  ? t.effects?.categories?.[categoryTranslationMap[effect.category]] || 'Effect'
-                  : 'Effect';
+                  ? t.effects.categories[categoryTranslationMap[effect.category]] ||
+                    mixesT.effectFallback
+                  : mixesT.effectFallback;
+                const effectName = effect
+                  ? t.effects.names[effect.id as keyof typeof t.effects.names] ||
+                    effect.name
+                  : mixesT.unknownEffect;
 
                 return (
                   <View
@@ -603,7 +610,7 @@ export const MixesScreen: React.FC = () => {
                         </View>
                         <View>
                           <Text style={styles.stackTitle}>
-                            {effect?.name ?? 'Unknown'}
+                            {effectName}
                           </Text>
                           <Text style={styles.stackSubtitle}>{label}</Text>
                         </View>
@@ -618,7 +625,7 @@ export const MixesScreen: React.FC = () => {
                         onPress={() => handleToggleVisibility(layer.id)}
                       >
                         <Text style={styles.visibilityText}>
-                          {layer.visible ? 'On' : 'Off'}
+                          {layer.visible ? mixesT.visibleOn : mixesT.visibleOff}
                         </Text>
                       </TouchableOpacity>
                     </View>
@@ -632,7 +639,7 @@ export const MixesScreen: React.FC = () => {
                         onPress={() => handleMoveLayer(index, -1)}
                         disabled={index === 0}
                       >
-                        <Text style={styles.actionButtonText}>Up</Text>
+                        <Text style={styles.actionButtonText}>{mixesT.moveUp}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={[
@@ -643,13 +650,13 @@ export const MixesScreen: React.FC = () => {
                         onPress={() => handleMoveLayer(index, 1)}
                         disabled={index === mixStack.length - 1}
                       >
-                        <Text style={styles.actionButtonText}>Down</Text>
+                        <Text style={styles.actionButtonText}>{mixesT.moveDown}</Text>
                       </TouchableOpacity>
                       <TouchableOpacity
                         style={styles.removeButton}
                         onPress={() => handleRemoveLayer(layer.id)}
                       >
-                        <Text style={styles.removeButtonText}>Remove</Text>
+                        <Text style={styles.removeButtonText}>{mixesT.remove}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -660,8 +667,8 @@ export const MixesScreen: React.FC = () => {
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Add Filters</Text>
-              <Text style={styles.sectionMeta}>Tap to toggle</Text>
+              <Text style={styles.sectionTitle}>{mixesT.addFiltersTitle}</Text>
+              <Text style={styles.sectionMeta}>{mixesT.tapToToggle}</Text>
             </View>
 
             <ScrollView
@@ -688,7 +695,7 @@ export const MixesScreen: React.FC = () => {
                         styles.categoryTextActive,
                     ]}
                   >
-                    {t.effects?.categories?.[categoryTranslationMap[category]] || category}
+                    {t.effects.categories[categoryTranslationMap[category]] || category}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -721,9 +728,12 @@ export const MixesScreen: React.FC = () => {
                         </View>
                       )}
                     </View>
-                    <Text style={styles.effectName}>{t.effects?.names?.[effect.id as keyof typeof t.effects.names] || effect.name}</Text>
+                    <Text style={styles.effectName}>
+                      {t.effects.names[effect.id as keyof typeof t.effects.names] || effect.name}
+                    </Text>
                     <Text style={styles.effectMeta}>
-                      {t.effects?.categories?.[categoryTranslationMap[effect.category]] || effect.category}
+                      {t.effects.categories[categoryTranslationMap[effect.category]] ||
+                        effect.category}
                     </Text>
                   </TouchableOpacity>
                 );
