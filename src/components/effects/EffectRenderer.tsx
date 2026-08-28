@@ -9,12 +9,13 @@ import {
   Skia,
   Shader,
   ImageShader,
-  Fill,
+  Rect,
   useImage,
 } from '@shopify/react-native-skia';
 import type { SkRuntimeEffect } from '@shopify/react-native-skia';
 import { Effect } from '../../domain/effects/types';
 import { ShaderManager } from '../../domain/shader-manager/ShaderManager';
+import { calculateContainedImageBounds } from './imageBounds';
 
 const COMMON_NOISE_SNIPPET = `
 float rand(float2 co) {
@@ -75,6 +76,19 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
   const lightning4 = useImage(require('../../assets/images/effects/lightning/4.png'));
   const lightning5 = useImage(require('../../assets/images/effects/lightning/5.png'));
   const lightning6 = useImage(require('../../assets/images/effects/lightning/6.png'));
+
+  const imageBounds = useMemo(
+    () =>
+      calculateContainedImageBounds({
+        imageWidth: image?.width?.() ?? 0,
+        imageHeight: image?.height?.() ?? 0,
+        containerX: x,
+        containerY: y,
+        containerWidth: width,
+        containerHeight: height,
+      }),
+    [height, image, width, x, y],
+  );
 
   type ShaderData = {
     source: SkRuntimeEffect;
@@ -2818,33 +2832,39 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
 
   // Render image with or without shader effect
   if (effectData) {
-    // Render with shader effect
+    // Draw only inside the fitted photo. A full-canvas Fill would also run
+    // procedural shaders over the empty letterbox area around the image.
     return (
-      <Fill>
+      <Rect
+        x={imageBounds.x}
+        y={imageBounds.y}
+        width={imageBounds.width}
+        height={imageBounds.height}
+      >
         <Shader
           source={effectData.source}
           uniforms={effectData.uniforms}
         >
           <ImageShader
             image={image}
-            fit="contain"
-            x={x}
-            y={y}
-            width={width}
-            height={height}
+            fit="fill"
+            x={imageBounds.x}
+            y={imageBounds.y}
+            width={imageBounds.width}
+            height={imageBounds.height}
           />
           {effectData.lightningMask && (
             <ImageShader
               image={effectData.lightningMask}
               fit="contain"
-              x={x}
-              y={y}
-              width={width}
-              height={height}
+              x={imageBounds.x}
+              y={imageBounds.y}
+              width={imageBounds.width}
+              height={imageBounds.height}
             />
           )}
         </Shader>
-      </Fill>
+      </Rect>
     );
   }
 
@@ -2852,11 +2872,11 @@ export const EffectRenderer: React.FC<EffectRendererProps> = ({
   return (
     <SkiaImage
       image={image}
-      fit="contain"
-      x={x}
-      y={y}
-      width={width}
-      height={height}
+      fit="fill"
+      x={imageBounds.x}
+      y={imageBounds.y}
+      width={imageBounds.width}
+      height={imageBounds.height}
     />
   );
 };

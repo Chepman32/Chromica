@@ -26,7 +26,7 @@ export const el: Translations = {
     saveShareHeadline: 'Αποθήκευση & Κοινοποίηση',
     saveShareBody: 'Αυτόματη αποθήκευση έργων με μικρογραφίες. Συνέχιση επεξεργασίας οποιαδήποτε στιγμή. Εξαγωγή υψηλής ανάλυσης απευθείας σε Instagram, X, γκαλερί ή αρχεία.',
     featureAutoSave: 'Αυτόματη Αποθήκευση',
-    feature1080pExport: 'Εξαγωγή 1080p',
+    feature4KExport: 'Εξαγωγή 4K',
     featureQuickShare: 'Γρήγορη Κοινοποίηση',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const el: Translations = {
     confirmDeleteDesc: 'Εμφάνιση διαλόγου επιβεβαίωσης κατά τη διαγραφή έργων',
     hapticFeedback: 'Haptic Feedback',
     hapticFeedbackDesc: 'Δόνηση κατά τις ενέργειες',
+    notifications: 'Ειδοποιήσεις',
+    notificationsDesc: 'Λάβετε μια δημιουργική υπενθύμιση μετά από τρεις εβδομάδες χωρίς την εφαρμογή.',
     version: 'Έκδοση',
     rateApp: 'Αξιολόγηση Εφαρμογής',
     rateAppDesc: 'Αξιολογήστε την εφαρμογή στο κατάστημα',

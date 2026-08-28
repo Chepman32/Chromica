@@ -26,7 +26,7 @@ export const ja: Translations = {
     saveShareHeadline: '保存と共有',
     saveShareBody: 'サムネイル付きでプロジェクトを自動保存。いつでも編集を再開できます。高解像度で直接Instagram、X、ギャラリー、ファイルにエクスポート。',
     featureAutoSave: '自動保存',
-    feature1080pExport: '1080pエクスポート',
+    feature4KExport: '4Kエクスポート',
     featureQuickShare: 'クイック共有',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const ja: Translations = {
     confirmDeleteDesc: 'プロジェクト削除時に確認ダイアログを表示',
     hapticFeedback: '触覚フィードバック',
     hapticFeedbackDesc: 'インタラクションの振動',
+    notifications: '通知',
+    notificationsDesc: '3週間アプリを開かなかったら、クリエイティブなリマインダーを受け取ります。',
     version: 'バージョン',
     rateApp: 'Corivoを評価',
     rateAppDesc: 'フィードバックで改善にご協力ください',

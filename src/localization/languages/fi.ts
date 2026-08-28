@@ -26,7 +26,7 @@ export const fi: Translations = {
     saveShareHeadline: 'Tallenna & Jaa',
     saveShareBody: 'Automaattinen projektien tallennus pienoiskuvilla. Jatka muokkausta milloin tahansa. Vie korkealla resoluutiolla suoraan Instagramiin, X:ään, galleriaan tai tiedostoihin.',
     featureAutoSave: 'Automaattitallennus',
-    feature1080pExport: '1080p vienti',
+    feature4KExport: '4K vienti',
     featureQuickShare: 'Nopea jako',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const fi: Translations = {
     confirmDeleteDesc: 'Näytä vahvistusikkuna poistettaessa projekteja',
     hapticFeedback: 'Haptinen Palaute',
     hapticFeedbackDesc: 'Tärinä toimintojen yhteydessä',
+    notifications: 'Ilmoitukset',
+    notificationsDesc: 'Saat luovan muistutuksen, kun sovellusta ei ole avattu kolmeen viikkoon.',
     version: 'Versio',
     rateApp: 'Arvostele Sovellus',
     rateAppDesc: 'Arvostele sovellus kaupassa',

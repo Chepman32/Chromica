@@ -26,7 +26,7 @@ export const es: Translations = {
     saveShareHeadline: 'Guardar y Compartir',
     saveShareBody: 'Guardado automático de proyectos con miniaturas. Reanuda la edición en cualquier momento. Exporta en alta resolución directamente a Instagram, X, galería o archivos.',
     featureAutoSave: 'Guardado Automático',
-    feature1080pExport: 'Exportación 1080p',
+    feature4KExport: 'Exportación 4K',
     featureQuickShare: 'Compartir Rápido',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const es: Translations = {
     confirmDeleteDesc: 'Mostrar diálogo de confirmación al eliminar proyectos',
     hapticFeedback: 'Retroalimentación háptica',
     hapticFeedbackDesc: 'Vibración para interacciones',
+    notifications: 'Notificaciones',
+    notificationsDesc: 'Recibe un recordatorio creativo después de tres semanas sin usar la app.',
     version: 'Versión',
     rateApp: 'Calificar Corivo',
     rateAppDesc: 'Ayúdanos a mejorar con tus comentarios',

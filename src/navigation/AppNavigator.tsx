@@ -1,6 +1,7 @@
 // Main app navigation structure
 
 import React, { useState, useEffect } from 'react';
+import { AppState } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppStore, detectDeviceLanguage } from '../stores/appStore';
@@ -16,6 +17,12 @@ import { ExportScreen } from '../screens/ExportScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AboutScreen from '../screens/AboutScreen';
 import ImagePickerScreen from '../screens/ImagePickerScreen';
+import {
+  cancelInactivityNotification,
+  REENGAGEMENT_MESSAGES,
+  scheduleInactivityNotification,
+} from '../services/notifications';
+import { useTranslation } from '../hooks/useTranslation';
 
 export type RootStackParamList = {
   Onboarding: undefined;
@@ -45,6 +52,7 @@ export default function AppNavigator() {
   const hasSeenOnboarding = useAppStore(state => state.hasSeenOnboarding);
   const currentLanguage = useAppStore(state => state.preferences.language);
   const updatePreferences = useAppStore(state => state.updatePreferences);
+  const t = useTranslation();
   const [hasHydrated, setHasHydrated] = useState(useAppStore.persist.hasHydrated());
   const [showSplash, setShowSplash] = useState(true);
   const [detectedLanguage, setDetectedLanguage] = useState<string>('en');
@@ -63,6 +71,26 @@ export default function AppNavigator() {
     const timer = setTimeout(() => setShowSplash(false), 2800);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    cancelInactivityNotification().catch(() => undefined);
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        cancelInactivityNotification().catch(() => undefined);
+      } else if (nextAppState === 'background') {
+        const messages = currentLanguage === 'en'
+          ? REENGAGEMENT_MESSAGES
+          : [t.home.selectImageHint] as const;
+        scheduleInactivityNotification({
+          channelName: t.settings.notifications,
+          messages,
+        }).catch(() => undefined);
+      }
+    });
+
+    return () => subscription.remove();
+  }, [currentLanguage, t.home.selectImageHint, t.settings.notifications]);
 
   // Re-detect device language if onboarding hasn't been completed
   useEffect(() => {

@@ -46,9 +46,7 @@ const menuIcons = {
 export const LiquidRadialHomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const [reduceMotion, setReduceMotion] = useState(false);
-  const t = useTranslation();
-
-  const homeT = (t as any)?.home;
+  const { common, home, settings, ui } = useTranslation();
 
   // Check reduce motion preference
   useEffect(() => {
@@ -90,9 +88,9 @@ export const LiquidRadialHomeScreen: React.FC = () => {
       if (result.errorCode) {
         console.error('Image picker error:', result.errorCode, result.errorMessage);
         Alert.alert(
-          'Unable to Load Photos',
-          'Please ensure you have granted photo library access and have photos available.',
-          [{ text: 'OK' }]
+          ui.imagePicker.unableToLoadTitle,
+          ui.imagePicker.permissionMessage,
+          [{ text: common.done }],
         );
         return;
       }
@@ -106,9 +104,9 @@ export const LiquidRadialHomeScreen: React.FC = () => {
       }
     } catch (error) {
       console.error('Image picker error:', error);
-      Alert.alert('Error', 'Failed to open photo library');
+      Alert.alert(ui.error, ui.imagePicker.openFailed);
     }
-  }, [navigation]);
+  }, [common.done, navigation, ui]);
 
   // Navigate to Settings
   const handleSettings = useCallback(() => {
@@ -138,25 +136,25 @@ export const LiquidRadialHomeScreen: React.FC = () => {
   const satellites: SatelliteItem[] = [
     {
       id: 'settings',
-      label: t.settings.title,
+      label: settings.title,
       icon: menuIcons.settings,
       onPress: handleSettings,
     },
     {
       id: 'recent',
-      label: homeT?.recent ?? 'Recent',
+      label: home.recent,
       icon: menuIcons.recent,
       onPress: handleRecent,
     },
     {
       id: 'mixes',
-      label: homeT?.mixes ?? 'Mixes',
+      label: home.mixes,
       icon: menuIcons.mixes,
       onPress: handleMixes,
     },
     {
       id: 'about',
-      label: t.settings.about,
+      label: settings.about,
       icon: menuIcons.about,
       onPress: handleAbout,
     },
@@ -172,9 +170,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
         {/* Header */}
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
           <Text style={styles.title}>Corivo</Text>
-          <Text style={styles.subtitle}>
-            {homeT?.tapToStartEditing ?? 'Tap to start editing'}
-          </Text>
+          <Text style={styles.subtitle}>{home.tapToStartEditing}</Text>
         </Animated.View>
 
         {/* Liquid Menu */}
@@ -183,7 +179,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
             onCenterPress={handleOpenImagePicker}
             satellites={satellites}
             centerIcon={menuIcons.main}
-            centerLabel={homeT?.startEditing ?? 'Start Editing'}
+            centerLabel={home.startEditing}
           />
         </View>
 
@@ -192,9 +188,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
           style={styles.footer}
           entering={reduceMotion ? undefined : FadeIn.delay(1000).duration(500)}
         >
-          <Text style={styles.footerText}>
-            {homeT?.selectImageHint ?? 'Select an image to apply stunning effects'}
-          </Text>
+          <Text style={styles.footerText}>{home.selectImageHint}</Text>
         </Animated.View>
       </SafeAreaView>
     </View>

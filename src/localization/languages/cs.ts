@@ -26,7 +26,7 @@ export const cs: Translations = {
     saveShareHeadline: 'Uložit & Sdílet',
     saveShareBody: 'Automatické ukládání projektů s náhledy. Pokračujte v úpravách kdykoli. Exportujte ve vysokém rozlišení přímo na Instagram, X, galerii nebo soubory.',
     featureAutoSave: 'Auto-Uložit',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Rychlé Sdílení',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const cs: Translations = {
     confirmDeleteDesc: 'Zobrazit potvrzovací dialog při mazání projektů',
     hapticFeedback: 'Haptická Zpětná Vazba',
     hapticFeedbackDesc: 'Vibrace při akcích',
+    notifications: 'Oznámení',
+    notificationsDesc: 'Získejte kreativní připomenutí po třech týdnech bez aplikace.',
     version: 'Verze',
     rateApp: 'Ohodnotit Aplikaci',
     rateAppDesc: 'Ohodnoťte aplikaci v obchodě',

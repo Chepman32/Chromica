@@ -26,7 +26,7 @@ export const uk: Translations = {
     saveShareHeadline: 'Зберегти та Поділитися',
     saveShareBody: 'Автоматичне збереження проєктів з мініатюрами. Продовжуйте редагування в будь-який час. Експорт високої роздільності прямо в Instagram, X, галерею або файли.',
     featureAutoSave: 'Автозбереження',
-    feature1080pExport: 'Експорт 1080p',
+    feature4KExport: 'Експорт 4K',
     featureQuickShare: 'Швидке Поділитися',
   },
   liquidMenu: {
@@ -217,6 +217,8 @@ export const uk: Translations = {
     confirmDeleteDesc: 'Показати діалог підтвердження при видаленні проектів',
     hapticFeedback: "Тактильний зворотний зв'язок",
     hapticFeedbackDesc: 'Вібрація при взаємодії',
+    notifications: 'Сповіщення',
+    notificationsDesc: 'Отримуйте творче нагадування після трьох тижнів без застосунку.',
     version: 'Версія',
     rateApp: 'Оцінити Corivo',
     rateAppDesc: 'Допоможіть нам покращитися з вашим відгуком',

@@ -26,7 +26,7 @@ export const nl: Translations = {
     saveShareHeadline: 'Opslaan & Delen',
     saveShareBody: 'Automatisch opslaan van projecten met miniaturen. Hervat bewerking op elk moment. Exporteer in hoge resolutie direct naar Instagram, X, galerij of bestanden.',
     featureAutoSave: 'Auto-Opslaan',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Snel Delen',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const nl: Translations = {
     confirmDeleteDesc: 'Toon bevestigingsdialoog bij het verwijderen van projecten',
     hapticFeedback: 'Haptische Feedback',
     hapticFeedbackDesc: 'Trilling bij acties',
+    notifications: 'Meldingen',
+    notificationsDesc: 'Ontvang een creatieve herinnering na drie weken zonder de app te openen.',
     version: 'Versie',
     rateApp: 'Beoordeel App',
     rateAppDesc: 'Beoordeel de app in de store',

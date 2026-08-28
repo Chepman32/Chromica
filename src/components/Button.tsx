@@ -172,9 +172,7 @@ const Button: React.FC<ButtonProps> = ({
       disabled={disabled || loading}
       activeOpacity={1} // We handle opacity with animations
     >
-      <Text style={[getTextStyle(), textStyle]}>
-        {loading ? 'Loading...' : title}
-      </Text>
+      <Text style={[getTextStyle(), textStyle]}>{title}</Text>
     </AnimatedTouchableOpacity>
   );
 };

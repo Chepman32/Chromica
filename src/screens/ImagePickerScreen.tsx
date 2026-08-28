@@ -18,6 +18,8 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing } from '../constants/spacing';
+import { useTranslation } from '../hooks/useTranslation';
+import { interpolateTranslation } from '../localization/formatters';
 
 const { width: screenWidth } = Dimensions.get('window');
 const GRID_COLUMNS = 4;
@@ -80,6 +82,7 @@ const FALLBACK_PHOTOS: PhotoAsset[] = [
 
 const ImagePickerScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { ui } = useTranslation();
   const [photos, setPhotos] = useState<PhotoAsset[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -135,13 +138,10 @@ const ImagePickerScreen: React.FC = () => {
 
     // Small delay to ensure smooth modal dismissal
     setTimeout(() => {
-      navigation.navigate(
-        'Editor' as never,
-        {
-          imageUri: photo.uri,
-          imageDimensions: { width: photo.width, height: photo.height },
-        } as never,
-      );
+      (navigation as any).navigate('Editor', {
+        imageUri: photo.uri,
+        imageDimensions: { width: photo.width, height: photo.height },
+      });
     }, 150);
   };
 
@@ -177,16 +177,22 @@ const ImagePickerScreen: React.FC = () => {
 
       {/* Title */}
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>Select Photo</Text>
+        <Text style={styles.title}>{ui.imagePicker.selectPhoto}</Text>
         <Text style={styles.subtitle}>
-          {loading ? 'Loading photos...' : `${photos.length} photos available`}
+          {loading
+            ? ui.imagePicker.loadingPhotos
+            : interpolateTranslation(ui.imagePicker.availablePhotos, {
+                count: photos.length,
+              })}
         </Text>
       </View>
 
       {/* Photo Grid */}
       {loading ? (
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading your photos...</Text>
+          <Text style={styles.loadingText}>
+            {ui.imagePicker.loadingYourPhotos}
+          </Text>
         </View>
       ) : (
         <FlatList

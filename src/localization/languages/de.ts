@@ -26,7 +26,7 @@ export const de: Translations = {
     saveShareHeadline: 'Speichern & Teilen',
     saveShareBody: 'Automatisches Speichern von Projekten mit Miniaturansichten. Bearbeitung jederzeit fortsetzen. Export in hoher Auflösung direkt zu Instagram, X, Galerie oder Dateien.',
     featureAutoSave: 'Autom. Speichern',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Schnelles Teilen',
   },
   liquidMenu: {
@@ -217,6 +217,8 @@ export const de: Translations = {
     confirmDeleteDesc: 'Bestätigungsdialog beim Löschen von Projekten anzeigen',
     hapticFeedback: 'Haptisches Feedback',
     hapticFeedbackDesc: 'Vibration für Interaktionen',
+    notifications: 'Benachrichtigungen',
+    notificationsDesc: 'Erhalte nach drei Wochen ohne App eine kreative Erinnerung.',
     version: 'Version',
     rateApp: 'Corivo bewerten',
     rateAppDesc: 'Helfen Sie uns mit Ihrem Feedback zu verbessern',

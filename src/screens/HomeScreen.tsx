@@ -23,12 +23,16 @@ import Animated, {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useProjectGalleryStore } from '../stores/projectGalleryStore';
-import { useAppStore } from '../stores/appStore';
 import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 import { Shadows } from '../constants/colors';
 import { Project } from '../types';
+import { useTranslation } from '../hooks/useTranslation';
+import {
+  formatProjectTimestamp,
+  interpolateTranslation,
+} from '../localization/formatters';
 
 const { width: screenWidth } = Dimensions.get('window');
 const GRID_COLUMNS = 3;
@@ -37,6 +41,7 @@ const GRID_ITEM_SIZE =
 
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { common, locale, recents, ui } = useTranslation();
   const {
     projects,
     selectionMode,
@@ -67,10 +72,7 @@ const HomeScreen: React.FC = () => {
     if (selectionMode) {
       toggleSelection(project.id);
     } else {
-      navigation.navigate(
-        'Editor' as never,
-        { projectId: project.id } as never,
-      );
+      (navigation as any).navigate('Editor', { projectId: project.id });
     }
   };
 
@@ -84,12 +86,12 @@ const HomeScreen: React.FC = () => {
   const handleDeleteSelected = () => {
     const count = selectedIds.size;
     Alert.alert(
-      'Delete Projects',
-      `Delete ${count} project${count > 1 ? 's' : ''}? This cannot be undone.`,
+      ui.projects.deleteSelectedTitle,
+      interpolateTranslation(ui.projects.deleteSelectedMessage, { count }),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: common.cancel, style: 'cancel' },
         {
-          text: 'Delete',
+          text: common.delete,
           style: 'destructive',
           onPress: () => deleteProjects(Array.from(selectedIds)),
         },
@@ -100,7 +102,7 @@ const HomeScreen: React.FC = () => {
   const handleDuplicateSelected = async () => {
     const ids = Array.from(selectedIds);
     for (const id of ids) {
-      await duplicateProject(id);
+      await duplicateProject(id, ui.projects.copySuffix);
     }
     exitSelectionMode();
   };
@@ -167,7 +169,12 @@ const HomeScreen: React.FC = () => {
             {/* Timestamp badge */}
             <View style={styles.timestampBadge}>
               <Text style={styles.timestampText}>
-                {formatTimestamp(item.updatedAt)}
+                {formatProjectTimestamp(
+                  item.updatedAt,
+                  new Date(),
+                  locale,
+                  ui.projects,
+                )}
               </Text>
             </View>
 
@@ -197,9 +204,9 @@ const HomeScreen: React.FC = () => {
       <View style={styles.emptyStateIcon}>
         <Text style={styles.emptyStateIconText}>🖼️</Text>
       </View>
-      <Text style={styles.emptyStateTitle}>No Projects Yet</Text>
+      <Text style={styles.emptyStateTitle}>{recents.emptyState.title}</Text>
       <Text style={styles.emptyStateSubtitle}>
-        Tap the + button to create your first masterpiece
+        {recents.emptyState.subtitle}
       </Text>
     </View>
   );
@@ -222,10 +229,14 @@ const HomeScreen: React.FC = () => {
       {selectionMode && (
         <View style={styles.selectionTopBar}>
           <TouchableOpacity onPress={exitSelectionMode}>
-            <Text style={styles.selectionAction}>Cancel</Text>
+            <Text style={styles.selectionAction}>{common.cancel}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.selectionTitle}>{selectedIds.size} Selected</Text>
+          <Text style={styles.selectionTitle}>
+            {interpolateTranslation(ui.projects.selectedCount, {
+              count: selectedIds.size,
+            })}
+          </Text>
 
           <TouchableOpacity onPress={handleDeleteSelected}>
             <Text style={styles.deleteAction}>🗑️</Text>
@@ -256,18 +267,6 @@ const HomeScreen: React.FC = () => {
       </View>
     </SafeAreaView>
   );
-};
-
-const formatTimestamp = (date: Date): string => {
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return '1d ago';
-  if (diffDays < 7) return `${diffDays}d ago`;
-
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
 const styles = StyleSheet.create({

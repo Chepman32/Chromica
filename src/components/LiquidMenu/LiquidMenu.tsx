@@ -131,7 +131,7 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
   centerLabel,
 }) => {
   const t = useTranslation();
-  const liquidMenuT = (t as any)?.liquidMenu ?? (t as any)?.settings?.liquidMenu;
+  const liquidMenuT = t.liquidMenu;
 
   // Memoize satellite items to prevent unnecessary recalculations
   const memoizedSatellites = useMemo(() => satellites, [satellites]);
@@ -402,8 +402,8 @@ export const LiquidMenu: React.FC<LiquidMenuProps> = ({
               style={styles.parentButton}
               onPress={onCenterPress}
               accessibilityRole="button"
-              accessibilityLabel={`${centerLabel ?? ''}. ${liquidMenuT?.openImagePicker ?? 'Open image picker'}`}
-              accessibilityHint={`${liquidMenuT?.doubleTapToEdit ?? 'Double tap to select an image to edit'}`}
+              accessibilityLabel={`${centerLabel ?? ''}. ${liquidMenuT.openImagePicker}`}
+              accessibilityHint={liquidMenuT.doubleTapToEdit}
             >
               {centerIcon && (
                 <Image

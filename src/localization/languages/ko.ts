@@ -26,7 +26,7 @@ export const ko: Translations = {
     saveShareHeadline: '저장 및 공유',
     saveShareBody: '썸네일이 포함된 프로젝트 자동 저장. 언제든지 편집 재개. 고해상도로 Instagram, X, 갤러리 또는 파일로 직접 내보내기.',
     featureAutoSave: '자동 저장',
-    feature1080pExport: '1080p 내보내기',
+    feature4KExport: '4K 내보내기',
     featureQuickShare: '빠른 공유',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const ko: Translations = {
     confirmDeleteDesc: '프로젝트 삭제 시 확인 대화 상자 표시',
     hapticFeedback: '햅틱 피드백',
     hapticFeedbackDesc: '상호작용 진동',
+    notifications: '알림',
+    notificationsDesc: '3주 동안 앱을 열지 않으면 창의적인 알림을 받습니다.',
     version: '버전',
     rateApp: 'Corivo 평가',
     rateAppDesc: '피드백으로 개선에 도움을 주세요',

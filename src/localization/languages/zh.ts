@@ -26,7 +26,7 @@ export const zh: Translations = {
     saveShareHeadline: '保存与分享',
     saveShareBody: '自动保存项目并生成缩略图。随时恢复编辑。高分辨率导出，直接分享到Instagram、X、相册或文件。',
     featureAutoSave: '自动保存',
-    feature1080pExport: '1080p导出',
+    feature4KExport: '4K导出',
     featureQuickShare: '快速分享',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const zh: Translations = {
     confirmDeleteDesc: '删除项目时显示确认对话框',
     hapticFeedback: '触觉反馈',
     hapticFeedbackDesc: '交互振动',
+    notifications: '通知',
+    notificationsDesc: '三周未打开应用后接收创意提醒。',
     version: '版本',
     rateApp: '评价Corivo',
     rateAppDesc: '通过您的反馈帮助我们改进',

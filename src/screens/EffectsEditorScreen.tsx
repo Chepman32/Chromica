@@ -553,7 +553,9 @@ const categories = useMemo(() => [
         {loadingImage || !image ? (
           <View style={styles.loadingContainer}>
             <Text style={styles.loadingText}>
-              {loadingImage ? 'Loading image...' : 'Image not available'}
+              {loadingImage
+                ? t.mixes.loadingImage
+                : t.ui.editor.imageNotAvailable}
             </Text>
           </View>
         ) : (
@@ -621,7 +623,8 @@ const categories = useMemo(() => [
                         styles.categoryLabelSelected,
                     ]}
                   >
-                    {t.effects?.categories?.[categoryTranslationMap[category]] || category}
+                    {t.effects.categories[categoryTranslationMap[category]] ??
+                      t.mixes.effectFallback}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -657,7 +660,11 @@ const categories = useMemo(() => [
                       </Text>
                     )}
                   </View>
-                  <Text style={styles.effectName}>{t.effects?.names?.[effect.id as keyof typeof t.effects.names] || effect.name}</Text>
+                  <Text style={styles.effectName}>
+                    {t.effects.names[
+                      effect.id as keyof typeof t.effects.names
+                    ] ?? t.mixes.unknownEffect}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -669,7 +676,9 @@ const categories = useMemo(() => [
           <View style={styles.parametersPage}>
             <View style={styles.parametersHeader}>
               <Text style={styles.parametersPanelTitle}>
-                {t.effects?.names?.[selectedEffect.id as keyof typeof t.effects.names] || selectedEffect.name}
+                {t.effects.names[
+                  selectedEffect.id as keyof typeof t.effects.names
+                ] ?? t.mixes.unknownEffect}
               </Text>
 
               <TouchableOpacity
@@ -677,7 +686,7 @@ const categories = useMemo(() => [
                 style={styles.resetButton}
               >
                 <Text style={styles.resetButtonIcon}>↻</Text>
-                <Text style={styles.resetButtonText}>Reset</Text>
+                <Text style={styles.resetButtonText}>{t.mixes.reset}</Text>
               </TouchableOpacity>
             </View>
 
@@ -692,7 +701,11 @@ const categories = useMemo(() => [
                   return (
                     <EffectSlider
                       key={param.name}
-                      label={t.effects?.parameters?.[param.name as keyof typeof t.effects.parameters] || param.label}
+                      label={
+                        t.effects.parameters[
+                          param.name as keyof typeof t.effects.parameters
+                        ] ?? t.mixes.unknownEffect
+                      }
                       value={currentValue as number}
                       min={param.min!}
                       max={param.max!}
@@ -712,13 +725,19 @@ const categories = useMemo(() => [
                   const isColorParameter = param.name
                     .toLowerCase()
                     .includes('color');
-                  const translatedOptions = param.options.map(option => 
-                    t.effects?.options?.[option as keyof typeof t.effects.options] || option
+                  const translatedOptions = param.options.map(option =>
+                    t.effects.options[
+                      option.toLowerCase() as keyof typeof t.effects.options
+                    ] ?? t.mixes.unknownEffect,
                   );
                   return (
                     <EffectSegmentedControl
                       key={param.name}
-                      label={t.effects?.parameters?.[param.name as keyof typeof t.effects.parameters] || param.label}
+                      label={
+                        t.effects.parameters[
+                          param.name as keyof typeof t.effects.parameters
+                        ] ?? t.mixes.unknownEffect
+                      }
                       options={translatedOptions}
                       value={currentValue as string}
                       onChange={value =>

@@ -21,6 +21,11 @@ import { Typography } from '../../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../../constants/spacing';
 import { Shadows } from '../../constants/colors';
 import { Project } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
+import {
+  formatProjectTimestamp,
+  interpolateTranslation,
+} from '../../localization/formatters';
 
 const THUMBNAIL_SIZE = 72;
 
@@ -41,21 +46,9 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
   onDuplicate,
   onRename,
 }) => {
-  const formatTimestamp = (date: Date): string => {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / (1000 * 60));
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
-
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
+  const { common, locale, ui } = useTranslation();
+  const formatTimestamp = (date: Date): string =>
+    formatProjectTimestamp(date, new Date(), locale, ui.projects);
 
   const elementCount = Array.isArray(project.mixStack)
     ? project.mixStack.length
@@ -74,7 +67,7 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
       }}
     >
       <Text style={styles.deleteButtonText}>🗑️</Text>
-      <Text style={styles.deleteButtonLabel}>Delete</Text>
+      <Text style={styles.deleteButtonLabel}>{common.delete}</Text>
     </TouchableOpacity>
   );
 
@@ -83,7 +76,7 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
     menuItems: [
       {
         actionKey: 'duplicate',
-        actionTitle: 'Duplicate',
+        actionTitle: ui.projects.duplicate,
         icon: {
           type: 'IMAGE_SYSTEM' as const,
           imageValue: {
@@ -93,7 +86,7 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
       },
       {
         actionKey: 'rename',
-        actionTitle: 'Rename',
+        actionTitle: ui.projects.rename,
         icon: {
           type: 'IMAGE_SYSTEM' as const,
           imageValue: {
@@ -103,7 +96,7 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
       },
       {
         actionKey: 'delete',
-        actionTitle: 'Delete',
+        actionTitle: common.delete,
         menuAttributes: ['destructive'],
         icon: {
           type: 'IMAGE_SYSTEM' as const,
@@ -162,17 +155,19 @@ export const SwipeableProjectItem: React.FC<SwipeableProjectItemProps> = ({
       <View style={styles.projectInfo}>
         <View style={styles.projectTitleRow}>
           <Text style={styles.projectTitle} numberOfLines={1}>
-            {project.name || 'Untitled Project'}
+            {project.name || ui.projects.untitled}
           </Text>
           {Array.isArray(project.mixStack) && (
             <View style={styles.mixBadge}>
-              <Text style={styles.mixBadgeText}>Mixed</Text>
+              <Text style={styles.mixBadgeText}>{ui.projects.mixed}</Text>
             </View>
           )}
         </View>
         <Text style={styles.projectDate}>{formatTimestamp(project.updatedAt)}</Text>
         <Text style={styles.projectElements}>
-          {elementCount} element{elementCount !== 1 ? 's' : ''}
+          {interpolateTranslation(ui.projects.elementsCount, {
+            count: elementCount,
+          })}
         </Text>
       </View>
 

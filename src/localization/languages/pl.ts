@@ -26,7 +26,7 @@ export const pl: Translations = {
     saveShareHeadline: 'Zapisz & Udostępnij',
     saveShareBody: 'Automatyczne zapisywanie projektów z miniaturami. Wznów edycję w dowolnym momencie. Eksportuj w wysokiej rozdzielczości bezpośrednio do Instagram, X, galerii lub plików.',
     featureAutoSave: 'Auto-Zapis',
-    feature1080pExport: 'Eksport 1080p',
+    feature4KExport: 'Eksport 4K',
     featureQuickShare: 'Szybkie Udostępnianie',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const pl: Translations = {
     confirmDeleteDesc: 'Pokaż dialog potwierdzenia podczas usuwania projektów',
     hapticFeedback: 'Haptyczna Informacja Zwrotna',
     hapticFeedbackDesc: 'Wibracje przy akcjach',
+    notifications: 'Powiadomienia',
+    notificationsDesc: 'Otrzymuj kreatywne przypomnienie po trzech tygodniach bez aplikacji.',
     version: 'Wersja',
     rateApp: 'Oceń Aplikację',
     rateAppDesc: 'Oceń aplikację w sklepie',

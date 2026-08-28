@@ -26,7 +26,7 @@ export const da: Translations = {
     saveShareHeadline: 'Gem & Del',
     saveShareBody: 'Automatisk gemning af projekter med miniaturebilleder. Genoptag redigering når som helst. Eksporter i høj opløsning direkte til Instagram, X, galleri eller filer.',
     featureAutoSave: 'Auto-Gem',
-    feature1080pExport: '1080p Eksport',
+    feature4KExport: '4K Eksport',
     featureQuickShare: 'Hurtig Deling',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const da: Translations = {
     confirmDeleteDesc: 'Vis bekræftelsesdialog ved sletning af projekter',
     hapticFeedback: 'Haptisk Feedback',
     hapticFeedbackDesc: 'Vibration ved handlinger',
+    notifications: 'Notifikationer',
+    notificationsDesc: 'Få en kreativ påmindelse efter tre uger uden appen.',
     version: 'Version',
     rateApp: 'Bedøm App',
     rateAppDesc: 'Bedøm appen i butikken',

@@ -26,7 +26,7 @@ export const ar: Translations = {
     saveShareHeadline: 'حفظ ومشاركة',
     saveShareBody: 'حفظ تلقائي للمشاريع مع الصور المصغرة. استئناف التحرير في أي وقت. تصدير بدقة عالية مباشرة إلى إنستغرام، X، المعرض، أو الملفات.',
     featureAutoSave: 'حفظ تلقائي',
-    feature1080pExport: 'تصدير 1080p',
+    feature4KExport: 'تصدير 4K',
     featureQuickShare: 'مشاركة سريعة',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const ar: Translations = {
     confirmDeleteDesc: 'إظهار حوار التأكيد عند حذف المشاريع',
     hapticFeedback: 'الرد اللمسي',
     hapticFeedbackDesc: 'اهتزاز عند الإجراءات',
+    notifications: 'الإشعارات',
+    notificationsDesc: 'تلقي تذكير إبداعي بعد ثلاثة أسابيع من عدم استخدام التطبيق.',
     version: 'الإصدار',
     rateApp: 'قيم التطبيق',
     rateAppDesc: 'قيم التطبيق في المتجر',

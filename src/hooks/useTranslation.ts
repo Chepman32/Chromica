@@ -2,6 +2,8 @@
 
 import { useAppStore } from '../stores/appStore';
 import { Language, Translations, translations } from '../localization';
+import { uiDefaults } from '../localization/uiDefaults';
+import { effectParameterDefaults } from '../localization/effectParameterDefaults';
 
 const homeDefaults: Record<Language, NonNullable<Translations['home']>> = {
   en: {
@@ -12,9 +14,9 @@ const homeDefaults: Record<Language, NonNullable<Translations['home']>> = {
     mixes: 'Mixes',
   },
   ru: {
-    tapToStartEditing: 'Нажмите, чтобы начать редактирование',
-    startEditing: 'Начать редактирование',
-    selectImageHint: 'Выберите изображение, чтобы применить эффекты',
+    tapToStartEditing: 'Нажмите, чтобы начать',
+    startEditing: 'Начать обработку',
+    selectImageHint: 'Выберите фото и добавьте эффектов',
     recent: 'Недавние',
     mixes: 'Миксы',
   },
@@ -237,11 +239,11 @@ const recentsDefaults: Record<Language, NonNullable<Translations['recents']>> = 
     title: 'Недавние проекты',
     emptyState: {
       title: 'Нет недавних проектов',
-      subtitle: 'Ваши отредактированные проекты появятся здесь',
+      subtitle: 'Здесь появятся ваши отредактированные проекты',
     },
     deleteConfirmation: {
       title: 'Удалить проект',
-      message: 'Вы уверены, что хотите удалить этот проект? Это действие нельзя отменить.',
+      message: 'Удалить этот проект? Отменить это действие не получится.',
     },
   },
   es: {
@@ -584,27 +586,27 @@ const mixesDefaults: Record<Language, NonNullable<Translations['mixes']>> = {
   },
   ru: {
     title: 'Миксы',
-    subtitle: 'Сложите несколько фильтров сразу',
-    reset: 'Сброс',
-    loadingImage: 'Загрузка изображения...',
+    subtitle: 'Сочетайте несколько фильтров',
+    reset: 'Сбросить',
+    loadingImage: 'Загружаем изображение...',
     noPhotoYet: 'Фото пока нет',
-    preparingCanvas: 'Подготавливаем холст.',
-    pickImagePrompt: 'Выберите изображение, чтобы начать смешивать фильтры.',
+    preparingCanvas: 'Готовим изображение...',
+    pickImagePrompt: 'Выберите фото и соберите свой микс фильтров.',
     pickPhoto: 'Выбрать фото',
-    original: 'Оригинал',
+    original: 'Без фильтров',
     mixCount: 'Микс {count}',
     changePhoto: 'Сменить фото',
-    stackTitle: 'Стек микса',
+    stackTitle: 'Фильтры в миксе',
     addFiltersTitle: 'Добавить фильтры',
-    tapToToggle: 'Нажмите, чтобы переключить',
+    tapToToggle: 'Нажмите, чтобы включить или выключить',
     emptyTitle: 'Фильтров пока нет',
-    emptySubtitle: 'Ниже можно добавить до {count} фильтров в один микс.',
-    mixLimitTitle: 'Достигнут лимит микса',
+    emptySubtitle: 'Добавьте до {count} фильтров — они применятся по очереди.',
+    mixLimitTitle: 'Лимит фильтров',
     mixLimitMessage: 'В одном миксе можно использовать до {count} фильтров.',
     effectFallback: 'Эффект',
-    unknownEffect: 'Неизвестно',
-    visibleOn: 'Вкл',
-    visibleOff: 'Выкл',
+    unknownEffect: 'Неизвестный эффект',
+    visibleOn: 'Включён',
+    visibleOff: 'Выключен',
     moveUp: 'Вверх',
     moveDown: 'Вниз',
     remove: 'Удалить',
@@ -1380,9 +1382,18 @@ export const useTranslation = () => {
 
   return {
     ...base,
+    locale: language,
+    effects: {
+      ...base.effects,
+      parameters: {
+        ...base.effects.parameters,
+        ...(effectParameterDefaults[language] ?? effectParameterDefaults.en),
+      },
+    },
     home: base.home ?? homeDefaults[language] ?? homeDefaults.en,
     liquidMenu,
     mixes: base.mixes ?? mixesDefaults[language] ?? mixesDefaults.en,
     recents: base.recents ?? recentsDefaults[language] ?? recentsDefaults.en,
+    ui: base.ui ?? uiDefaults[language] ?? uiDefaults.en,
   };
 };

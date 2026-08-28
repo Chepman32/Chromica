@@ -26,14 +26,11 @@ const AboutScreen: React.FC = () => {
   };
 
   const handleRateApp = () => {
-    Alert.alert('Rate Corivo', 'This will open the App Store rating dialog');
+    Alert.alert(t.settings.rateApp, t.settings.rateAppDesc);
   };
 
   const handleContactSupport = () => {
-    Alert.alert(
-      'Contact Support',
-      'This will open email composer to support@corivo.app',
-    );
+    Alert.alert(t.settings.contactSupport, t.settings.contactSupportDesc);
   };
 
   const renderSection = (title: string, children: React.ReactNode) => (
@@ -90,7 +87,11 @@ const AboutScreen: React.FC = () => {
       <View
         style={[styles.header, { borderBottomColor: theme.backgrounds.tertiary }]}
       >
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
+        <TouchableOpacity
+          accessibilityLabel={t.common.close}
+          style={styles.closeButton}
+          onPress={handleClose}
+        >
           <Text style={[styles.closeIcon, { color: theme.text.secondary }]}>
             ✕
           </Text>
@@ -137,7 +138,7 @@ const AboutScreen: React.FC = () => {
               () =>
                 Alert.alert(
                   t.settings.privacyPolicy,
-                  'This will open corivo.app/privacy',
+                  t.settings.privacyPolicyDesc,
                 ),
             )}
             {renderSettingRow(
@@ -147,7 +148,7 @@ const AboutScreen: React.FC = () => {
               () =>
                 Alert.alert(
                   t.settings.termsOfService,
-                  'This will open corivo.app/terms',
+                  t.settings.termsOfServiceDesc,
                 ),
             )}
           </>,

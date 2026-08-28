@@ -26,7 +26,7 @@ export const it: Translations = {
     saveShareHeadline: 'Salva e Condividi',
     saveShareBody: 'Salvataggio automatico dei progetti con miniature. Riprendi la modifica in qualsiasi momento. Esporta in alta risoluzione direttamente su Instagram, X, galleria o file.',
     featureAutoSave: 'Salvataggio Auto',
-    feature1080pExport: 'Esportazione 1080p',
+    feature4KExport: 'Esportazione 4K',
     featureQuickShare: 'Condivisione Veloce',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const it: Translations = {
     confirmDeleteDesc: 'Mostra dialogo di conferma durante l\'eliminazione dei progetti',
     hapticFeedback: 'Feedback Aptico',
     hapticFeedbackDesc: 'Vibrazione durante le azioni',
+    notifications: 'Notifiche',
+    notificationsDesc: 'Ricevi un promemoria creativo dopo tre settimane senza aprire l’app.',
     version: 'Versione',
     rateApp: 'Valuta App',
     rateAppDesc: 'Valuta l\'app nello store',

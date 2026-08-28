@@ -35,6 +35,7 @@ import { Colors } from '../constants/colors';
 import { Typography } from '../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 import { triggerHaptic } from '../utils/haptics';
+import { requestNotificationPermission } from '../services/notifications';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -466,7 +467,7 @@ const ProjectsIllustration = () => (
         textAnchor="middle"
         fontWeight="bold"
       >
-        1080p
+        4K
       </SvgText>
     </G>
 
@@ -509,20 +510,26 @@ const OnboardingScreen: React.FC = () => {
     },
   });
 
-  const completeOnboarding = (withHaptic: boolean) => {
+  const completeOnboarding = async (
+    withHaptic: boolean,
+    requestNotifications = false,
+  ) => {
     if (withHaptic && preferences.hapticFeedback) {
       triggerHaptic('selection');
+    }
+    if (requestNotifications) {
+      await requestNotificationPermission();
     }
     setOnboardingSeen();
     navigation.navigate('Home' as never);
   };
 
   const handleSkip = () => {
-    completeOnboarding(false);
+    completeOnboarding(false).catch(() => undefined);
   };
 
   const handleGetStarted = () => {
-    completeOnboarding(true);
+    completeOnboarding(true, true).catch(() => undefined);
   };
 
   // Panel 1: Professional Photo Effects Editor
@@ -619,7 +626,7 @@ const OnboardingScreen: React.FC = () => {
               <Text style={styles.featurePillText}>{t.onboarding.featureAutoSave}</Text>
             </View>
             <View style={styles.featurePill}>
-              <Text style={styles.featurePillText}>{t.onboarding.feature1080pExport}</Text>
+              <Text style={styles.featurePillText}>{t.onboarding.feature4KExport}</Text>
             </View>
             <View style={styles.featurePill}>
               <Text style={styles.featurePillText}>{t.onboarding.featureQuickShare}</Text>

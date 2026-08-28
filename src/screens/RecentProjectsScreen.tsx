@@ -31,7 +31,7 @@ export const RecentProjectsScreen: React.FC = () => {
   const { projects, isLoading, loadProjects, deleteProjects, duplicateProject, renameProject } =
     useProjectGalleryStore();
   const { preferences } = useAppStore();
-  const { recents, common } = useTranslation();
+  const { recents, common, ui } = useTranslation();
 
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [showRenameModal, setShowRenameModal] = useState(false);
@@ -91,7 +91,7 @@ export const RecentProjectsScreen: React.FC = () => {
 
   const handleDuplicate = (id: string) => {
     ReactNativeHapticFeedback.trigger('notificationSuccess');
-    duplicateProject(id);
+    duplicateProject(id, ui.projects.copySuffix);
   };
 
   const handleRename = (id: string) => {

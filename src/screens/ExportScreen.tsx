@@ -30,6 +30,7 @@ import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
 import RNFS from 'react-native-fs';
 import { EffectRenderer } from '../components/effects/EffectRenderer';
 import { EFFECTS } from '../domain/effects/registry';
+import { useTranslation } from '../hooks/useTranslation';
 
 type ExportAction = 'instagram' | 'x' | 'gallery' | 'files' | 'share' | null;
 
@@ -39,6 +40,7 @@ const EXPORT_SIZE = 1080; // Export at high resolution
 export const ExportScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { common, ui } = useTranslation();
   const { imageUri, effectId, params } = route.params as {
     imageUri: string;
     effectId?: string;
@@ -46,7 +48,9 @@ export const ExportScreen: React.FC = () => {
   };
 
   const image = useImage(imageUri);
-  const effect = effectId ? EFFECTS.find(e => e.id === effectId) : null;
+  const effect = effectId
+    ? EFFECTS.find(item => item.id === effectId) ?? null
+    : null;
   const canvasRef = useCanvasRef();
 
   const [exportingAction, setExportingAction] = useState<ExportAction>(null);
@@ -108,13 +112,13 @@ export const ExportScreen: React.FC = () => {
       );
 
       ReactNativeHapticFeedback.trigger('notificationSuccess');
-      Alert.alert('Success', 'Image saved to Photos!', [
-        { text: 'OK', onPress: () => navigation.goBack() },
+      Alert.alert(ui.export.title, ui.export.savedToPhotos, [
+        { text: common.done, onPress: () => navigation.goBack() },
       ]);
     } catch (error) {
       console.error('Save error:', error);
       ReactNativeHapticFeedback.trigger('notificationError');
-      Alert.alert('Error', 'Failed to save image');
+      Alert.alert(ui.error, ui.export.saveFailed);
     } finally {
       setExportingAction(null);
     }
@@ -202,11 +206,11 @@ export const ExportScreen: React.FC = () => {
 
       if (error?.message === 'instagram_not_installed') {
         Alert.alert(
-          'Instagram not installed',
-          'Please install Instagram to share.',
+          ui.export.instagramNotInstalled,
+          ui.export.instagramInstall,
         );
       } else if (error?.message !== 'User did not share') {
-        Alert.alert('Error', 'Failed to share to Instagram');
+        Alert.alert(ui.error, ui.export.instagramShareFailed);
       }
     } finally {
       setExportingAction(null);
@@ -278,12 +282,13 @@ export const ExportScreen: React.FC = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity
+          accessibilityLabel={common.back}
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Export</Text>
+        <Text style={styles.headerTitle}>{ui.export.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -366,7 +371,7 @@ export const ExportScreen: React.FC = () => {
               />
             )}
           </View>
-          <Text style={styles.gridItemLabel}>Gallery</Text>
+          <Text style={styles.gridItemLabel}>{ui.export.gallery}</Text>
         </TouchableOpacity>
 
         {/* Row 2 */}
@@ -386,7 +391,7 @@ export const ExportScreen: React.FC = () => {
               />
             )}
           </View>
-          <Text style={styles.gridItemLabel}>Files</Text>
+          <Text style={styles.gridItemLabel}>{ui.export.files}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -405,7 +410,7 @@ export const ExportScreen: React.FC = () => {
               />
             )}
           </View>
-          <Text style={styles.gridItemLabel}>Share</Text>
+          <Text style={styles.gridItemLabel}>{ui.export.share}</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

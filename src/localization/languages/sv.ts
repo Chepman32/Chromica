@@ -26,7 +26,7 @@ export const sv: Translations = {
     saveShareHeadline: 'Spara & Dela',
     saveShareBody: 'Spara projekt automatiskt med miniatyrer. Återuppta redigering när som helst. Exportera i hög upplösning direkt till Instagram, X, galleri eller filer.',
     featureAutoSave: 'Auto-Spara',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Snabb Delning',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const sv: Translations = {
     confirmDeleteDesc: 'Visa bekräftelsedialog när projekt raderas',
     hapticFeedback: 'Haptisk Feedback',
     hapticFeedbackDesc: 'Vibration vid åtgärder',
+    notifications: 'Notiser',
+    notificationsDesc: 'Få en kreativ påminnelse efter tre veckor utan att öppna appen.',
     version: 'Version',
     rateApp: 'Betygsätt App',
     rateAppDesc: 'Betygsätt appen i butiken',

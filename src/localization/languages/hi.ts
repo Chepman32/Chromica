@@ -26,7 +26,7 @@ export const hi: Translations = {
     saveShareHeadline: 'सेव और शेयर',
     saveShareBody: 'थंबनेल के साथ प्रोजेक्ट्स का ऑटो-सेव। कभी भी एडिटिंग फिर से शुरू करें। उच्च रिज़ॉल्यूशन में सीधे Instagram, X, गैलरी या फाइलों में एक्सपोर्ट करें।',
     featureAutoSave: 'ऑटो-सेव',
-    feature1080pExport: '1080p एक्सपोर्ट',
+    feature4KExport: '4K एक्सपोर्ट',
     featureQuickShare: 'क्विक शेयर',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const hi: Translations = {
     confirmDeleteDesc: 'प्रोजेक्ट्स डिलीट करते समय कन्फर्मेशन डायलॉग दिखाएं',
     hapticFeedback: 'हैप्टिक फीडबैक',
     hapticFeedbackDesc: 'क्रियाओं पर कंपन',
+    notifications: 'सूचनाएं',
+    notificationsDesc: 'ऐप को तीन सप्ताह तक न खोलने पर रचनात्मक रिमाइंडर पाएं।',
     version: 'संस्करण',
     rateApp: 'ऐप रेट करें',
     rateAppDesc: 'स्टोर में ऐप रेट करें',

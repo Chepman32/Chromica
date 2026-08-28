@@ -26,7 +26,7 @@ export const ms: Translations = {
     saveShareHeadline: 'Simpan & Kongsi',
     saveShareBody: 'Simpan automatik projek dengan thumbnail. Sambung semula pengeditan bila-bila masa. Eksport resolusi tinggi terus ke Instagram, X, galeri atau fail.',
     featureAutoSave: 'Auto-Simpan',
-    feature1080pExport: 'Eksport 1080p',
+    feature4KExport: 'Eksport 4K',
     featureQuickShare: 'Kongsi Pantas',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const ms: Translations = {
     confirmDeleteDesc: 'Papar dialog pengesahan semasa memadam projek',
     hapticFeedback: 'Maklum Balas Haptik',
     hapticFeedbackDesc: 'Getaran pada tindakan',
+    notifications: 'Pemberitahuan',
+    notificationsDesc: 'Terima peringatan kreatif selepas tiga minggu tidak membuka aplikasi.',
     version: 'Versi',
     rateApp: 'Nilaikan Apl',
     rateAppDesc: 'Nilaikan apl di kedai',

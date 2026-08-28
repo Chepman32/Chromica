@@ -32,6 +32,57 @@ export type Language =
   | 'tr'
   | 'vi';
 
+export interface UiTranslations {
+  error: string;
+  projects: {
+    duplicate: string;
+    rename: string;
+    renameTitle: string;
+    renamePlaceholder: string;
+    nameRequired: string;
+    untitled: string;
+    mixed: string;
+    elementsCount: string;
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    yesterday: string;
+    today: string;
+    daysAgo: string;
+    copySuffix: string;
+    selectedCount: string;
+    deleteSelectedTitle: string;
+    deleteSelectedMessage: string;
+  };
+  imagePicker: {
+    selectPhoto: string;
+    loadingPhotos: string;
+    availablePhotos: string;
+    loadingYourPhotos: string;
+    unableToLoadTitle: string;
+    permissionMessage: string;
+    openFailed: string;
+  };
+  export: {
+    title: string;
+    savedToPhotos: string;
+    saveFailed: string;
+    instagramNotInstalled: string;
+    instagramInstall: string;
+    instagramShareFailed: string;
+    gallery: string;
+    files: string;
+    share: string;
+  };
+  editor: {
+    imageNotAvailable: string;
+  };
+  notifications: {
+    title: string;
+    description: string;
+  };
+}
+
 export interface Translations {
   common: {
     cancel: string;
@@ -75,6 +126,7 @@ export interface Translations {
     moveDown: string;
     remove: string;
   };
+  ui?: UiTranslations;
   splash: {
     tagline: string;
   };
@@ -92,7 +144,7 @@ export interface Translations {
     saveShareHeadline: string;
     saveShareBody: string;
     featureAutoSave: string;
-    feature1080pExport: string;
+    feature4KExport: string;
     featureQuickShare: string;
   };
   liquidMenu: {
@@ -282,6 +334,8 @@ export interface Translations {
     confirmDeleteDesc: string;
     hapticFeedback: string;
     hapticFeedbackDesc: string;
+    notifications: string;
+    notificationsDesc: string;
     version: string;
     rateApp: string;
     rateAppDesc: string;

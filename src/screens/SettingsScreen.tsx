@@ -1,7 +1,8 @@
 // Settings screen
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  AppState,
   View,
   Text,
   StyleSheet,
@@ -22,6 +23,10 @@ import { Spacing, Dimensions as AppDimensions } from '../constants/spacing';
 import { ThemeType } from '../constants/themes';
 import { Language, languageNames } from '../localization';
 import { triggerHaptic } from '../utils/haptics';
+import {
+  getNotificationPermissionStatus,
+  requestNotificationPermissionFromSettings,
+} from '../services/notifications';
 
 // Flag images mapping
 const flagImages: Record<Language, any> = {
@@ -61,11 +66,28 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const theme = useTheme();
   const t = useTranslation();
-  const { preferences, updatePreferences, resetOnboarding } = useAppStore();
+  const { preferences, updatePreferences } = useAppStore();
   const [showThemeModal, setShowThemeModal] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [notificationsAllowed, setNotificationsAllowed] = useState<boolean | null>(null);
 
-  const handleClose = () => {
+  useEffect(() => {
+    const refreshNotificationPermission = async () => {
+      setNotificationsAllowed(await getNotificationPermissionStatus());
+    };
+
+    refreshNotificationPermission().catch(() => setNotificationsAllowed(false));
+
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        refreshNotificationPermission().catch(() => setNotificationsAllowed(false));
+      }
+    });
+
+    return () => subscription.remove();
+  }, []);
+
+  const handleBack = () => {
     navigation.goBack();
   };
 
@@ -85,49 +107,45 @@ const SettingsScreen: React.FC = () => {
     setShowLanguageModal(false);
   };
 
+  const handleNotificationPermissionRequest = async (enabled: boolean) => {
+    if (!enabled) {
+      return;
+    }
+
+    setNotificationsAllowed(await requestNotificationPermissionFromSettings());
+  };
+
   const handleExportAllProjects = () => {
-    Alert.alert('Export All Projects', 'This Pro feature will be implemented');
+    Alert.alert(
+      t.settings.exportAllProjects,
+      t.settings.exportAllProjectsDesc,
+    );
   };
 
   const handleClearCache = () => {
     Alert.alert(
-      'Clear Cache',
-      'This will remove cached thumbnails and temporary files. Continue?',
+      t.settings.clearCache,
+      t.settings.clearCacheDesc,
       [
         { text: t.common.cancel, style: 'cancel' },
-        { text: 'Clear', onPress: () => Alert.alert('Cache cleared') },
+        {
+          text: t.settings.clearCache,
+          onPress: () => Alert.alert(t.settings.clearCache),
+        },
       ],
     );
   };
 
   const handleDeleteAllProjects = () => {
     Alert.alert(
-      'Delete All Projects',
-      'This will permanently delete all projects. This cannot be undone. Continue?',
+      t.settings.deleteAllProjects,
+      t.settings.deleteAllProjectsDesc,
       [
         { text: t.common.cancel, style: 'cancel' },
         {
           text: t.common.delete,
           style: 'destructive',
-          onPress: () => Alert.alert('All projects deleted'),
-        },
-      ],
-    );
-  };
-
-  const handleResetOnboarding = () => {
-    Alert.alert(
-      t.settings.resetOnboarding,
-      t.settings.resetOnboardingDesc + '. Continue?',
-      [
-        { text: t.common.cancel, style: 'cancel' },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: () => {
-            resetOnboarding();
-            Alert.alert('Onboarding Reset', 'The app will now show the onboarding screens again.');
-          },
+          onPress: () => Alert.alert(t.settings.deleteAllProjects),
         },
       ],
     );
@@ -151,6 +169,7 @@ const SettingsScreen: React.FC = () => {
     subtitle: string,
     value: boolean,
     onValueChange: (value: boolean) => void,
+    accessibilityLabel?: string,
   ) => (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -170,6 +189,7 @@ const SettingsScreen: React.FC = () => {
       </View>
       <View style={styles.settingRight}>
         <Switch
+          accessibilityLabel={accessibilityLabel}
           value={value}
           onValueChange={onValueChange}
           trackColor={{
@@ -382,9 +402,14 @@ const SettingsScreen: React.FC = () => {
           { borderBottomColor: theme.backgrounds.tertiary },
         ]}
       >
-        <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-          <Text style={[styles.closeIcon, { color: theme.text.secondary }]}>
-            ✕
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t.common.back}
+          style={styles.backButton}
+          onPress={handleBack}
+        >
+          <Text style={[styles.backIcon, { color: theme.text.secondary }]}>
+            ←
           </Text>
         </TouchableOpacity>
         <Text style={[styles.title, { color: theme.text.primary }]}>
@@ -461,6 +486,14 @@ const SettingsScreen: React.FC = () => {
                 updatePreferences({ confirmDelete: value });
               },
             )}
+            {notificationsAllowed === false &&
+              renderSwitchRow(
+                t.ui.notifications.title,
+                t.ui.notifications.description,
+                false,
+                handleNotificationPermissionRequest,
+                t.ui.notifications.title,
+              )}
           </>,
         )}
 
@@ -479,13 +512,6 @@ const SettingsScreen: React.FC = () => {
               t.settings.deleteAllProjectsDesc,
               undefined,
               handleDeleteAllProjects,
-              true,
-            )}
-            {renderSettingRow(
-              t.settings.resetOnboarding,
-              t.settings.resetOnboardingDesc,
-              undefined,
-              handleResetOnboarding,
               true,
             )}
           </>,
@@ -510,13 +536,13 @@ const styles = StyleSheet.create({
     height: 56,
     borderBottomWidth: 1,
   },
-  closeButton: {
+  backButton: {
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeIcon: {
+  backIcon: {
     fontSize: 20,
   },
   title: {

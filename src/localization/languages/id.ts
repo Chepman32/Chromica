@@ -26,7 +26,7 @@ export const id: Translations = {
     saveShareHeadline: 'Simpan & Bagikan',
     saveShareBody: 'Simpan otomatis proyek dengan thumbnail. Lanjutkan edit kapan saja. Ekspor resolusi tinggi langsung ke Instagram, X, galeri, atau file.',
     featureAutoSave: 'Simpan Otomatis',
-    feature1080pExport: 'Ekspor 1080p',
+    feature4KExport: 'Ekspor 4K',
     featureQuickShare: 'Bagikan Cepat',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const id: Translations = {
     confirmDeleteDesc: 'Tampilkan dialog konfirmasi saat menghapus proyek',
     hapticFeedback: 'Umpan Balik Haptik',
     hapticFeedbackDesc: 'Getaran saat melakukan tindakan',
+    notifications: 'Notifikasi',
+    notificationsDesc: 'Dapatkan pengingat kreatif setelah tiga minggu tidak membuka aplikasi.',
     version: 'Versi',
     rateApp: 'Beri Rating Aplikasi',
     rateAppDesc: 'Beri rating aplikasi di toko',

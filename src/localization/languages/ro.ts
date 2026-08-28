@@ -26,7 +26,7 @@ export const ro: Translations = {
     saveShareHeadline: 'Salvează & Distribuie',
     saveShareBody: 'Salvare automată a proiectelor cu miniaturi. Reluează editarea oricând. Exportă în rezoluție înaltă direct pe Instagram, X, galerie sau fișiere.',
     featureAutoSave: 'Salvare Automată',
-    feature1080pExport: 'Export 1080p',
+    feature4KExport: 'Export 4K',
     featureQuickShare: 'Distribuire Rapidă',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const ro: Translations = {
     confirmDeleteDesc: 'Afișează dialogul de confirmare la ștergerea proiectelor',
     hapticFeedback: 'Feedback Haptic',
     hapticFeedbackDesc: 'Vibrație la acțiuni',
+    notifications: 'Notificări',
+    notificationsDesc: 'Primește un memento creativ după trei săptămâni fără aplicație.',
     version: 'Versiune',
     rateApp: 'Evaluează Aplicația',
     rateAppDesc: 'Evaluează aplicația în magazin',

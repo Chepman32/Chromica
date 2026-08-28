@@ -26,7 +26,7 @@ export const en: Translations = {
     saveShareHeadline: 'Save & Share',
     saveShareBody: 'Auto-save projects with thumbnails. Resume editing anytime. Export in high resolution directly to Instagram, X, gallery, or files.',
     featureAutoSave: 'Auto-Save',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Quick Share',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const en: Translations = {
     confirmDeleteDesc: 'Show confirmation dialog when deleting projects',
     hapticFeedback: 'Haptic Feedback',
     hapticFeedbackDesc: 'Vibration for interactions',
+    notifications: 'Notifications',
+    notificationsDesc: 'Get a creative reminder after three weeks away.',
     version: 'Version',
     rateApp: 'Rate Corivo',
     rateAppDesc: 'Help us improve with your feedback',

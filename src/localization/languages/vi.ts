@@ -26,7 +26,7 @@ export const vi: Translations = {
     saveShareHeadline: 'Lưu & Chia sẻ',
     saveShareBody: 'Tự động lưu dự án với hình thu nhỏ. Tiếp tục chỉnh sửa bất cứ lúc nào. Xuất độ phân giải cao trực tiếp đến Instagram, X, thư viện hoặc tệp.',
     featureAutoSave: 'Tự động Lưu',
-    feature1080pExport: 'Xuất 1080p',
+    feature4KExport: 'Xuất 4K',
     featureQuickShare: 'Chia sẻ Nhanh',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const vi: Translations = {
     confirmDeleteDesc: 'Hiển thị hộp thoại xác nhận khi xóa dự án',
     hapticFeedback: 'Phản hồi Haptic',
     hapticFeedbackDesc: 'Rung khi thực hiện hành động',
+    notifications: 'Thông báo',
+    notificationsDesc: 'Nhận lời nhắc sáng tạo sau ba tuần không mở ứng dụng.',
     version: 'Phiên bản',
     rateApp: 'Đánh giá Ứng dụng',
     rateAppDesc: 'Đánh giá ứng dụng trong cửa hàng',

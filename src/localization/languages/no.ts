@@ -26,7 +26,7 @@ export const no: Translations = {
     saveShareHeadline: 'Lagre & Del',
     saveShareBody: 'Automatisk lagring av prosjekter med miniatyrer. Gjenoppta redigering når som helst. Eksporter i høy oppløsning direkte til Instagram, X, galleri eller filer.',
     featureAutoSave: 'Auto-Lagre',
-    feature1080pExport: '1080p Eksport',
+    feature4KExport: '4K Eksport',
     featureQuickShare: 'Rask Deling',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const no: Translations = {
     confirmDeleteDesc: 'Vis bekreftelsesdialog ved sletting av prosjekter',
     hapticFeedback: 'Haptisk Tilbakemelding',
     hapticFeedbackDesc: 'Vibrasjon ved handlinger',
+    notifications: 'Varsler',
+    notificationsDesc: 'Få en kreativ påminnelse etter tre uker uten å åpne appen.',
     version: 'Versjon',
     rateApp: 'Vurder App',
     rateAppDesc: 'Vurder appen i butikken',

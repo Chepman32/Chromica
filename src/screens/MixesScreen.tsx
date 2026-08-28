@@ -589,8 +589,9 @@ export const MixesScreen: React.FC = () => {
                     mixesT.effectFallback
                   : mixesT.effectFallback;
                 const effectName = effect
-                  ? t.effects.names[effect.id as keyof typeof t.effects.names] ||
-                    effect.name
+                  ? t.effects.names[
+                      effect.id as keyof typeof t.effects.names
+                    ] ?? mixesT.unknownEffect
                   : mixesT.unknownEffect;
 
                 return (
@@ -695,7 +696,8 @@ export const MixesScreen: React.FC = () => {
                         styles.categoryTextActive,
                     ]}
                   >
-                    {t.effects.categories[categoryTranslationMap[category]] || category}
+                    {t.effects.categories[categoryTranslationMap[category]] ??
+                      mixesT.effectFallback}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -729,11 +731,14 @@ export const MixesScreen: React.FC = () => {
                       )}
                     </View>
                     <Text style={styles.effectName}>
-                      {t.effects.names[effect.id as keyof typeof t.effects.names] || effect.name}
+                      {t.effects.names[
+                        effect.id as keyof typeof t.effects.names
+                      ] ?? mixesT.unknownEffect}
                     </Text>
                     <Text style={styles.effectMeta}>
-                      {t.effects.categories[categoryTranslationMap[effect.category]] ||
-                        effect.category}
+                      {t.effects.categories[
+                        categoryTranslationMap[effect.category]
+                      ] ?? mixesT.effectFallback}
                     </Text>
                   </TouchableOpacity>
                 );

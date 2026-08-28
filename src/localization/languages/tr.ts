@@ -26,7 +26,7 @@ export const tr: Translations = {
     saveShareHeadline: 'Kaydet & Paylaş',
     saveShareBody: 'Projeleri küçük resimlerle otomatik kaydet. Her zaman düzenlemeye devam et. Yüksek çözünürlükte doğrudan Instagram, X, galeri veya dosyalara aktar.',
     featureAutoSave: 'Oto-Kaydet',
-    feature1080pExport: '1080p Dışa Aktar',
+    feature4KExport: '4K Dışa Aktar',
     featureQuickShare: 'Hızlı Paylaş',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const tr: Translations = {
     confirmDeleteDesc: 'Projeleri silerken onaylama dialogu göster',
     hapticFeedback: 'Haptik Geri Bildirim',
     hapticFeedbackDesc: 'Eylemler sırasında titreşim',
+    notifications: 'Bildirimler',
+    notificationsDesc: 'Uygulamayı üç hafta açmadığınızda yaratıcı bir hatırlatıcı alın.',
     version: 'Sürüm',
     rateApp: 'Uygulamayı Değerlendir',
     rateAppDesc: 'Uygulamayı mağazada değerlendir',

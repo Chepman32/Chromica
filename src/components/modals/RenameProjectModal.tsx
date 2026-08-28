@@ -25,6 +25,7 @@ import { Colors } from '../../constants/colors';
 import { Typography } from '../../constants/typography';
 import { Spacing, Dimensions as AppDimensions } from '../../constants/spacing';
 import { Project } from '../../types';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface RenameProjectModalProps {
   visible: boolean;
@@ -40,6 +41,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
   onSave,
 }) => {
   const insets = useSafeAreaInsets();
+  const { common, ui } = useTranslation();
   const inputRef = useRef<TextInput>(null);
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -72,7 +74,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
     const trimmedName = name.trim();
 
     if (!trimmedName) {
-      setError('Name cannot be empty');
+      setError(ui.projects.nameRequired);
       ReactNativeHapticFeedback.trigger('notificationError');
       return;
     }
@@ -127,7 +129,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
               { marginBottom: insets.bottom + Spacing.m },
             ]}
           >
-            <Text style={styles.title}>Rename Project</Text>
+            <Text style={styles.title}>{ui.projects.renameTitle}</Text>
 
             <TextInput
               ref={inputRef}
@@ -137,7 +139,7 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
                 setName(text);
                 setError('');
               }}
-              placeholder="Enter project name"
+              placeholder={ui.projects.renamePlaceholder}
               placeholderTextColor={Colors.text.tertiary}
               autoCapitalize="words"
               autoCorrect={false}
@@ -153,14 +155,14 @@ export const RenameProjectModal: React.FC<RenameProjectModalProps> = ({
                 style={[styles.button, styles.cancelButton]}
                 onPress={handleCancel}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{common.cancel}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.button, styles.saveButton]}
                 onPress={handleSave}
               >
-                <Text style={styles.saveButtonText}>Save</Text>
+                <Text style={styles.saveButtonText}>{common.save}</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>

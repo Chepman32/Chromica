@@ -26,7 +26,7 @@ export const fil: Translations = {
     saveShareHeadline: 'I-save & Ibahagi',
     saveShareBody: 'Auto-save ng mga proyekto na may thumbnails. Ipagpatuloy ang pag-edit anumang oras. I-export sa mataas na resolution directly sa Instagram, X, gallery, o files.',
     featureAutoSave: 'Auto-Save',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Mabilis na Pagbabahagi',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const fil: Translations = {
     confirmDeleteDesc: 'Ipakita ang confirmation dialog kapag nag-delete ng mga proyekto',
     hapticFeedback: 'Haptic Feedback',
     hapticFeedbackDesc: 'Vibration sa mga action',
+    notifications: 'Mga abiso',
+    notificationsDesc: 'Makatanggap ng malikhaing paalala pagkatapos ng tatlong linggong hindi paggamit ng app.',
     version: 'Bersyon',
     rateApp: 'I-rate ang App',
     rateAppDesc: 'I-rate ang app sa store',

@@ -15,7 +15,7 @@ interface ProjectGalleryState {
   loadProjects: () => Promise<void>;
   addProject: (project: Project) => void;
   deleteProjects: (ids: string[]) => Promise<void>;
-  duplicateProject: (id: string) => Promise<void>;
+  duplicateProject: (id: string, copySuffix: string) => Promise<void>;
   renameProject: (id: string, name: string) => Promise<void>;
   enterSelectionMode: () => void;
   exitSelectionMode: () => void;
@@ -87,14 +87,14 @@ export const useProjectGalleryStore = create<ProjectGalleryState>(
       }
     },
 
-    duplicateProject: async id => {
+    duplicateProject: async (id, copySuffix) => {
       const original = get().projects.find(p => p.id === id);
       if (!original) return;
 
       const duplicate: Project = {
         ...original,
         id: generateId(),
-        name: original.name ? `${original.name} (Copy)` : undefined,
+        name: original.name ? `${original.name} (${copySuffix})` : undefined,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

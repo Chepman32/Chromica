@@ -26,7 +26,7 @@ export const th: Translations = {
     saveShareHeadline: 'บันทึก & แชร์',
     saveShareBody: 'บันทึกโปรเจกต์อัตโนมัติพร้อมรูปขนาดย่อ กลับมาแก้ไขได้ทุกเมื่อ ส่งออกความละเอียดสูงโดยตรงไปยัง Instagram, X, แกลเลอรี หรือไฟล์',
     featureAutoSave: 'บันทึกอัตโนมัติ',
-    feature1080pExport: 'ส่งออก 1080p',
+    feature4KExport: 'ส่งออก 4K',
     featureQuickShare: 'แชร์เร็ว',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const th: Translations = {
     confirmDeleteDesc: 'แสดงกล่องโต้ตอบยืนยันเมื่อลบโปรเจกต์',
     hapticFeedback: 'ข้อความตอบกลับสัมผัส',
     hapticFeedbackDesc: 'สั่นเมื่อมีการกระทำ',
+    notifications: 'การแจ้งเตือน',
+    notificationsDesc: 'รับการเตือนสร้างสรรค์หลังจากไม่ได้เปิดแอปเป็นเวลา 3 สัปดาห์',
     version: 'เวอร์ชัน',
     rateApp: 'ให้คะแนนแอป',
     rateAppDesc: 'ให้คะแนนแอปในร้านค้า',

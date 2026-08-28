@@ -26,7 +26,7 @@ export const hu: Translations = {
     saveShareHeadline: 'Mentés & Megosztás',
     saveShareBody: 'Projektek automatikus mentése bélyegképekkel. Folytassa a szerkesztést bármikor. Exportálás nagy felbontásban közvetlenül az Instagramra, X-re, galériába vagy fájlokba.',
     featureAutoSave: 'Auto-Mentés',
-    feature1080pExport: '1080p Export',
+    feature4KExport: '4K Export',
     featureQuickShare: 'Gyors Megosztás',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const hu: Translations = {
     confirmDeleteDesc: 'Megerősítő párbeszéd megjelenítése projektek törlésekor',
     hapticFeedback: 'Haptikus Visszajelzés',
     hapticFeedbackDesc: 'Rezgés műveleteknél',
+    notifications: 'Értesítések',
+    notificationsDesc: 'Kapj kreatív emlékeztetőt három hét alkalmazás nélküli idő után.',
     version: 'Verzió',
     rateApp: 'Alkalmazás Értékelése',
     rateAppDesc: 'Alkalmazás értékelése az áruházban',

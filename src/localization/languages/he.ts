@@ -26,7 +26,7 @@ export const he: Translations = {
     saveShareHeadline: 'שמירה ושיתוף',
     saveShareBody: 'שמירה אוטומטית של פרויקטים עם תמונות ממוזערות. חידוש עריכה בכל זמן. ייצוא ברזולוציה גבוהה ישירות לאינסטגרם, X, גלריה או קבצים.',
     featureAutoSave: 'שמירה אוטומטית',
-    feature1080pExport: 'ייצוא 1080p',
+    feature4KExport: 'ייצוא 4K',
     featureQuickShare: 'שיתוף מהיר',
   },
   liquidMenu: {
@@ -216,6 +216,8 @@ export const he: Translations = {
     confirmDeleteDesc: 'הצג תיבת דיאלוג אישור בעת מחיקת פרויקטים',
     hapticFeedback: 'משוב הפטי',
     hapticFeedbackDesc: 'רטט בפעולות',
+    notifications: 'התראות',
+    notificationsDesc: 'קבלו תזכורת יצירתית אחרי שלושה שבועות ללא שימוש באפליקציה.',
     version: 'גרסה',
     rateApp: 'דרג אפליקציה',
     rateAppDesc: 'דרג את האפליקציה בחנות',
