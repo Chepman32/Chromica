@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn install)",
+      "Bash(yarn add:*)",
+      "Bash(export LANG=en_US.UTF-8)",
+      "Bash(pod install:*)",
+      "Bash(yarn start:*)",
+      "Bash(npx react-native log-ios:*)",
+      "Bash(npx tsc:*)",
+      "Bash(identify:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(git log:*)",
+      "Bash(npx react-native run-ios:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(grep:*)",
+      "Bash(bundle exec fastlane upload_metadata:*)",
+      "Bash(fastlane upload_metadata:*)",
+      "Bash(bundle install:*)",
+      "Bash(bundle exec pod install:*)",
+      "Bash(for dir in fastlane/screenshots/*/)",
+      "Bash(bundle exec fastlane upload_screenshots:*)",
+      "Bash(fastlane upload_screenshots:*)",
+      "Bash(du -sh:*)",
+      "Bash(sips:*)",
+      "Bash(bundle exec fastlane:*)",
+      "Bash(fastlane deliver --help:*)",
+      "Bash(for dir in /Users/antonchepur/Chromica/fastlane/screenshots/*/)",
+      "Bash(find:*)",
+      "Bash(yarn lint:*)",
+      "Bash(xargs:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "additionalDirectories": [
+      "/Users/antonchepur/Chromica/fastlane/screenshots/$SRC"
+    ]
+  }
+}
