@@ -221,7 +221,7 @@ export const fr: Translations = {
     notifications: 'Notifications',
     notificationsDesc: 'Recevez un rappel créatif après trois semaines sans ouvrir l’application.',
     version: 'Version',
-    rateApp: 'Évaluer Corivo',
+    rateApp: 'Évaluer PixelFX',
     rateAppDesc: 'Aidez-nous à améliorer avec vos commentaires',
     contactSupport: 'Contacter le support',
     contactSupportDesc: "Obtenir de l'aide ou signaler des problèmes",
@@ -232,8 +232,8 @@ export const fr: Translations = {
     clearCache: 'Vider le cache',
     clearCacheDesc:
       'Supprimer les miniatures en cache et les fichiers temporaires',
-    deleteAllProjects: 'Supprimer tous les projets',
-    deleteAllProjectsDesc: 'Supprimer définitivement tous les projets',
+    deleteAllProjects: 'Supprimer tous les éléments récents',
+    deleteAllProjectsDesc: 'Retirer tous les projets de la liste Récents',
     resetOnboarding: 'Réinitialiser l\'onboarding',
     resetOnboardingDesc: 'Afficher à nouveau les écrans d\'onboarding',
     liquidMenu: {

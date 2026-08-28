@@ -24,8 +24,7 @@ const EXTRA_UI_FILES = [
 // language-independent. Every other user-facing literal belongs in translations.
 const LANGUAGE_INDEPENDENT_TEXT = new Set([
   '4K',
-  'CORIVO',
-  'Corivo',
+  'PixelFX',
   'FX',
   'Instagram',
   'X',

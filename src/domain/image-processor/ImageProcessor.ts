@@ -156,7 +156,7 @@ export class ImageProcessor {
 
       const path = `${
         RNFS.CachesDirectoryPath
-      }/corivo_${Date.now()}.${format}`;
+      }/pixelfx_${Date.now()}.${format}`;
       await RNFS.writeFile(path, encoded.toBase64(), 'base64');
 
       return path;

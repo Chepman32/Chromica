@@ -1,4 +1,4 @@
-// Theme definitions for Corivo
+// Theme definitions for PixelFX
 
 export type ThemeType = 'light' | 'dark' | 'solar' | 'mono';
 

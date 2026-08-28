@@ -229,8 +229,8 @@ export const nl: Translations = {
     termsOfServiceDesc: 'Bekijk servicevoorwaarden',
     clearCache: 'Cache Leegmaken',
     clearCacheDesc: 'Verwijder miniaturen en tijdelijke bestanden',
-    deleteAllProjects: 'Verwijder Alle Projecten',
-    deleteAllProjectsDesc: 'Verwijder permanent alle projecten',
+    deleteAllProjects: 'Alle recente items verwijderen',
+    deleteAllProjectsDesc: 'Alle projecten uit Recent verwijderen',
     resetOnboarding: 'Reset Onboarding',
     resetOnboardingDesc: 'Toon onboarding schermen opnieuw',
     liquidMenu: {

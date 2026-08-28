@@ -229,8 +229,8 @@ export const el: Translations = {
     termsOfServiceDesc: 'Προβολή όρων υπηρεσίας',
     clearCache: 'Εκκαθάριση Cache',
     clearCacheDesc: 'Αφαίρεση μικρογραφιών και προσωρινών αρχείων',
-    deleteAllProjects: 'Διαγραφή Όλων των Έργων',
-    deleteAllProjectsDesc: 'Μόνιμη διαγραφή όλων των έργων',
+    deleteAllProjects: 'Αφαίρεση όλων των πρόσφατων',
+    deleteAllProjectsDesc: 'Αφαίρεση όλων των έργων από τα Πρόσφατα',
     resetOnboarding: 'Επαναφορά Onboarding',
     resetOnboardingDesc: 'Εμφάνιση οθονών onboarding ξανά',
     liquidMenu: {

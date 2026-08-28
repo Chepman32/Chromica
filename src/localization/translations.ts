@@ -1,4 +1,4 @@
-// Localization system for Corivo
+// Localization system for PixelFX
 
 export type Language =
   | 'en'

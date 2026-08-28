@@ -229,8 +229,8 @@ export const fi: Translations = {
     termsOfServiceDesc: 'Näytä käyttöehdot',
     clearCache: 'Tyhjennä Välimuisti',
     clearCacheDesc: 'Poista pienoiskuvat ja väliaikaiset tiedostot',
-    deleteAllProjects: 'Poista Kaikki Projektit',
-    deleteAllProjectsDesc: 'Poista kaikki projektit pysyvästi',
+    deleteAllProjects: 'Poista kaikki viimeaikaiset',
+    deleteAllProjectsDesc: 'Poista kaikki projektit Viimeisimmät-luettelosta',
     resetOnboarding: 'Nollaa Perehdytys',
     resetOnboardingDesc: 'Näytä perehdytysnäytöt uudelleen',
     liquidMenu: {

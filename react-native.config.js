@@ -1,4 +1,4 @@
-// React Native configuration for Corivo
+// React Native configuration for PixelFX
 
 module.exports = {
   project: {

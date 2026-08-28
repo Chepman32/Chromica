@@ -7,7 +7,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useAppStore, detectDeviceLanguage } from '../stores/appStore';
 
 // Screens
-import { CorivoSplashScreen } from '../screens/CorivoSplashScreen';
+import { PixelFXSplashScreen } from '../screens/PixelFXSplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import { LiquidRadialHomeScreen } from '../screens/LiquidRadialHomeScreen';
 import { RecentProjectsScreen } from '../screens/RecentProjectsScreen';
@@ -110,7 +110,7 @@ export default function AppNavigator() {
   }, [hasHydrated, hasSeenOnboarding, currentLanguage, updatePreferences]);
 
   if (showSplash || !hasHydrated) {
-    return <CorivoSplashScreen onFinish={() => setShowSplash(false)} initialLanguage={detectedLanguage} />;
+    return <PixelFXSplashScreen onFinish={() => setShowSplash(false)} initialLanguage={detectedLanguage} />;
   }
 
   return (

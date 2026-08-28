@@ -229,8 +229,8 @@ export const th: Translations = {
     termsOfServiceDesc: 'ดูเงื่อนไขการให้บริการ',
     clearCache: 'ล้างแคช',
     clearCacheDesc: 'ลบรูปขนาดย่อและไฟล์ชั่วคราว',
-    deleteAllProjects: 'ลบทุกโปรเจกต์',
-    deleteAllProjectsDesc: 'ลบทุกโปรเจกต์ถาวร',
+    deleteAllProjects: 'ลบรายการล่าสุดทั้งหมด',
+    deleteAllProjectsDesc: 'ลบโปรเจกต์ทั้งหมดออกจากรายการล่าสุด',
     resetOnboarding: 'รีเซ็ตการแนะนำ',
     resetOnboardingDesc: 'แสดงหน้าจอการแนะนำอีกครั้ง',
     liquidMenu: {

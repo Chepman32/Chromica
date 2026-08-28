@@ -229,8 +229,8 @@ export const hi: Translations = {
     termsOfServiceDesc: 'सेवा की शर्तें देखें',
     clearCache: 'कैश साफ करें',
     clearCacheDesc: 'थंबनेल और अस्थायी फाइलें हटाएं',
-    deleteAllProjects: 'सभी प्रोजेक्ट्स हटाएं',
-    deleteAllProjectsDesc: 'सभी प्रोजेक्ट्स स्थायी रूप से हटाएं',
+    deleteAllProjects: 'सभी हाल के प्रोजेक्ट हटाएँ',
+    deleteAllProjectsDesc: 'हाल के प्रोजेक्ट की सूची से सभी प्रोजेक्ट हटाएँ',
     resetOnboarding: 'ऑनबोर्डिंग रीसेट करें',
     resetOnboardingDesc: 'ऑनबोर्डिंग स्क्रीन फिर से दिखाएं',
     liquidMenu: {

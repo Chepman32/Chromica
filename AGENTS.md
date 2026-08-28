@@ -1,8 +1,8 @@
-# Corivo engineering guide for agents
+# PixelFX engineering guide for agents
 
 This file applies to the entire repository. A more deeply nested `AGENTS.md`, if one is added later, overrides this file only for its subtree.
 
-Corivo is an offline-first photo-effects editor with two implementations in one repository:
+PixelFX is an offline-first photo-effects editor with two implementations in one repository:
 
 - The root project is the active React Native application for iOS and Android.
 - `Swift_version/` is a separate native SwiftUI iOS implementation with its own Xcode project, persistence layer, renderer, tests, and one-time migration path from the React Native app's local data.
@@ -14,7 +14,7 @@ The executable code and checked-in configuration are authoritative. `README.md` 
 1. Determine which implementation the request targets before editing. Root React Native work does not automatically authorize changes in `Swift_version/`, and SwiftUI work does not automatically authorize root-app changes. When parity is part of the request, update both deliberately.
 2. Inspect `git status --short --untracked-files=all` before editing. The worktree is often dirty and may be shared with another task. Preserve all unrelated modifications and untracked files.
 3. Prefer the codebase knowledge graph for code discovery, then inspect exact source. Use text search primarily for literals, config, assets, generated data, or when the graph is incomplete.
-4. Treat `src/domain/effects/registry.ts` and `src/localization/languages/*.ts` as sources for generated Swift metadata. Never hand-edit `Swift_version/Corivo/Resources/Generated/*.json` as the only change.
+4. Treat `src/domain/effects/registry.ts` and `src/localization/languages/*.ts` as sources for generated Swift metadata. Never hand-edit `Swift_version/PixelFX/Resources/Generated/*.json` as the only change.
 5. Do not edit build products or dependency directories: `.derived/`, `DerivedData/`, `ios/Pods/`, `node_modules/`, `android/build/`, `android/app/build/`, `.gradle/`, or generated app bundles.
 6. Keep the product offline-first. Do not add uploads, analytics, remote APIs, tracking, or cloud persistence without explicit product authorization.
 7. For behavior changes, add or update the smallest meaningful tests and run checks proportional to the touched surface. Rendering changes also require simulator/device inspection; unit tests alone are not sufficient for Skia or Core Image output.
@@ -106,13 +106,13 @@ Corivo/
 ├── ios/                             React Native iOS host and CocoaPods workspace
 ├── android/                         React Native Android host and Gradle project
 ├── Swift_version/                   Independent SwiftUI iOS application
-│   ├── Corivo.xcodeproj/            Native Xcode project
-│   ├── Corivo/App/                  Native app entry and application model
-│   ├── Corivo/Core/                 Assets, localization, haptics, design system
-│   ├── Corivo/Data/                 Models, catalog, rendering, persistence, migration
-│   ├── Corivo/Features/             SwiftUI feature views
-│   ├── Corivo/Resources/Generated/  Derived effects/translations JSON
-│   ├── Corivo/Tests/                Native migration and persistence tests
+│   ├── PixelFX.xcodeproj/            Native Xcode project
+│   ├── PixelFX/App/                  Native app entry and application model
+│   ├── PixelFX/Core/                 Assets, localization, haptics, design system
+│   ├── PixelFX/Data/                 Models, catalog, rendering, persistence, migration
+│   ├── PixelFX/Features/             SwiftUI feature views
+│   ├── PixelFX/Resources/Generated/  Derived effects/translations JSON
+│   ├── PixelFX/Tests/                Native migration and persistence tests
 │   └── Tools/                       React Native -> Swift metadata exporter
 ├── package.json                     Yarn scripts and JS/native dependencies
 ├── Gemfile                          CocoaPods toolchain constraints
@@ -144,14 +144,14 @@ Generated Swift JSON is derived, not primary. Tests can also lag the product: fo
 
 ```text
 index.js
-  -> AppRegistry.registerComponent("Corivo")
+  -> AppRegistry.registerComponent("PixelFX")
   -> App.tsx
        -> GestureHandlerRootView
        -> SafeAreaProvider
        -> StatusBar from persisted theme
        -> AppNavigator
             -> wait for Zustand app-store hydration
-            -> show CorivoSplashScreen for about 2.8 seconds
+            -> show PixelFXSplashScreen for about 2.8 seconds
             -> detect device language before first onboarding
             -> Onboarding or Home
 ```
@@ -397,8 +397,8 @@ For a root-app effect change, check every applicable item:
 5. Make string/boolean/array parameter conversion explicit. Shader integers must be rounded and option strings must map deterministically to numeric indices.
 6. Add effect name, category, parameter, and option translations. Update the `Translations` interface if the key set changes.
 7. If the effect should work in Mixes, validate `shaderPath`, all uniforms, nesting behavior, visibility, and stack order.
-8. Regenerate Swift metadata with `node Swift_version/Tools/export_corivo_metadata.js`.
-9. If native parity is required, update `Swift_version/Corivo/Data/RenderPipeline.swift`; generated metadata supplies definitions, not rendering behavior.
+8. Regenerate Swift metadata with `node Swift_version/Tools/export_pixelfx_metadata.js`.
+9. If native parity is required, update `Swift_version/PixelFX/Data/RenderPipeline.swift`; generated metadata supplies definitions, not rendering behavior.
 10. Test portrait and landscape images, min/default/max parameters, undo/redo, project reopen, thumbnail capture, export, and at least one physical device. Shader loop cost can differ dramatically from simulator behavior.
 
 ## Editor interaction and history contracts
@@ -510,9 +510,9 @@ When changing notifications:
 
 Current project facts:
 
-- Xcode project: `Swift_version/Corivo.xcodeproj`.
-- Scheme: `Corivo`.
-- Targets: `Corivo` and `CorivoTests`.
+- Xcode project: `Swift_version/PixelFX.xcodeproj`.
+- Scheme: `PixelFX`.
+- Targets: `PixelFX` and `PixelFXTests`.
 - Swift language version: 5.0.
 - iOS deployment target: 15.1.
 - App bundle ID: `com.corivo.app`.
@@ -522,7 +522,7 @@ Current project facts:
 ### Native architecture
 
 ```text
-CorivoNativeApp
+PixelFXNativeApp
   -> AppModel (@MainActor ObservableObject)
        -> LocalizationManager
        -> EffectRegistry (generated effects.json)
@@ -538,21 +538,21 @@ CorivoNativeApp
 
 Key native files:
 
-- `Swift_version/Corivo/App/CorivoNativeApp.swift` — `@main` entry and environment object injection.
-- `Swift_version/Corivo/App/AppModel.swift` — app-wide preferences, services, migration, theme, and localization facade.
-- `Swift_version/Corivo/Features/RootView.swift` — splash/onboarding/home gate.
-- `Swift_version/Corivo/Data/Models.swift` — Codable models mirroring the TypeScript product schema.
-- `Swift_version/Corivo/Data/EffectRegistry.swift` — loads generated effect metadata.
-- `Swift_version/Corivo/Data/RenderPipeline.swift` — Core Image implementations and composition helpers.
-- `Swift_version/Corivo/Data/StoresAndMigration.swift` — `ProjectStore` plus React Native legacy-data migration.
-- `Swift_version/Corivo/Core/Localization.swift` — generated translation lookup.
-- `Swift_version/Corivo/Core/Assets.swift` — file, bundle, Photos, and legacy asset resolution.
-- `Swift_version/Corivo/Core/DesignSystem.swift` — native themes and view modifiers.
-- `Swift_version/Corivo/Features/*.swift` — native feature UI.
+- `Swift_version/PixelFX/App/PixelFXNativeApp.swift` — `@main` entry and environment object injection.
+- `Swift_version/PixelFX/App/AppModel.swift` — app-wide preferences, services, migration, theme, and localization facade.
+- `Swift_version/PixelFX/Features/RootView.swift` — splash/onboarding/home gate.
+- `Swift_version/PixelFX/Data/Models.swift` — Codable models mirroring the TypeScript product schema.
+- `Swift_version/PixelFX/Data/EffectRegistry.swift` — loads generated effect metadata.
+- `Swift_version/PixelFX/Data/RenderPipeline.swift` — Core Image implementations and composition helpers.
+- `Swift_version/PixelFX/Data/StoresAndMigration.swift` — `ProjectStore` plus React Native legacy-data migration.
+- `Swift_version/PixelFX/Core/Localization.swift` — generated translation lookup.
+- `Swift_version/PixelFX/Core/Assets.swift` — file, bundle, Photos, and legacy asset resolution.
+- `Swift_version/PixelFX/Core/DesignSystem.swift` — native themes and view modifiers.
+- `Swift_version/PixelFX/Features/*.swift` — native feature UI.
 
 ### Native persistence
 
-`ProjectStore` writes under Application Support in `CorivoNative/`:
+`ProjectStore` keeps writing under the legacy Application Support directory `CorivoNative/` so existing native projects survive the PixelFX rename:
 
 ```text
 CorivoNative/
@@ -600,7 +600,7 @@ Changing the TypeScript registry or generated JSON does not implement the native
 Run:
 
 ```bash
-node Swift_version/Tools/export_corivo_metadata.js
+node Swift_version/Tools/export_pixelfx_metadata.js
 ```
 
 The script reads:
@@ -611,8 +611,8 @@ The script reads:
 
 It writes:
 
-- `Swift_version/Corivo/Resources/Generated/effects.json`
-- `Swift_version/Corivo/Resources/Generated/translations.json`
+- `Swift_version/PixelFX/Resources/Generated/effects.json`
+- `Swift_version/PixelFX/Resources/Generated/translations.json`
 
 Review the generated diff. The exporter evaluates sanitized TypeScript object literals in a Node `vm`; unusual expressions, dynamic imports, or non-static `require()` forms can break generation.
 
@@ -620,12 +620,12 @@ Review the generated diff. The exporter evaluates sanitized TypeScript object li
 
 ### React Native iOS host
 
-- Workspace: `ios/Corivo.xcworkspace` after CocoaPods installation.
-- Scheme: `Corivo`.
+- Workspace: `ios/PixelFX.xcworkspace` after CocoaPods installation.
+- Scheme: `PixelFX`.
 - Deployment target: iOS 15.1.
 - Bundle ID: `com.corivo.app`.
 - `ios/Podfile` disables the React Native New Architecture by default with `RCT_NEW_ARCH_ENABLED=0`.
-- `ios/Corivo/Info.plist` also sets `RCTNewArchEnabled` to false.
+- `ios/PixelFX/Info.plist` also sets `RCTNewArchEnabled` to false.
 - Photo read/add usage descriptions are present.
 - URL schemes for Instagram, Instagram Stories, and Twitter are allow-listed for `canOpenURL` checks.
 - Local networking is allowed for development; arbitrary network loads are not.
@@ -633,7 +633,7 @@ Review the generated diff. The exporter evaluates sanitized TypeScript object li
 
 ### React Native Android host
 
-- Namespace/application ID: `com.corivo`.
+- Namespace: `com.pixelfx`; legacy application ID: `com.corivo`.
 - Min SDK: 24.
 - Compile/target SDK: 36.
 - Build tools: 36.0.0.
@@ -745,28 +745,28 @@ Release commands validate compilation only. Android signing is still debug signi
 First regenerate shared metadata when effects or translations changed:
 
 ```bash
-node Swift_version/Tools/export_corivo_metadata.js
+node Swift_version/Tools/export_pixelfx_metadata.js
 ```
 
 List available destinations on the current machine:
 
 ```bash
-xcodebuild -project Swift_version/Corivo.xcodeproj -scheme Corivo -showdestinations
+xcodebuild -project Swift_version/PixelFX.xcodeproj -scheme PixelFX -showdestinations
 ```
 
 Then use an installed simulator, for example:
 
 ```bash
 xcodebuild \
-  -project Swift_version/Corivo.xcodeproj \
-  -scheme Corivo \
+  -project Swift_version/PixelFX.xcodeproj \
+  -scheme PixelFX \
   -configuration Debug \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   build
 
 xcodebuild \
-  -project Swift_version/Corivo.xcodeproj \
-  -scheme Corivo \
+  -project Swift_version/PixelFX.xcodeproj \
+  -scheme PixelFX \
   -destination 'platform=iOS Simulator,name=iPhone 17 Pro' \
   test
 ```
@@ -780,8 +780,8 @@ Tracked/baseline areas to look for:
 - `__tests__/App.test.tsx` — root render smoke test.
 - `src/domain/effects/__tests__/filters.test.ts` — ColorMatrix catalog and matrix invariants.
 - `src/services/__tests__/notifications.test.ts` — reminder message uniqueness, 21-day scheduling, denied-permission behavior, and settings fallback.
-- `Swift_version/Corivo/Tests/PersistenceTests.swift` — native project count semantics, persistence, rename, duplicate, delete, and export.
-- `Swift_version/Corivo/Tests/MigrationTests.swift` — effect-value decoding and legacy React Native migration.
+- `Swift_version/PixelFX/Tests/PersistenceTests.swift` — native project count semantics, persistence, rename, duplicate, delete, and export.
+- `Swift_version/PixelFX/Tests/MigrationTests.swift` — effect-value decoding and legacy React Native migration.
 
 Additional feature tests may exist as untracked or in-progress work. Always inspect status before assuming they are committed contracts.
 
@@ -822,7 +822,7 @@ For shader work, a useful verification matrix is:
 3. Update single-editor and Mixes save/load logic.
 4. Update Recent Projects route classification and project-row display.
 5. Decide how existing stored records migrate when a field is absent.
-6. Update `Swift_version/Corivo/Data/Models.swift` and `MigrationCoordinator` if native parity/migration matters.
+6. Update `Swift_version/PixelFX/Data/Models.swift` and `MigrationCoordinator` if native parity/migration matters.
 7. Add persistence and migration tests.
 
 ### Settings changes
@@ -962,7 +962,7 @@ For shader work, a useful verification matrix is:
 | Boot | `index.js`, `App.tsx`, `app.json` |
 | Navigation | `src/navigation/AppNavigator.tsx` |
 | Active home | `src/screens/LiquidRadialHomeScreen.tsx`, `src/components/LiquidMenu/LiquidMenu.tsx` |
-| Onboarding/splash | `src/screens/CorivoSplashScreen.tsx`, `src/screens/OnboardingScreen.tsx` |
+| Onboarding/splash | `src/screens/PixelFXSplashScreen.tsx`, `src/screens/OnboardingScreen.tsx` |
 | Single editor | `src/screens/EffectsEditorScreen.tsx` |
 | Mix editor | `src/screens/MixesScreen.tsx` |
 | Export | `src/screens/ExportScreen.tsx` |
@@ -979,11 +979,11 @@ For shader work, a useful verification matrix is:
 | Project state | `src/stores/projectGalleryStore.ts`, `src/database/ProjectDatabase.ts`, `src/types/index.ts` |
 | Design system | `src/constants/themes.ts`, `src/constants/colors.ts`, `src/constants/spacing.ts`, `src/constants/typography.ts` |
 | Localization | `src/localization/translations.ts`, `src/localization/index.ts`, `src/localization/languages/*.ts` |
-| RN iOS | `ios/Podfile`, `ios/Corivo/AppDelegate.swift`, `ios/Corivo/Info.plist`, `ios/Corivo.xcodeproj/project.pbxproj` |
+| RN iOS | `ios/Podfile`, `ios/PixelFX/AppDelegate.swift`, `ios/PixelFX/Info.plist`, `ios/PixelFX.xcodeproj/project.pbxproj` |
 | RN Android | `android/build.gradle`, `android/app/build.gradle`, `android/gradle.properties`, `android/app/src/main/AndroidManifest.xml` |
-| Swift app | `Swift_version/Corivo/App/CorivoNativeApp.swift`, `Swift_version/Corivo/App/AppModel.swift`, `Swift_version/Corivo/Features/RootView.swift` |
-| Swift data/rendering | `Swift_version/Corivo/Data/Models.swift`, `Swift_version/Corivo/Data/EffectRegistry.swift`, `Swift_version/Corivo/Data/RenderPipeline.swift`, `Swift_version/Corivo/Data/StoresAndMigration.swift` |
-| Swift bridge | `Swift_version/Tools/export_corivo_metadata.js`, `Swift_version/Corivo/Resources/Generated/*.json` |
+| Swift app | `Swift_version/PixelFX/App/PixelFXNativeApp.swift`, `Swift_version/PixelFX/App/AppModel.swift`, `Swift_version/PixelFX/Features/RootView.swift` |
+| Swift data/rendering | `Swift_version/PixelFX/Data/Models.swift`, `Swift_version/PixelFX/Data/EffectRegistry.swift`, `Swift_version/PixelFX/Data/RenderPipeline.swift`, `Swift_version/PixelFX/Data/StoresAndMigration.swift` |
+| Swift bridge | `Swift_version/Tools/export_pixelfx_metadata.js`, `Swift_version/PixelFX/Resources/Generated/*.json` |
 | Configuration | `package.json`, `yarn.lock`, `Gemfile`, `babel.config.js`, `metro.config.js`, `tsconfig.json`, `jest.config.js`, `.eslintrc.js`, `.prettierrc.js` |
 
 ## Definition of done

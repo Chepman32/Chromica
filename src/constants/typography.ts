@@ -1,4 +1,4 @@
-// Typography system for Corivo using SF Pro
+// Typography system for PixelFX using SF Pro
 
 export const Typography = {
   // Display Text (Headlines, Titles)

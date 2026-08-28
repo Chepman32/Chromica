@@ -1,4 +1,4 @@
-// Core type definitions for Corivo
+// Core type definitions for PixelFX
 
 import { EffectLayer } from '../domain/effects/types';
 

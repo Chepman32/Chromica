@@ -229,8 +229,8 @@ export const sv: Translations = {
     termsOfServiceDesc: 'Visa användarvillkor',
     clearCache: 'Rensa Cache',
     clearCacheDesc: 'Ta bort miniatyrer och temporära filer',
-    deleteAllProjects: 'Radera Alla Projekt',
-    deleteAllProjectsDesc: 'Radera alla projekt permanent',
+    deleteAllProjects: 'Ta bort alla senaste',
+    deleteAllProjectsDesc: 'Ta bort alla projekt från Senaste',
     resetOnboarding: 'Återställ Onboarding',
     resetOnboardingDesc: 'Visa onboarding-skärmar igen',
     liquidMenu: {

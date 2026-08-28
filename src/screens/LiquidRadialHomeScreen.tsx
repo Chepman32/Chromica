@@ -169,7 +169,7 @@ export const LiquidRadialHomeScreen: React.FC = () => {
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         {/* Header */}
         <Animated.View style={[styles.header, headerAnimatedStyle]}>
-          <Text style={styles.title}>Corivo</Text>
+          <Text style={styles.title}>PixelFX</Text>
           <Text style={styles.subtitle}>{home.tapToStartEditing}</Text>
         </Animated.View>
 

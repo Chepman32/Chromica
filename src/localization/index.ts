@@ -1,4 +1,4 @@
-// Localization system for Corivo
+// Localization system for PixelFX
 
 import { Language, Translations } from './translations';
 import { en } from './languages/en';

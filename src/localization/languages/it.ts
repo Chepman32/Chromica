@@ -229,8 +229,8 @@ export const it: Translations = {
     termsOfServiceDesc: 'Visualizza i termini di servizio',
     clearCache: 'Svuota Cache',
     clearCacheDesc: 'Rimuovi miniature e file temporanei',
-    deleteAllProjects: 'Elimina Tutti i Progetti',
-    deleteAllProjectsDesc: 'Elimina permanentemente tutti i progetti',
+    deleteAllProjects: 'Rimuovi tutti i recenti',
+    deleteAllProjectsDesc: 'Rimuovi tutti i progetti da Recenti',
     resetOnboarding: 'Reimappa Onboarding',
     resetOnboardingDesc: 'Mostra nuovamente le schermate di onboarding',
     liquidMenu: {

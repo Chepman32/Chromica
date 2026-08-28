@@ -229,8 +229,8 @@ export const pl: Translations = {
     termsOfServiceDesc: 'Zobacz warunki korzystania',
     clearCache: 'Wyczyść Pamięć Podręczną',
     clearCacheDesc: 'Usuń miniatury i pliki tymczasowe',
-    deleteAllProjects: 'Usuń Wszystkie Projekty',
-    deleteAllProjectsDesc: 'Trwale usuń wszystkie projekty',
+    deleteAllProjects: 'Usuń wszystkie ostatnie',
+    deleteAllProjectsDesc: 'Usuń wszystkie projekty z listy Ostatnie',
     resetOnboarding: 'Resetuj Onboarding',
     resetOnboardingDesc: 'Pokaż ponownie ekrany onboarding',
     liquidMenu: {

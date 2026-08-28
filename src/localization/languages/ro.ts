@@ -229,8 +229,8 @@ export const ro: Translations = {
     termsOfServiceDesc: 'Vezi termenii și condițiile',
     clearCache: 'Golește Cache',
     clearCacheDesc: 'Elimină miniaturi și fișiere temporare',
-    deleteAllProjects: 'Șterge Toate Proiectele',
-    deleteAllProjectsDesc: 'Șterge permanent toate proiectele',
+    deleteAllProjects: 'Elimină toate elementele recente',
+    deleteAllProjectsDesc: 'Elimină toate proiectele din Recente',
     resetOnboarding: 'Resetare Onboarding',
     resetOnboardingDesc: 'Afișează din nou ecranele de onboarding',
     liquidMenu: {

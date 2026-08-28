@@ -16,7 +16,7 @@ export type InactivityNotificationCopy = {
 
 export const REENGAGEMENT_MESSAGES = [
   "Didn't see you for a while—let's mix something unexpected?",
-  "It's time to make some magic. Open Corivo and follow your imagination.",
+  "It's time to make some magic. Open PixelFX and follow your imagination.",
   'Your next masterpiece might be one swipe away.',
   'A quiet photo is waiting for a wild new mood.',
   'Your camera roll has a secret. Want to reveal it?',
@@ -34,7 +34,7 @@ export const REENGAGEMENT_MESSAGES = [
   'Mix, twist, glow, repeat. Your canvas misses you.',
   'What happens when you let an image misbehave a little?',
   'Your gallery could use a plot twist.',
-  'Open Corivo and make something nobody saw coming.',
+  'Open PixelFX and make something nobody saw coming.',
   'A tiny edit can start a very big idea.',
   'The next great texture is only a tap away.',
   'Ready to turn "nice photo" into "wait, how did you do that?"',
@@ -124,7 +124,7 @@ export const scheduleInactivityNotification = async (
   await notifee.createTriggerNotification(
     {
       id: INACTIVITY_NOTIFICATION_ID,
-      title: 'Corivo',
+      title: 'PixelFX',
       body: copy.messages[messageIndex],
       android: {
         channelId,

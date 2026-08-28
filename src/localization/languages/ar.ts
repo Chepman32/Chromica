@@ -229,8 +229,8 @@ export const ar: Translations = {
     termsOfServiceDesc: 'عرض شروط الخدمة',
     clearCache: 'مسح ذاكرة التخزين المؤقت',
     clearCacheDesc: 'إزالة الصور المصغرة والملفات المؤقتة',
-    deleteAllProjects: 'حذف جميع المشاريع',
-    deleteAllProjectsDesc: 'حذف جميع المشاريع نهائيًا',
+    deleteAllProjects: 'إزالة كل العناصر الأخيرة',
+    deleteAllProjectsDesc: 'إزالة جميع المشاريع من قائمة العناصر الأخيرة',
     resetOnboarding: 'إعادة تعيين الإرشاد',
     resetOnboardingDesc: 'عرض شاشات الإرشاد مرة أخرى',
     liquidMenu: {

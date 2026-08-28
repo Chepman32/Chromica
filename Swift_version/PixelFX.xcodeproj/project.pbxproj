@@ -1,0 +1,476 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* PixelFXNativeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* PixelFXNativeApp.swift */; };
+		A10000000000000000000002 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* AppModel.swift */; };
+		A10000000000000000000003 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* DesignSystem.swift */; };
+		A10000000000000000000004 /* Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* Assets.swift */; };
+		A10000000000000000000005 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000005 /* Localization.swift */; };
+		A10000000000000000000006 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000006 /* Haptics.swift */; };
+		A10000000000000000000007 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* Models.swift */; };
+		A10000000000000000000008 /* EffectRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* EffectRegistry.swift */; };
+		A10000000000000000000009 /* StoresAndMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* StoresAndMigration.swift */; };
+		A1000000000000000000000A /* RenderPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000A /* RenderPipeline.swift */; };
+		A1000000000000000000000B /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000B /* RootView.swift */; };
+		A1000000000000000000000C /* SplashOnboardingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000C /* SplashOnboardingViews.swift */; };
+		A1000000000000000000000D /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000D /* HomeView.swift */; };
+		A1000000000000000000000E /* SupportingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000E /* SupportingViews.swift */; };
+		A1000000000000000000000F /* SettingsRecentsViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000000000000000000000F /* SettingsRecentsViews.swift */; };
+		A10000000000000000000010 /* EditorAndMixesViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000010 /* EditorAndMixesViews.swift */; };
+		A10000000000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* PrivacyInfo.xcprivacy */; };
+		A10000000000000000000014 /* Assets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000014 /* Assets */; };
+		A10000000000000000000015 /* Generated in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* Generated */; };
+		A10000000000000000000016 /* MigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* MigrationTests.swift */; };
+		A10000000000000000000017 /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* PersistenceTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A70000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A50000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A40000000000000000000001;
+			remoteInfo = PixelFX;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A20000000000000000000001 /* PixelFXNativeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelFXNativeApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		A20000000000000000000003 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		A20000000000000000000004 /* Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assets.swift; sourceTree = "<group>"; };
+		A20000000000000000000005 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		A20000000000000000000006 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		A20000000000000000000007 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		A20000000000000000000008 /* EffectRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectRegistry.swift; sourceTree = "<group>"; };
+		A20000000000000000000009 /* StoresAndMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoresAndMigration.swift; sourceTree = "<group>"; };
+		A2000000000000000000000A /* RenderPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RenderPipeline.swift; sourceTree = "<group>"; };
+		A2000000000000000000000B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000C /* SplashOnboardingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashOnboardingViews.swift; sourceTree = "<group>"; };
+		A2000000000000000000000D /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		A2000000000000000000000E /* SupportingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportingViews.swift; sourceTree = "<group>"; };
+		A2000000000000000000000F /* SettingsRecentsViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRecentsViews.swift; sourceTree = "<group>"; };
+		A20000000000000000000010 /* EditorAndMixesViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorAndMixesViews.swift; sourceTree = "<group>"; };
+		A20000000000000000000013 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A20000000000000000000014 /* Assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Assets; path = ../src/assets; sourceTree = SOURCE_ROOT; };
+		A20000000000000000000015 /* Generated */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Generated; sourceTree = "<group>"; };
+		A20000000000000000000016 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A20000000000000000000017 /* MigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationTests.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* PersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceTests.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* PixelFX.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PixelFX.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000000000000000000001A /* PixelFXTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PixelFXTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A60000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A60000000000000000000002 /* PixelFX */,
+				A60000000000000000000009 /* Tests */,
+				A6000000000000000000000A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A60000000000000000000002 /* PixelFX */ = {
+			isa = PBXGroup;
+			children = (
+				A60000000000000000000003 /* App */,
+				A60000000000000000000004 /* Core */,
+				A60000000000000000000005 /* Data */,
+				A60000000000000000000006 /* Features */,
+				A60000000000000000000007 /* Resources */,
+			);
+			path = PixelFX;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000003 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000001 /* PixelFXNativeApp.swift */,
+				A20000000000000000000002 /* AppModel.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000004 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000003 /* DesignSystem.swift */,
+				A20000000000000000000004 /* Assets.swift */,
+				A20000000000000000000005 /* Localization.swift */,
+				A20000000000000000000006 /* Haptics.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000005 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000007 /* Models.swift */,
+				A20000000000000000000008 /* EffectRegistry.swift */,
+				A20000000000000000000009 /* StoresAndMigration.swift */,
+				A2000000000000000000000A /* RenderPipeline.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000006 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				A2000000000000000000000B /* RootView.swift */,
+				A2000000000000000000000C /* SplashOnboardingViews.swift */,
+				A2000000000000000000000D /* HomeView.swift */,
+				A2000000000000000000000E /* SupportingViews.swift */,
+				A2000000000000000000000F /* SettingsRecentsViews.swift */,
+				A20000000000000000000010 /* EditorAndMixesViews.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000007 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000013 /* PrivacyInfo.xcprivacy */,
+				A20000000000000000000014 /* Assets */,
+				A20000000000000000000015 /* Generated */,
+				A20000000000000000000016 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		A60000000000000000000009 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000017 /* MigrationTests.swift */,
+				A20000000000000000000018 /* PersistenceTests.swift */,
+			);
+			path = PixelFX/Tests;
+			sourceTree = "<group>";
+		};
+		A6000000000000000000000A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000019 /* PixelFX.app */,
+				A2000000000000000000001A /* PixelFXTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A40000000000000000000001 /* PixelFX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A90000000000000000000001 /* Build configuration list for PBXNativeTarget "PixelFX" */;
+			buildPhases = (
+				A30000000000000000000003 /* Sources */,
+				A30000000000000000000001 /* Frameworks */,
+				A30000000000000000000004 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PixelFX;
+			productName = PixelFX;
+			productReference = A20000000000000000000019 /* PixelFX.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A40000000000000000000002 /* PixelFXTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A90000000000000000000002 /* Build configuration list for PBXNativeTarget "PixelFXTests" */;
+			buildPhases = (
+				A30000000000000000000005 /* Sources */,
+				A30000000000000000000002 /* Frameworks */,
+				A30000000000000000000006 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A80000000000000000000001 /* PBXTargetDependency */,
+			);
+			name = PixelFXTests;
+			productName = PixelFXTests;
+			productReference = A2000000000000000000001A /* PixelFXTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A50000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					A40000000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+					A40000000000000000000002 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = A40000000000000000000001;
+					};
+				};
+			};
+			buildConfigurationList = A90000000000000000000003 /* Build configuration list for PBXProject "PixelFX" */;
+			compatibilityVersion = "Xcode 12.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A60000000000000000000001;
+			productRefGroup = A6000000000000000000000A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A40000000000000000000001 /* PixelFX */,
+				A40000000000000000000002 /* PixelFXTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A30000000000000000000004 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000013 /* PrivacyInfo.xcprivacy in Resources */,
+				A10000000000000000000014 /* Assets in Resources */,
+				A10000000000000000000015 /* Generated in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000000000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A30000000000000000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000001 /* PixelFXNativeApp.swift in Sources */,
+				A10000000000000000000002 /* AppModel.swift in Sources */,
+				A10000000000000000000003 /* DesignSystem.swift in Sources */,
+				A10000000000000000000004 /* Assets.swift in Sources */,
+				A10000000000000000000005 /* Localization.swift in Sources */,
+				A10000000000000000000006 /* Haptics.swift in Sources */,
+				A10000000000000000000007 /* Models.swift in Sources */,
+				A10000000000000000000008 /* EffectRegistry.swift in Sources */,
+				A10000000000000000000009 /* StoresAndMigration.swift in Sources */,
+				A1000000000000000000000A /* RenderPipeline.swift in Sources */,
+				A1000000000000000000000B /* RootView.swift in Sources */,
+				A1000000000000000000000C /* SplashOnboardingViews.swift in Sources */,
+				A1000000000000000000000D /* HomeView.swift in Sources */,
+				A1000000000000000000000E /* SupportingViews.swift in Sources */,
+				A1000000000000000000000F /* SettingsRecentsViews.swift in Sources */,
+				A10000000000000000000010 /* EditorAndMixesViews.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A30000000000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000000000000000000016 /* MigrationTests.swift in Sources */,
+				A10000000000000000000017 /* PersistenceTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A80000000000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A40000000000000000000001 /* PixelFX */;
+			targetProxy = A70000000000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AA0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AA0000000000000000000011 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PixelFX/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.corivo.app;
+				PRODUCT_NAME = PixelFX;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000012 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PixelFX/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.corivo.app;
+				PRODUCT_NAME = PixelFX;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		AA0000000000000000000021 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.corivo.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelFX.app/PixelFX";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000022 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.corivo.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PixelFX.app/PixelFX";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A90000000000000000000001 /* Build configuration list for PBXNativeTarget "PixelFX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000011 /* Debug */,
+				AA0000000000000000000012 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A90000000000000000000002 /* Build configuration list for PBXNativeTarget "PixelFXTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000021 /* Debug */,
+				AA0000000000000000000022 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A90000000000000000000003 /* Build configuration list for PBXProject "PixelFX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000001 /* Debug */,
+				AA0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A50000000000000000000001 /* Project object */;
+}

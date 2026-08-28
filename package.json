@@ -1,5 +1,5 @@
 {
-  "name": "Corivo",
+  "name": "PixelFX",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "build:android:release": "cd android && ./gradlew assembleRelease",
     "build:android:bundle": "cd android && ./gradlew bundleRelease",
     "clean:android": "cd android && ./gradlew clean",
-    "clean:ios": "cd ios && xcodebuild clean -workspace Corivo.xcworkspace -scheme Corivo",
+    "clean:ios": "cd ios && xcodebuild clean -workspace PixelFX.xcworkspace -scheme PixelFX",
     "lint": "node ./node_modules/eslint/bin/eslint.js .",
     "start": "node ./node_modules/react-native/cli.js start",
     "test": "node ./node_modules/jest/bin/jest.js"

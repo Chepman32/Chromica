@@ -229,8 +229,8 @@ export const tr: Translations = {
     termsOfServiceDesc: 'Hizmet şartlarını görüntüle',
     clearCache: 'Önbelleği Temizle',
     clearCacheDesc: 'Küçük resimleri ve geçici dosyaları kaldır',
-    deleteAllProjects: 'Tüm Projeleri Sil',
-    deleteAllProjectsDesc: 'Tüm projeleri kalıcı olarak sil',
+    deleteAllProjects: 'Tüm son kullanılanları kaldır',
+    deleteAllProjectsDesc: 'Tüm projeleri Son Kullanılanlar’dan kaldır',
     resetOnboarding: 'Onboarding Sıfırla',
     resetOnboardingDesc: 'Onboarding ekranlarını tekrar göster',
     liquidMenu: {

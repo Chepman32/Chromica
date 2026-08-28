@@ -95,7 +95,7 @@ describe('inactivity notifications', () => {
     );
     expect(mockNotifee.createTriggerNotification).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: 'Corivo',
+        title: 'PixelFX',
         body: 'Пора немного поколдовать над фотографиями',
       }),
       expect.any(Object),

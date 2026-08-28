@@ -229,8 +229,8 @@ export const no: Translations = {
     termsOfServiceDesc: 'Vis tjenestevilkår',
     clearCache: 'Tøm Buffer',
     clearCacheDesc: 'Fjern miniatyrer og midlertidige filer',
-    deleteAllProjects: 'Slett Alle Prosjekter',
-    deleteAllProjectsDesc: 'Slett alle prosjekter permanent',
+    deleteAllProjects: 'Fjern alle nylige',
+    deleteAllProjectsDesc: 'Fjern alle prosjekter fra Nylige',
     resetOnboarding: 'Tilbakestill Onboarding',
     resetOnboardingDesc: 'Vis onboarding-skjermer igjen',
     liquidMenu: {

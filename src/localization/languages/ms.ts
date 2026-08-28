@@ -229,8 +229,8 @@ export const ms: Translations = {
     termsOfServiceDesc: 'Lihat terma perkhidmatan',
     clearCache: 'Kosongkan Cache',
     clearCacheDesc: 'Alih keluar thumbnail dan fail sementara',
-    deleteAllProjects: 'Padam Semua Projek',
-    deleteAllProjectsDesc: 'Padam semua projek secara kekal',
+    deleteAllProjects: 'Alih keluar semua yang terbaru',
+    deleteAllProjectsDesc: 'Alih keluar semua projek daripada Terbaharu',
     resetOnboarding: 'Tetap Semula Onboarding',
     resetOnboardingDesc: 'Papar skrin onboarding lagi',
     liquidMenu: {

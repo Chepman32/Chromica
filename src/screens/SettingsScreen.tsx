@@ -87,7 +87,7 @@ const SettingsScreen: React.FC = () => {
     return () => subscription.remove();
   }, []);
 
-  const handleBack = () => {
+  const handleClose = () => {
     navigation.goBack();
   };
 
@@ -136,7 +136,7 @@ const SettingsScreen: React.FC = () => {
     );
   };
 
-  const handleDeleteAllProjects = () => {
+  const handleRemoveAllRecents = () => {
     Alert.alert(
       t.settings.deleteAllProjects,
       t.settings.deleteAllProjectsDesc,
@@ -392,7 +392,7 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView
-      edges={['bottom']}
+      edges={['top', 'bottom']}
       style={[styles.container, { backgroundColor: theme.backgrounds.primary }]}
     >
       {/* Header */}
@@ -404,12 +404,12 @@ const SettingsScreen: React.FC = () => {
       >
         <TouchableOpacity
           accessibilityRole="button"
-          accessibilityLabel={t.common.back}
-          style={styles.backButton}
-          onPress={handleBack}
+          accessibilityLabel={t.common.close}
+          style={styles.closeButton}
+          onPress={handleClose}
         >
-          <Text style={[styles.backIcon, { color: theme.text.secondary }]}>
-            ←
+          <Text style={[styles.closeIcon, { color: theme.text.primary }]}>
+            ✕
           </Text>
         </TouchableOpacity>
         <Text style={[styles.title, { color: theme.text.primary }]}>
@@ -511,7 +511,7 @@ const SettingsScreen: React.FC = () => {
               t.settings.deleteAllProjects,
               t.settings.deleteAllProjectsDesc,
               undefined,
-              handleDeleteAllProjects,
+              handleRemoveAllRecents,
               true,
             )}
           </>,
@@ -536,13 +536,13 @@ const styles = StyleSheet.create({
     height: 56,
     borderBottomWidth: 1,
   },
-  backButton: {
+  closeButton: {
     width: 44,
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  backIcon: {
+  closeIcon: {
     fontSize: 20,
   },
   title: {

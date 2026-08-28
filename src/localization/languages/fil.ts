@@ -229,8 +229,8 @@ export const fil: Translations = {
     termsOfServiceDesc: 'Tingnan ang terms of service',
     clearCache: 'Clear Cache',
     clearCacheDesc: 'Alisin ang mga thumbnails at temporary files',
-    deleteAllProjects: 'Burahin ang Lahat ng Proyekto',
-    deleteAllProjectsDesc: 'Permanently burahin ang lahat ng proyekto',
+    deleteAllProjects: 'Alisin ang lahat ng kamakailan',
+    deleteAllProjectsDesc: 'Alisin ang lahat ng proyekto sa Kamakailan',
     resetOnboarding: 'I-reset ang Onboarding',
     resetOnboardingDesc: 'Ipakita muli ang onboarding screens',
     liquidMenu: {

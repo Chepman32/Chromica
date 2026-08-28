@@ -229,8 +229,8 @@ export const vi: Translations = {
     termsOfServiceDesc: 'Xem điều khoản dịch vụ',
     clearCache: 'Xóa Bộ nhớ đệm',
     clearCacheDesc: 'Xóa hình thu nhỏ và tệp tạm thời',
-    deleteAllProjects: 'Xóa tất cả Dự án',
-    deleteAllProjectsDesc: 'Xóa vĩnh viễn tất cả dự án',
+    deleteAllProjects: 'Xóa tất cả mục gần đây',
+    deleteAllProjectsDesc: 'Xóa tất cả dự án khỏi Gần đây',
     resetOnboarding: 'Đặt lại Hướng dẫn',
     resetOnboardingDesc: 'Hiển thị lại màn hình hướng dẫn',
     liquidMenu: {

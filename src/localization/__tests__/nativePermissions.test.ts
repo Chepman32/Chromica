@@ -4,11 +4,11 @@ import path from 'path';
 const PROJECT_ROOT = path.resolve(__dirname, '../../..');
 const CATALOG_PATH = path.join(
   PROJECT_ROOT,
-  'ios/Corivo/InfoPlist.xcstrings',
+  'ios/PixelFX/InfoPlist.xcstrings',
 );
 const XCODE_PROJECT_PATH = path.join(
   PROJECT_ROOT,
-  'ios/Corivo.xcodeproj/project.pbxproj',
+  'ios/PixelFX.xcodeproj/project.pbxproj',
 );
 
 const IOS_LOCALES = [
@@ -39,6 +39,6 @@ describe('native permission localization', () => {
     const project = fs.readFileSync(XCODE_PROJECT_PATH, 'utf8');
 
     expect(project).toContain('InfoPlist.xcstrings in Resources');
-    expect(project).toContain('path = Corivo/InfoPlist.xcstrings;');
+    expect(project).toContain('path = PixelFX/InfoPlist.xcstrings;');
   });
 });

@@ -229,8 +229,8 @@ export const cs: Translations = {
     termsOfServiceDesc: 'Zobrazit podmínky služby',
     clearCache: 'Vyčistit Cache',
     clearCacheDesc: 'Odstranit náhledy a dočasné soubory',
-    deleteAllProjects: 'Smazat Všechny Projekty',
-    deleteAllProjectsDesc: 'Trvale smazat všechny projekty',
+    deleteAllProjects: 'Odebrat vše z nedávných',
+    deleteAllProjectsDesc: 'Odebrat všechny projekty ze seznamu Nedávné',
     resetOnboarding: 'Resetovat Onboarding',
     resetOnboardingDesc: 'Zobrazit znovu onboarding obrazovky',
     liquidMenu: {

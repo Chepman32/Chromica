@@ -77,7 +77,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.corivo"
+    namespace "com.pixelfx"
     defaultConfig {
         applicationId "com.corivo"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -99,7 +99,7 @@ android {
         }
         release {
             // WARNING: Using debug keystore - REPLACE with production keystore before App Store submission
-            // Generate a production keystore: keytool -genkey -v -keystore corivo-release.keystore -alias corivo -keyalg RSA -keysize 2048 -validity 10000
+            // Generate a production keystore: keytool -genkey -v -keystore pixelfx-release.keystore -alias pixelfx -keyalg RSA -keysize 2048 -validity 10000
             // See https://reactnative.dev/docs/signed-apk-android for details
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds

@@ -222,7 +222,7 @@ const HomeScreen: React.FC = () => {
           <Text style={styles.topBarIcon}>⚙️</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Corivo</Text>
+        <Text style={styles.title}>PixelFX</Text>
       </View>
 
       {/* Selection Mode Top Bar */}

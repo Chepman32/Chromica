@@ -229,8 +229,8 @@ export const id: Translations = {
     termsOfServiceDesc: 'Lihat syarat layanan',
     clearCache: 'Hapus Cache',
     clearCacheDesc: 'Hapus thumbnail dan file sementara',
-    deleteAllProjects: 'Hapus Semua Proyek',
-    deleteAllProjectsDesc: 'Hapus permanen semua proyek',
+    deleteAllProjects: 'Hapus semua yang terbaru',
+    deleteAllProjectsDesc: 'Hapus semua proyek dari Terbaru',
     resetOnboarding: 'Reset Onboarding',
     resetOnboardingDesc: 'Tampilkan lagi layar onboarding',
     liquidMenu: {

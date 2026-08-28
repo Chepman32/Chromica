@@ -229,8 +229,8 @@ export const he: Translations = {
     termsOfServiceDesc: 'צפה בתנאי השימוש',
     clearCache: 'ניקוי מטמון',
     clearCacheDesc: 'הסר תמונות ממוזערות וקבצים זמניים',
-    deleteAllProjects: 'מחיקת כל הפרויקטים',
-    deleteAllProjectsDesc: 'מחיקת כל הפרויקטים לצמיתות',
+    deleteAllProjects: 'הסרת כל הפריטים האחרונים',
+    deleteAllProjectsDesc: 'הסרת כל הפרויקטים מרשימת האחרונים',
     resetOnboarding: 'איפוס הדרכה',
     resetOnboardingDesc: 'הצג מסכי הדרכה שוב',
     liquidMenu: {

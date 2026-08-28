@@ -22,7 +22,7 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
-target 'Corivo' do
+target 'PixelFX' do
   use_native_modules!
 
   use_react_native!(

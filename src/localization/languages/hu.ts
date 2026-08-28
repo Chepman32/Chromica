@@ -229,8 +229,8 @@ export const hu: Translations = {
     termsOfServiceDesc: 'Szolgáltatási feltételek megtekintése',
     clearCache: 'Gyorsítótár Törlése',
     clearCacheDesc: 'Bélyegképek és ideiglenes fájlok eltávolítása',
-    deleteAllProjects: 'Összes Projekt Törlése',
-    deleteAllProjectsDesc: 'Összes projekt végleges törlése',
+    deleteAllProjects: 'Összes legutóbbi eltávolítása',
+    deleteAllProjectsDesc: 'Az összes projekt eltávolítása a Legutóbbiak közül',
     resetOnboarding: 'Onboarding Visszaállítása',
     resetOnboardingDesc: 'Onboarding képernyők megjelenítése újra',
     liquidMenu: {
