@@ -31,6 +31,7 @@ build/
 .idea
 .gradle
 local.properties
+android/keystore.properties
 *.iml
 *.hprof
 .cxx/

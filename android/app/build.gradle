@@ -72,6 +72,12 @@ def enableProguardInReleaseBuilds = true
  */
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
+def releaseKeystorePropertiesFile = rootProject.file('keystore.properties')
+def releaseKeystoreProperties = new Properties()
+if (releaseKeystorePropertiesFile.exists()) {
+    releaseKeystorePropertiesFile.withInputStream { releaseKeystoreProperties.load(it) }
+}
+
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -92,16 +98,28 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (releaseKeystorePropertiesFile.exists()) {
+                def requiredSigningProperties = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
+                requiredSigningProperties.each { propertyName ->
+                    if (!releaseKeystoreProperties[propertyName]) {
+                        throw new GradleException("Missing $propertyName in keystore.properties")
+                    }
+                }
+
+                storeFile rootProject.file(releaseKeystoreProperties['storeFile'])
+                storePassword releaseKeystoreProperties['storePassword']
+                keyAlias releaseKeystoreProperties['keyAlias']
+                keyPassword releaseKeystoreProperties['keyPassword']
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            // WARNING: Using debug keystore - REPLACE with production keystore before App Store submission
-            // Generate a production keystore: keytool -genkey -v -keystore pixelfx-release.keystore -alias pixelfx -keyalg RSA -keysize 2048 -validity 10000
-            // See https://reactnative.dev/docs/signed-apk-android for details
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
             shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

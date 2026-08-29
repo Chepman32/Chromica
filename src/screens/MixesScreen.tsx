@@ -478,6 +478,8 @@ export const MixesScreen: React.FC = () => {
               disabled={mixStack.length === 0}
             >
               <Text
+                ellipsizeMode="clip"
+                numberOfLines={1}
                 style={[
                   styles.headerButtonText,
                   mixStack.length === 0 && styles.headerButtonTextDisabled,
@@ -792,6 +794,8 @@ const styles = StyleSheet.create({
   },
   headerSideRight: {
     alignItems: 'flex-end',
+    minWidth: 88,
+    width: 'auto',
   },
   closeButton: {
     width: 44,
@@ -805,7 +809,9 @@ const styles = StyleSheet.create({
   },
   headerCenter: {
     flex: 1,
+    flexShrink: 1,
     alignItems: 'center',
+    minWidth: 0,
   },
   headerTitle: {
     ...Typography.display.h3,
@@ -816,6 +822,7 @@ const styles = StyleSheet.create({
     color: Colors.text.secondary,
   },
   headerButton: {
+    flexShrink: 0,
     paddingHorizontal: Spacing.s,
     paddingVertical: Spacing.xs,
     borderRadius: AppDimensions.cornerRadius.small,
@@ -829,6 +836,7 @@ const styles = StyleSheet.create({
   headerButtonText: {
     ...Typography.ui.label,
     color: Colors.text.primary,
+    flexShrink: 0,
   },
   headerButtonTextDisabled: {
     color: Colors.text.tertiary,

@@ -9,6 +9,14 @@ PixelFX is an offline-first photo-effects editor with two implementations in one
 
 The executable code and checked-in configuration are authoritative. `README.md` still contains substantial older product language about photo annotation, Pro/IAP tiers, 4K export, and scripts that do not all exist. Use it for historical intent, not as a runtime specification.
 
+## Product identity and rename boundary
+
+PixelFX is the user-facing and React Native runtime name. The repository directory and several durable identifiers intentionally remain `Corivo` to preserve installed-app and local-data compatibility.
+
+- PixelFX owns the display/runtime identity: `app.json`, `package.json`, AppRegistry/module names, Android label and native namespace, iOS workspace/scheme, the SwiftUI target, and all user-facing copy.
+- The legacy identifiers remain contractual: `/Users/antonchepur/Corivo`, `com.corivo.app`, Android `applicationId "com.corivo"`, `corivo_project_*` AsyncStorage keys, `CorivoNative/`, and `corivo.swift.migration.completed`.
+- Do not "complete" the rename by changing a legacy identifier unless the task explicitly includes the necessary bundle-ID, persistence, and migration plan. A visible PixelFX rename must instead update every public surface and pass the branding checks.
+
 ## Agent operating rules
 
 1. Determine which implementation the request targets before editing. Root React Native work does not automatically authorize changes in `Swift_version/`, and SwiftUI work does not automatically authorize root-app changes. When parity is part of the request, update both deliberately.
@@ -19,7 +27,7 @@ The executable code and checked-in configuration are authoritative. `README.md` 
 6. Keep the product offline-first. Do not add uploads, analytics, remote APIs, tracking, or cloud persistence without explicit product authorization.
 7. For behavior changes, add or update the smallest meaningful tests and run checks proportional to the touched surface. Rendering changes also require simulator/device inspection; unit tests alone are not sufficient for Skia or Core Image output.
 8. Do not mass-format the repository. Apply formatting only to files in scope.
-9. Avoid destructive storage recovery during normal development. In particular, `ProjectDatabase.forceReinitialize()` can clear the whole AsyncStorage namespace.
+9. Avoid destructive storage recovery during normal development. `ProjectDatabase.forceReinitialize()` and its manifest-recovery path can call `AsyncStorage.clear()` across the whole namespace.
 10. When documentation and code disagree, report the disagreement and follow current code unless the task explicitly changes the product contract.
 
 ## Code discovery policy
@@ -85,7 +93,7 @@ Important product truth:
 ## Repository topology
 
 ```text
-Corivo/
+Corivo/                           Repository folder; the application is PixelFX
 ├── index.js                         React Native registration entry
 ├── App.tsx                          Root providers and app navigator
 ├── src/                             Active React Native application
@@ -194,7 +202,7 @@ Avoid `as never` and `as any` in new navigation code. Prefer typed navigation de
 - `src/screens/MixesScreen.tsx` owns its own local `mixStack`; it does not use the Zustand effect stack.
 - `src/screens/RecentProjectsScreen.tsx` reloads projects on focus and decides which editor to open.
 - `src/screens/ExportScreen.tsx` re-renders one effect on a high-resolution Skia canvas and owns all share/save actions.
-- `src/screens/SettingsScreen.tsx` owns theme, language, haptics, delete confirmation, and onboarding reset UI. Several maintenance actions remain placeholders.
+- `src/screens/SettingsScreen.tsx` owns theme, language, haptics, delete confirmation, and the notification-permission retry UI. Several maintenance actions remain placeholders; it no longer exposes onboarding reset.
 - `src/services/notifications.ts` owns notification permission checks, the Android channel, reminder messages, scheduling, cancellation, and the settings retry path.
 - `src/screens/HomeScreen.tsx` is an older project-gallery home and is not registered in the active navigator.
 
@@ -336,6 +344,14 @@ registry Effect + current params
 
 `src/components/effects/EffectRenderer.tsx` is the main React Native render hotspot and is intentionally large. It maps effect IDs to SkSL implementations, compiles runtime effects, builds uniforms, and handles lightning mask images. Compilation or mapping failure falls back to the original image.
 
+### Preview image bounds
+
+`src/components/effects/imageBounds.ts` owns the contain-fit geometry used by `EffectRenderer`. It centers the source image inside the supplied canvas and returns only the actual photo rectangle; `EffectRenderer` applies both the source `ImageShader` and effect `Rect` within those bounds.
+
+- Do not replace those bounds with a full preview canvas. That would run procedural effects across empty letterbox space and changes visible results for portrait and landscape photos.
+- Keep the invalid-image fallback to the input container bounds so loading/error transitions remain renderable.
+- If preview sizing changes, update `imageBounds.ts`, its focused Jest test, and visually check portrait, landscape, square, thumbnail, and export rendering. The export canvas is aspect-ratio-sized, but it still shares `EffectRenderer`.
+
 Keep compilation inside memoized/cached paths. Do not compile a RuntimeEffect on every slider frame without a strong reason.
 
 ### Shader source truth
@@ -425,7 +441,10 @@ Primary files:
 - `src/localization/translations.ts` — `Language` union and `Translations` interface.
 - `src/localization/index.ts` — imports language objects, exports the catalog and display names.
 - `src/localization/languages/<code>.ts` — 30 language dictionaries.
-- `src/hooks/useTranslation.ts` — selects the active language and supplies fallback objects for `home`, `liquidMenu`, `mixes`, and `recents`.
+- `src/localization/uiDefaults.ts` — complete runtime UI fallback strings for every supported language.
+- `src/localization/effectParameterDefaults.ts` — supplemental labels for registry parameters missing from the raw language dictionaries.
+- `src/localization/formatters.ts` — placeholder interpolation and localized relative project timestamps.
+- `src/hooks/useTranslation.ts` — selects the active language, returns `locale`, overlays supplemental parameter labels, and supplies fallback objects for `home`, `liquidMenu`, `mixes`, `recents`, and `ui`.
 - `src/stores/appStore.ts` — persisted language selection and device-language mapping.
 - `src/screens/SettingsScreen.tsx` — language list and flag mapping.
 
@@ -438,12 +457,17 @@ Localization changes have duplicated contracts. Keep all of these aligned:
 - Imports, `translations`, and `languageNames` in `src/localization/index.ts`.
 - Device-language mapping in `appStore.ts`.
 - Flag assets and `flagImages` in `SettingsScreen.tsx`.
-- Every required translation object.
+- Every required raw language object, plus the same non-empty `uiDefaults` leaf keys for all 30 languages.
+- `effectParameterDefaults` when an effect parameter is intentionally supplied through the supplemental map instead of a raw dictionary.
+- `formatters.ts` and placeholders such as `{count}` whenever a new interpolated string or relative-time form is added.
+- `ios/PixelFX/InfoPlist.xcstrings` when changing photo-permission copy; it is separately localized and included in the iOS target.
 - Generated Swift `translations.json`.
 
-Use `useTranslation()` in UI. Do not add new hard-coded user-facing English unless the surrounding surface is intentionally not localized and the task explicitly accepts that limitation.
+Use `useTranslation()` in UI. The hardcoded-UI-string Jest guard scans components, navigation, screens, notifications, and project-gallery state; only product/platform names and compact technical labels have narrowly documented exceptions. Do not add new user-facing literals simply because a surrounding legacy surface still contains one.
 
-The fallback sections in `useTranslation.ts` are compatibility aids, not a reason to leave new language files incomplete. English is the semantic source; translations should preserve placeholders such as `{count}` and keep identical object shape.
+`useTranslation()` merges raw `effects.parameters` with `effectParameterDefaults`, then supplies `uiDefaults` when a raw `ui` section is absent. These fallback maps are compatibility aids, not a reason to leave new language coverage incomplete. English is the semantic source; translations must preserve placeholders and the required runtime shape.
+
+The Swift metadata exporter evaluates only `languages/*.ts` plus `languageNames`; it does not fold `uiDefaults.ts` or `effectParameterDefaults.ts` into the generated JSON. If a fallback-only string must appear in SwiftUI, add its raw catalog entry or update the native fallback deliberately instead of assuming metadata regeneration covers it.
 
 ### Themes and design tokens
 
@@ -465,16 +489,17 @@ Currently functional:
 - Language selection.
 - Haptic preference storage and haptic gating in Settings.
 - Delete-confirmation preference used by Recent Projects.
-- Reset onboarding.
-- Notification-permission status and a retry path when permission is denied.
+- Notification-permission status and a retry path when permission is not authorized.
 
 Currently placeholder or only partially wired:
 
 - Export all projects shows a not-yet-implemented alert.
-- Clear cache confirms and reports success but does not invoke real cache cleanup.
-- Delete all projects confirms and reports success but does not call `ProjectDatabase.clearAll()`.
+- Clear cache confirms and then shows a label-only alert; it does not invoke cache cleanup.
+- The English “Remove all recents” action confirms and then shows a label-only alert; it does not call `ProjectDatabase.clearAll()` or otherwise mutate saved projects.
 - Export format and quality preferences exist but are not shown/applied by `ExportScreen`.
 - Autosave and sound preferences exist in state but are not authoritative behavior switches.
+
+`useAppStore.resetOnboarding()` remains an exposed store action, but the root Settings screen has no reset-onboarding row. Do not describe that UI as a supported user feature without adding it back deliberately.
 
 Do not preserve placeholder alerts when implementing the real action. Connect them to the appropriate store/database/filesystem operation, reflect loading/error state, and add tests for the destructive confirmation boundary.
 
@@ -487,11 +512,11 @@ This is a local Notifee-based reminder, not a push-notification or server featur
 - Delay: exactly 21 days (`INACTIVITY_NOTIFICATION_DELAY_MS`).
 - Notification ID: `creative-inactivity-reminder`, so only one pending inactivity reminder is managed.
 - Android channel: `creative-reminders` with default importance.
-- Content: one random entry from 50 checked-in English re-engagement messages plus a fixed English title.
+- The title is the language-independent PixelFX brand. English schedules one random entry from the 50-message re-engagement set; other app languages schedule their localized `home.selectImageHint` as the single body option. The Android channel name comes from localized `settings.notifications`.
 - Permission: `AUTHORIZED` and `PROVISIONAL` count as granted.
 - Scheduling first cancels the existing ID, then exits without scheduling if permission is unavailable.
-- `AppNavigator` cancels the reminder on mount/foreground and schedules it when `AppState` becomes `background`.
-- Settings does not represent an application preference toggle. The row appears only when permission is denied; enabling it requests permission, and a second denial opens system notification settings.
+- `AppNavigator` cancels the reminder on mount/foreground and schedules it when `AppState` becomes `background`; it rebinds the listener when the current language or notification copy changes.
+- Settings does not represent an application preference toggle. The row appears when permission is not authorized; enabling it requests permission, and a failure opens system notification settings.
 - The app does not automatically prompt at launch. A previously authorized user is scheduled silently on background; a denied user must opt into the retry from Settings.
 
 When changing notifications:
@@ -499,7 +524,7 @@ When changing notifications:
 1. Keep lifecycle ownership centralized; avoid registering duplicate `AppState` listeners in screens.
 2. Preserve the fixed notification ID unless multiple concurrent reminders are an intentional product change.
 3. Update Android `POST_NOTIFICATIONS` permission and native Notifee setup together with JS behavior.
-4. Decide explicitly whether content should be localized. It is currently English-only even though the app supports 30 languages.
+4. Keep the localized channel/body split intact: the English message pool and non-English localized home-hint fallback are intentional current behavior. Make any broader notification-localization change explicitly and update its tests.
 5. Handle native promise failures so background transitions do not create unhandled rejections.
 6. Test authorized, provisional, denied, repeated backgrounding, foreground cancellation, settings retry, and exact timestamp behavior.
 7. Do not describe this as push messaging: there is no device token, remote provider, or backend.
@@ -626,7 +651,7 @@ Review the generated diff. The exporter evaluates sanitized TypeScript object li
 - Bundle ID: `com.corivo.app`.
 - `ios/Podfile` disables the React Native New Architecture by default with `RCT_NEW_ARCH_ENABLED=0`.
 - `ios/PixelFX/Info.plist` also sets `RCTNewArchEnabled` to false.
-- Photo read/add usage descriptions are present.
+- Photo read/add usage descriptions are present. Their localized values live in `ios/PixelFX/InfoPlist.xcstrings`, which must remain included in the PixelFX target.
 - URL schemes for Instagram, Instagram Stories, and Twitter are allow-listed for `canOpenURL` checks.
 - Local networking is allowed for development; arbitrary network loads are not.
 - `NSLocationWhenInUseUsageDescription` is empty even though the app has no active location feature. Do not add location access without a real product need and a valid explanation.
@@ -642,7 +667,7 @@ Review the generated diff. The exporter evaluates sanitized TypeScript object li
 - Hermes is enabled.
 - `newArchEnabled=true`, unlike iOS. Do not casually make cross-platform architecture flags match; verify every native dependency first.
 - Edge-to-edge is disabled.
-- Release builds currently use the debug keystore, enable ProGuard, and shrink resources. This is not production signing. Never publish it as a store release without a proper release signing configuration.
+- Release builds use `signingConfigs.release`, enable ProGuard, and shrink resources. The signing material is loaded only from the gitignored `android/keystore.properties`; source no longer provides a debug-keystore fallback. Verify a valid release configuration before publishing.
 - The manifest currently declares Internet permission. Photo access behavior is partly delegated to image-picker/CameraRoll libraries, while the custom `ImagePickerScreen` requests legacy `READ_EXTERNAL_STORAGE`; validate current Android API behavior when touching it.
 - The manifest declares `POST_NOTIFICATIONS`; runtime permission behavior is implemented by Notifee in `src/services/notifications.ts`.
 
@@ -738,7 +763,13 @@ yarn clean:ios
 yarn clean:android
 ```
 
-Release commands validate compilation only. Android signing is still debug signing as noted above.
+Release commands validate compilation only. Verify Android signing against the local configuration described below before treating an artifact as publishable.
+
+### Android release signing
+
+`android/app/build.gradle` reads the optional, gitignored `android/keystore.properties` file for release signing. When that file exists, all four values are required: `storeFile`, `storePassword`, `keyAlias`, and `keyPassword`; missing values fail the Gradle configuration.
+
+Do not commit the properties file, a keystore, passwords, or signing material. A release build has no source-controlled debug-key fallback, so verify the local signing setup and resulting artifact before any store delivery.
 
 ### Build and test the SwiftUI app
 
@@ -778,7 +809,14 @@ Simulator names are machine-specific. Substitute a destination returned by `-sho
 Tracked/baseline areas to look for:
 
 - `__tests__/App.test.tsx` — root render smoke test.
+- `src/components/effects/__tests__/imageBounds.test.ts` — contain-fit geometry and letterbox exclusion for `EffectRenderer`.
 - `src/domain/effects/__tests__/filters.test.ts` — ColorMatrix catalog and matrix invariants.
+- `src/localization/__tests__/branding.test.ts` — PixelFX module/display identity across React Native, Android, iOS, and user-facing surfaces.
+- `src/localization/__tests__/effectCoverage.test.ts` — every registered effect, parameter, and option has localized coverage.
+- `src/localization/__tests__/hardcodedUiStrings.test.ts` — prevents user-facing literals outside the documented exceptions.
+- `src/localization/__tests__/uiDefaults.test.ts` and `src/localization/__tests__/nativePermissions.test.ts` — runtime fallback shape/formatters and localized iOS photo permissions.
+- `src/localization/__tests__/recentsCopy.test.ts` and `src/localization/languages/__tests__/*` — copy and language-quality regressions.
+- `src/screens/__tests__/SettingsScreen.test.tsx` — notification-permission retry visibility, Settings preferences, and maintenance-action boundaries.
 - `src/services/__tests__/notifications.test.ts` — reminder message uniqueness, 21-day scheduling, denied-permission behavior, and settings fallback.
 - `Swift_version/PixelFX/Tests/PersistenceTests.swift` — native project count semantics, persistence, rename, duplicate, delete, and export.
 - `Swift_version/PixelFX/Tests/MigrationTests.swift` — effect-value decoding and legacy React Native migration.
@@ -836,12 +874,12 @@ For shader work, a useful verification matrix is:
 
 ### Localization changes
 
-1. Change the `Translations` contract.
-2. Update English semantics.
-3. Update all 30 languages and preserve placeholders.
-4. Update hook fallbacks only when backward compatibility needs them.
-5. Run localization tests/type checking.
-6. Regenerate Swift translations and review the diff.
+1. Change the raw `Translations` contract and any relevant fallback-map types.
+2. Update English semantics in the raw catalog and, when applicable, `uiDefaults` or `effectParameterDefaults`.
+3. Update all 30 languages and preserve placeholders in the raw catalog and every fallback map that owns the changed key.
+4. Use `interpolateTranslation`/`formatProjectTimestamp` for their respective patterns instead of adding bespoke string manipulation in a screen.
+5. Run the localization, hardcoded-UI-string, effect-coverage, and native-permission tests appropriate to the edit, plus type checking.
+6. Regenerate Swift translations and review the diff; remember fallback-only maps are not emitted by the exporter.
 
 ### Export changes
 
@@ -859,6 +897,13 @@ For shader work, a useful verification matrix is:
 3. Use one deterministic notification ID for replacement/cancellation semantics.
 4. Never prompt automatically as a side effect of a render.
 5. Verify on a real iOS device and an Android 13+ device/emulator; Jest cannot validate native scheduling or OS settings behavior.
+
+### Product-facing branding changes
+
+1. Update the PixelFX display/module identity together: `app.json`, `package.json`, `index.js`, Android resources/native entry, iOS Info.plist/AppDelegate/project/scheme, SwiftUI target, and user-facing localized copy.
+2. Regenerate native metadata if source translations changed and update iOS `InfoPlist.xcstrings` when a photo-permission string changes.
+3. Run the branding and native-permission Jest checks plus the affected platform build.
+4. Preserve legacy bundle IDs, storage prefixes, migration keys, and existing local-data directories unless an explicit compatibility migration is part of the change.
 
 ### React Native / Swift parity changes
 
@@ -942,13 +987,16 @@ For shader work, a useful verification matrix is:
 - Mixes uses only effects with `shaderPath` and currently ignores layer opacity/blend mode.
 - Standalone `.sksl` assets are not dynamically loaded; runtime shader sources are inline in TypeScript.
 - `ImageProcessor` and `FilterRenderer` are not in the active main render call path.
+- `EffectRenderer` must render within `calculateContainedImageBounds`; a full-canvas shader rect processes letterbox space and regresses fitted previews.
 - Export is fixed 1080 PNG despite format/quality preferences and newer 4K copy.
 - Several Settings maintenance actions are placeholders.
-- The notification switch is a denied-permission retry, not an on/off preference; authorized users do not see it and background scheduling remains active.
-- Notification title/body copy is currently English-only.
+- Root Settings no longer offers onboarding reset even though the store still exposes `resetOnboarding()`.
+- The notification switch is a not-authorized-permission retry, not an on/off preference; authorized users do not see it and background scheduling remains active.
+- Notification title is the PixelFX brand; the channel and non-English body fallback are localized, while the expanded 50-message pool is English-only.
 - Some theme-aware infrastructure coexists with hard-coded dark screens.
 - iOS disables the React Native New Architecture while Android enables it.
-- Android release configuration uses debug signing.
+- Android release signing depends on the local, gitignored `android/keystore.properties` file; do not assume an unsigned or unverified artifact is publishable.
+- PixelFX’s public identity coexists intentionally with Corivo bundle IDs, storage keys, and migration paths; do not rewrite those as incidental cleanup.
 - Effects and localization contracts are duplicated into generated Swift JSON.
 - React Native and Swift renderers use different graphics stacks and will drift unless parity is maintained intentionally.
 - `EffectRenderer.tsx` is a very large switch and a regression hotspot. Prefer contained helper extraction when touching multiple cases, but do not perform a broad rewrite as part of a small effect fix.
@@ -971,15 +1019,15 @@ For shader work, a useful verification matrix is:
 | Local notifications | `src/services/notifications.ts`, `src/services/__tests__/notifications.test.ts`, `src/navigation/AppNavigator.tsx` |
 | Photo selection | `src/screens/LiquidRadialHomeScreen.tsx`, `src/screens/ImagePickerScreen.tsx`, `src/utils/imageUtils.ts` |
 | Effect catalog | `src/domain/effects/types.ts`, `src/domain/effects/registry.ts` |
-| Active renderer | `src/components/effects/EffectRenderer.tsx`, `src/domain/shader-manager/ShaderManager.ts` |
+| Active renderer | `src/components/effects/EffectRenderer.tsx`, `src/components/effects/imageBounds.ts`, `src/domain/shader-manager/ShaderManager.ts` |
 | Alternate renderers | `src/components/effects/FilterRenderer.tsx`, `src/domain/image-processor/ImageProcessor.ts`, `src/domain/effects/filters.ts` |
 | Effect controls | `src/components/effects/EffectSlider.tsx`, `src/components/effects/EffectSegmentedControl.tsx` |
 | App state | `src/stores/appStore.ts`, `src/hooks/useTheme.ts`, `src/hooks/useTranslation.ts` |
 | Editor state | `src/stores/effectsStore.ts` |
 | Project state | `src/stores/projectGalleryStore.ts`, `src/database/ProjectDatabase.ts`, `src/types/index.ts` |
 | Design system | `src/constants/themes.ts`, `src/constants/colors.ts`, `src/constants/spacing.ts`, `src/constants/typography.ts` |
-| Localization | `src/localization/translations.ts`, `src/localization/index.ts`, `src/localization/languages/*.ts` |
-| RN iOS | `ios/Podfile`, `ios/PixelFX/AppDelegate.swift`, `ios/PixelFX/Info.plist`, `ios/PixelFX.xcodeproj/project.pbxproj` |
+| Localization | `src/localization/translations.ts`, `src/localization/index.ts`, `src/localization/languages/*.ts`, `src/localization/uiDefaults.ts`, `src/localization/effectParameterDefaults.ts`, `src/localization/formatters.ts` |
+| RN iOS | `ios/Podfile`, `ios/PixelFX/AppDelegate.swift`, `ios/PixelFX/Info.plist`, `ios/PixelFX/InfoPlist.xcstrings`, `ios/PixelFX.xcodeproj/project.pbxproj` |
 | RN Android | `android/build.gradle`, `android/app/build.gradle`, `android/gradle.properties`, `android/app/src/main/AndroidManifest.xml` |
 | Swift app | `Swift_version/PixelFX/App/PixelFXNativeApp.swift`, `Swift_version/PixelFX/App/AppModel.swift`, `Swift_version/PixelFX/Features/RootView.swift` |
 | Swift data/rendering | `Swift_version/PixelFX/Data/Models.swift`, `Swift_version/PixelFX/Data/EffectRegistry.swift`, `Swift_version/PixelFX/Data/RenderPipeline.swift`, `Swift_version/PixelFX/Data/StoresAndMigration.swift` |
@@ -993,6 +1041,7 @@ A change is complete when all applicable points are true:
 - The correct implementation(s) were changed and unrelated dirty work was preserved.
 - Data, route, effect, uniform, localization, and generated-metadata contracts remain aligned.
 - User-visible copy matches actual behavior.
+- Product-facing branding changes cover every public platform identity while preserving legacy storage and bundle contracts unless migration was explicitly included.
 - Targeted tests pass, plus lint/type checking for TypeScript changes.
 - Rendering changes were visually checked in all affected preview/export paths.
 - Native changes build for a valid simulator; migration/persistence changes run native tests.
